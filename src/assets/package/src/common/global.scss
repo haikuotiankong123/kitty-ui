@@ -1,0 +1,27 @@
+@import "./var.scss";
+
+
+$color-primary: $--color-primary;
+$color-success: $--color-success;
+$color-warning: $--color-warning;
+$color-info: $--color-info;
+$color-background-base:#f2f5fa !default;
+
+
+.bg-primary{
+    background: $--color-primary;
+}
+.bg-success{
+    background: $--color-success;
+}
+.bg-warning{
+    background: $--color-warning;
+}
+.bg-danger{
+    background: $--color-danger;
+}
+.bg-info{
+    background: $--color-info;
+}
+
+
