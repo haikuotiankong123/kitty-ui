@@ -127,6 +127,22 @@
             </el-form-item>
         </el-form>
         <div class="skill">
+            <!-- <el-tabs v-model="activeName" @tab-click="handleClick">
+                <el-tab-pane label="开场话术" name="first">开场话术</el-tab-pane>
+                <el-tab-pane label="问卷调查" name="second">
+                    <div class="question" v-for="(item,index) in answerList" :key="index" style="margin: 0 20px">
+                            <p class="title">{{index+1}}. {{item.title}}</p>
+                            <el-radio-group v-model="item.answerId" v-show="item.questionType === 0" size="mini">
+                                <el-radio v-for="(answerItem) in item.answerList" :key="answerItem.id"
+                                          @click.native.prevent="handleQuestionChange(index,answerItem.id) "
+                                          :label="answerItem.id" border>
+                                    {{answerItem.text}}
+                                </el-radio>
+                            </el-radio-group>
+                            <el-input v-show="item.questionType===1" v-model="item.answerText" placeholder="请输入文本"/>
+                        </div>
+                </el-tab-pane>
+            </el-tabs> -->
             <h5 class="h5">
                 <span class="active">开场话术</span>
                 <span>问卷调查</span>
@@ -153,6 +169,7 @@ export default {
             listTaskCustomer:[],
             tabArr: [{value:'未拨', type:1},{value:'已拨',type:2} ,{value:'待回拨',type:3} ],
             currentCusType: {value:'未拨', type:1},
+            answerList: [],
 
             activeName: 'first',
             /* customerDetail: {
@@ -201,7 +218,6 @@ export default {
     },
     mounted(){
         
-        
         this.loadData();
         
         window.vm.$on('onOutgoing', (data)=>{
@@ -215,7 +231,7 @@ export default {
         })
     },
     methods :{
-
+        handleClick(){},
         onSwitchTab(item){
             this.currentCusType = item;
             this.listTaskCustomerFunc()
@@ -239,15 +255,15 @@ export default {
         }).then(data!=null?data.callback:'')
         },
         submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-            if (valid) {
-            alert('submit!');
-            this.isEditable = true
-            } else {
-            console.log('error submit!!');
-            return false;
-            }
-        });
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    alert('submit!');
+                    this.isEditable = true
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         
         editCommandCallFunc(row){
@@ -315,6 +331,15 @@ export default {
             let customerId = data.id 
             // 无
             this.$api.editCommandCall({customerId})
+        },
+        // 问卷调查请求
+        listQuestionFunc(){
+            let questionGroupId = this.currentTask.project && this.currentTask.project.questionGroupId;
+            if(!questionGroupId) return '没有调查问卷模板'
+            // 无
+            this.$api.listQuestion({questionGroupId}).then((resp) => {
+                this.answerList = resp.data
+            })
         },
         listTaskCustomerFunc(){
             let taskId = this.currentTask.id;
@@ -472,6 +497,19 @@ export default {
           border-bottom: 1px solid $color-primary;
           font-weight: bold;
       }
+    }
+    .skill{
+        .el-tabs__item{
+            font-size: 16px;
+        }
+        /deep/ .el-tabs__item.is-active{
+            color: #484a4d;
+            font-weight: bold;
+        }
+        /deep/ .el-tabs__nav-wrap::after{
+            height: 1px;
+            border-bottom: 1px solid #E4E7ED;
+        }
     }
     .skill-content{
         margin: 20px;

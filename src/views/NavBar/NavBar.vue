@@ -11,12 +11,12 @@
 
         <!-- <div class="logo" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
         @click="$router.push('/')">
-            <img src="@/assets/images/logo.jpg" /><span class="logo-name">智行通 &emsp;</span>
+            <img src="@/assets/images/logo.jpg" /><span class="logo-name">智信通 &emsp;</span>
         </div> -->
         <div class="logo" :class="{'menu-bar-collapse-width':collapse,'menu-bar-width':!collapse, 'is': !isCallout}">
             <img v-if="isCallout" src="@/assets/images/logo.jpg" />
             <img v-else src="@/assets/images/logo.png" style="margin-top:15px;" />
-            <span class="logo-name">智行通 &emsp;</span>
+            <span class="logo-name">智信通 &emsp;</span>
         </div>
         
         <slot v-if="!collapse" name="header"></slot>
