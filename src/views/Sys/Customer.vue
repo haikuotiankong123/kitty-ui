@@ -25,19 +25,16 @@
                 </li>
             </ul>
             <div class="call-tabs-content">
-                <el-form :inline="true" size="small" :model="formSearch" class="form-search">
-                    <el-form-item>
-                        <el-input v-model="formSearch.phone" placeholder="请输入号码"></el-input>
-                    </el-form-item>
-                    <el-form-item>
+                <el-form :inline="true" size="mini" :model="formSearch" class="form-search">
+                    <el-form-item >
                         <el-date-picker
+                        style="width:200px"
                         v-model="formSearch.lastUpdateTime"
                         type="daterange"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
                         </el-date-picker>
-
                         <!-- <el-date-picker
                             style="width:125px;"
                             v-model="formSearch.lastUpdateTime"
@@ -46,7 +43,10 @@
                         </el-date-picker> -->
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="onSubmit" style="margin-left: 12px;" plain>查询</el-button>
+                        <el-input style="width:140px;" v-model="formSearch.phone" placeholder="请输入号码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit" style="" plain>查询</el-button>
                     </el-form-item>
                 </el-form>
                 <el-table
@@ -65,8 +65,8 @@
                     </template>
                     </el-table-column>
                     <el-table-column
-                    prop="name"
-                    label="姓名">
+                    prop="createTime"
+                    label="最后呼叫时间">
                     </el-table-column>
                 </el-table>
                 <el-pagination
@@ -87,27 +87,27 @@
                 class="query-container" size="small" :model="customerDetail" ref="customerDetail">
             
             <el-form-item label="客户姓名" prop="name">
-                <el-input :disabled="isEditable" v-model="customerDetail.name" class="e-input"> </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入客户姓名" v-model="customerDetail.name" class="e-input"> </el-input>
             </el-form-item>
             
             <el-form-item label="电话" prop="phone">
-                <el-input :disabled="isEditable" v-model="customerDetail.phone" class="e-input"> </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入电话" v-model="customerDetail.phone" class="e-input"> </el-input>
             </el-form-item>
             
             <el-form-item label="邮箱" prop="a3">
-                <el-input :disabled="isEditable" v-model="customerDetail.a3" class="e-input"> </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入邮箱" v-model="customerDetail.a3" class="e-input"> </el-input>
             </el-form-item>
 
             <el-form-item label="微信" prop="a5">
-                <el-input :disabled="isEditable" v-model="customerDetail.a5" class="e-input"> </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入微信" v-model="customerDetail.a5" class="e-input"> </el-input>
             </el-form-item>
             
             <el-form-item label="地址" prop="address">
-                <el-input :disabled="isEditable" v-model="customerDetail.address" class="e-input" > </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入地址" v-model="customerDetail.address" class="e-input" > </el-input>
             </el-form-item>
             
             <el-form-item label="QQ" prop="a4">
-                <el-input :disabled="isEditable" v-model="customerDetail.a4" class="e-input" > </el-input>
+                <el-input :disabled="isEditable" placeholder="请输入QQ" v-model="customerDetail.a4" class="e-input" > </el-input>
             </el-form-item>
 
             <el-form-item label="性别" prop="a9">
@@ -118,7 +118,7 @@
             </el-form-item>
 
             <el-form-item label="备注" prop="remark" class="block">
-            <el-input :disabled="isEditable" type="textarea" v-model="customerDetail.remark"></el-input>
+            <el-input :disabled="isEditable" type="textarea" placeholder="请输入备注" v-model="customerDetail.remark"></el-input>
             </el-form-item>
 
             <el-form-item label=" " class="block" style="margin:10px 0 0 0;">
@@ -127,10 +127,14 @@
             </el-form-item>
         </el-form>
         <div class="skill">
-            <!-- <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane label="开场话术" name="first">开场话术</el-tab-pane>
+            <el-tabs v-model="activeName" @tab-click="handleClick">
+                <el-tab-pane label="开场话术" name="first">
+                    <div class="skill-content">
+                        <p class="p">您好，老师，这是我们刚到的最新款，我来给您介绍……（正确）老师，您好，这款是今年最流行的欧式风格，装在家里显得您家中非常大气，这边请！我为您详细介绍。（正确）先生，您眼光真好，这款板材是我们公司最新研发的新款，非常适合您这样的高级人士，您不防感受一下；（正确）</p>
+                    </div>
+                </el-tab-pane>
                 <el-tab-pane label="问卷调查" name="second">
-                    <div class="question" v-for="(item,index) in answerList" :key="index" style="margin: 0 20px">
+                    <div class="question" v-for="(item,index) in listQuestion" :key="index" style="margin: 0 20px">
                             <p class="title">{{index+1}}. {{item.title}}</p>
                             <el-radio-group v-model="item.answerId" v-show="item.questionType === 0" size="mini">
                                 <el-radio v-for="(answerItem) in item.answerList" :key="answerItem.id"
@@ -142,14 +146,8 @@
                             <el-input v-show="item.questionType===1" v-model="item.answerText" placeholder="请输入文本"/>
                         </div>
                 </el-tab-pane>
-            </el-tabs> -->
-            <h5 class="h5">
-                <span class="active">开场话术</span>
-                <span>问卷调查</span>
-            </h5>
-            <div class="skill-content">
-                <p class="p">您好，老师，这是我们刚到的最新款，我来给您介绍……（正确）老师，您好，这款是今年最流行的欧式风格，装在家里显得您家中非常大气，这边请！我为您详细介绍。（正确）先生，您眼光真好，这款板材是我们公司最新研发的新款，非常适合您这样的高级人士，您不防感受一下；（正确）</p>
-            </div>
+            </el-tabs>
+
         </div>
     </div>
   </div>
@@ -159,6 +157,7 @@
 import {mapState, mapGetters} from "vuex"
 import KtTable from "@/views/Core/KtTable"
 import {listTask,listTaskCustomer} from "@/mock/modules/task.js"
+import {listQuestion} from "@/mock/modules/listQuestion.js"
 export default {
     data(){
         return {
@@ -169,7 +168,7 @@ export default {
             listTaskCustomer:[],
             tabArr: [{value:'未拨', type:1},{value:'已拨',type:2} ,{value:'待回拨',type:3} ],
             currentCusType: {value:'未拨', type:1},
-            answerList: [],
+            listQuestion: [],
 
             activeName: 'first',
             /* customerDetail: {
@@ -231,6 +230,9 @@ export default {
         })
     },
     methods :{
+        handleQuestionChange(inx, id) {
+            this.listQuestion[inx].answerId = id == this.listQuestion[inx].answerId ? 0 : id
+        },
         handleClick(){},
         onSwitchTab(item){
             this.currentCusType = item;
@@ -338,7 +340,7 @@ export default {
             if(!questionGroupId) return '没有调查问卷模板'
             // 无
             this.$api.listQuestion({questionGroupId}).then((resp) => {
-                this.answerList = resp.data
+                this.listQuestion = resp.data
             })
         },
         listTaskCustomerFunc(){
@@ -370,7 +372,10 @@ export default {
                 this.currentTask = this.listTasks[2]
                 this.taskName = this.currentTask.name
                 this.listTaskCustomerFunc()
+                this.listQuestion = listQuestion().data
+                console.log("问卷调查----->", this.listQuestion)
             }, 3000*Math.random())
+            
             
             // 无
             // this.$api.listTask().then((resp) => {})
@@ -398,7 +403,7 @@ export default {
     // 此处设置flex-shrink,flex-grow 是告诉flex, 既不要给我放大，也不要缩小，我要设置自己的宽度
     flex-shrink: 0;
     flex-grow: 0;
-    width: 555px;
+    width: 450px;
     margin-right: 10px;
     background: white;
     .select-task{
@@ -410,7 +415,7 @@ export default {
     }
     .call-tabs{
         position: relative;
-        height: calc(100% - 80px);
+        height: calc(100% - 150px);
         ul{
             background: $color-background-base;
             li{
@@ -473,7 +478,7 @@ export default {
     .form-search /deep/ .el-form-item{
       margin-right: 2px;
       .el-input__inner{
-        width: 200px;
+        //width: 190px;
       }
     }
   }
@@ -481,7 +486,8 @@ export default {
     flex: 1;
     min-width: 920px;
     background: white;
-    height: calc(100%-20px);
+    //height: calc(100%-20px);
+    overflow: auto;
     padding: 0 10px;
     .h5{
       font-size: 16px;
@@ -499,7 +505,7 @@ export default {
       }
     }
     .skill{
-        .el-tabs__item{
+        /deep/ .el-tabs__item{
             font-size: 16px;
         }
         /deep/ .el-tabs__item.is-active{
@@ -508,7 +514,12 @@ export default {
         }
         /deep/ .el-tabs__nav-wrap::after{
             height: 1px;
-            border-bottom: 1px solid #E4E7ED;
+        }
+        /deep/ .el-tabs__active-bar{
+            height: 1px;
+        }
+        .title{
+            padding: 20px 0 10px 0;
         }
     }
     .skill-content{

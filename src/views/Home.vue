@@ -8,7 +8,11 @@
                         <img src="@/assets/images/picture.jpg" />
                     </p><br/>
                     <p class="name">{{acountInfo.name}}</p><br/>
-                    <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p>
+                    <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p><br/>
+                    <p class="internal">坐席状态：
+                        <span v-if="acountInfo.isBusy == 1"> 示忙</span>
+                        <span v-if="acountInfo.isBusy == 2"> 空闲</span>
+                    </p>
                 </header>
             </template>
             <template slot="footer" v-if="routeInfo.name == '任务外呼'">

@@ -2,11 +2,69 @@
   <div class="headbar" 
     :class="{'position-collapse-left':collapse,'position-left':!collapse, 'is': !isCallout, 'is-white-nav':isCallout}" >
 
-    <div class="call-time" style="float:left" v-if="isCallout">
+    <div class="call-time" v-if="isCallout">
+        <div class="call">
+            <el-form :inline="true" size="mini" :class="{'call-header':true,'is-callout': isCallout}">
+                <el-form-item style="width: 150px;">
+                    <!-- <el-input v-if="callStatus" v-model="customerDetail.phone" placeholder="来话处理"></el-input> -->
+                    <el-autocomplete
+                        v-model="searchPhone"
+                        :fetch-suggestions="querySearchAsync"
+                        placeholder="请输入拨打号码"
+                        @select="handleSelect">
+                        <template slot-scope="{item}">
+                            <span>{{item.phone}}</span>
+                        </template>
+                    </el-autocomplete>
+                </el-form-item>
+                <el-form-item style="float:right;">
+                    <el-button type="success"
+                        :disabled="!searchPhone"
+                        icon="el-icon-phone" 
+                        size="small" 
+                        style="margin: 2px 2px 0 0;" 
+                        @click="editCommandCallFunc()" round>拨打</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
         <span><i class="el-icon-warning one"></i>离线 00:00:00</span>
         <span><i class="el-icon-phone two"></i>今天通话 00:00:00</span>
     </div>
     
+    <div class="call-tool" v-show="callStatus">
+        <div>
+            <p class="num">
+                <span class="call-num"><i @click="onTemp" class="el-icon-phone-outline"></i> 13602714551</span> 
+                <span class="call-duration">00:00:00</span>
+            </p>
+            <ul class="call-fun">
+                <li v-for="(i, index) in callHandle" :key="index" @click="handleChange(index)" :class="{'active':curToolIndex == index}">
+                    <el-button :icon="i.icon" size="mini" circle></el-button><br/><span>{{i.value}}</span>
+                </li>
+            </ul>
+            <div class="call-content">
+                <div v-show="curToolIndex==0">
+                    <h5>转接通话</h5>
+                    <p>
+                        <el-input size="mini" style="width:170px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
+                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone">转接</el-button>
+                    </p>
+                    <h5>坐席号</h5>
+                    <ul class="call-table">
+                        <li>admin--1010 <el-button size="mini" class="btn">转接</el-button></li>
+                        <li>esaycall--1020 <el-button size="mini" class="btn">转接</el-button></li>
+                    </ul>
+                </div>
+                <p v-show="curToolIndex==1">
+                    静音中
+                </p>
+                <p v-show="curToolIndex==2">
+                    挂机中
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- 导航菜单 -->
     <span class="navbar" v-if="!isCallout">
       <el-menu :default-active="activeIndex" class="el-menu-demo" 
@@ -34,59 +92,7 @@
             icon="el-icon-more"
             @click="editCallStatusFunc" round>示闲</el-button>
     </div>
-    <div class="call">
-      <el-form :inline="true" size="mini" :class="{'call-header':true,'is-callout': isCallout}">
-        <el-form-item style="width: 150px;">
-            <el-input v-if="callStatus" v-model="customerDetail.phone" placeholder="来话处理"></el-input>
-            <el-autocomplete
-                v-else
-                v-model="searchPhone"
-                :fetch-suggestions="querySearchAsync"
-                placeholder="请输入拨打号码"
-                @select="handleSelect">
-                <template slot-scope="{item}">
-                    <span>{{item.phone}}</span>
-                </template>
-            </el-autocomplete>
-        </el-form-item>
-        <el-form-item style="float:right;">
-            <el-button type="danger" 
-                v-if="callStatus"
-                icon="el-icon-phone" 
-                size="small" 
-                style="margin: 2px 2px 0 0;" 
-                @click="editCommandCallFunc()" round>挂机</el-button>
-            <el-button type="success" 
-                v-else
-                :disabled="!searchPhone"
-                icon="el-icon-phone" 
-                size="small" 
-                style="margin: 2px 2px 0 0;" 
-                @click="editCommandCallFunc()" round>拨打</el-button>
-        </el-form-item>
-      </el-form>
-      <div class="call-tool" v-show="openCall">
-        <div>
-          <ul class="call-fun">
-            <li><el-button type="primary" icon="el-icon-edit" size="mini" circle></el-button><br/><span>转接</span></li>
-            <li><el-button type="success" icon="el-icon-close-notification" size="mini" circle></el-button><br/><span>静音</span></li>
-            <li><el-button type="danger" icon="el-icon-message" size="mini" circle></el-button><br/><span>挂机</span></li>
-          </ul>
-          <div class="call-content">
-            <h5>转接通话</h5>
-            <p>
-              <el-input size="mini" style="width:170px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
-              <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone">转接</el-button>
-            </p>
-            <h5>坐席号</h5>
-            <ul class="call-table">
-              <li>admin--1010 <el-button size="mini" class="btn">转接</el-button></li>
-              <li>esaycall--1020 <el-button size="mini" class="btn">转接</el-button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+    
     <!-- 工具栏 -->
     <span :class="{'toolbar':true,'is-callout':isCallout}">
       <el-menu class="el-menu-demo" :text-color="themeColor" :active-text-color="themeColor" mode="horizontal">
@@ -129,7 +135,12 @@ export default {
             openCall: false,
             searchPhone: '',
             searchPhoneArr: [],
-            
+            callHandle: [
+                {type: 'primary', icon:'el-icon-edit', value:'转接'},
+                {type: '', icon:'el-icon-close-notification', value:'静音'},
+                {type: '', icon:'el-icon-message', value:'挂机'}
+            ],
+            curToolIndex: null
         }
     },
   
@@ -176,6 +187,13 @@ export default {
         
     },
     methods: {
+        // 临时
+        onTemp(){
+            this.$store.commit("setCallStatus", false)
+        },
+        handleChange(index){
+            this.curToolIndex = index;
+        },
         // 切换主题
         onThemeChange: function(themeColor) {
             this.$store.commit('setThemeColor', themeColor)
@@ -266,6 +284,8 @@ export default {
         // 拨打按钮
         async editCommandCallFunc() {
             this.openCall=!this.openCall
+            // 临时
+            this.$store.commit('setCallStatus', true)
 
             let id = this.searchPhoneArr.length ? this.searchPhoneArr[0].id : null;
             // 无
@@ -335,13 +355,17 @@ export default {
     &.is-white-nav{
         background: white;
         height:60px;
-        line-height: 60px;
         box-shadow:none;
     }
 }
 .call-time{
-    span{
-        display: inline-block;
+    display: flex;
+    align-items: center;
+    float:left;
+    height: 100%;
+    padding-left: 10px;
+    &>span{
+        //display: inline-block;
         padding: 0 10px;
         i{
             font-size: 17px;
@@ -453,7 +477,6 @@ export default {
 }
 .call{
   width: 240px;
-  float: right;
   line-height: 1.5;
   margin: 0 10px 0 0;
   position: relative;
@@ -477,45 +500,72 @@ export default {
       margin-right: 0;
     }
   }
-  .call-tool{
-    position: absolute;
-    top: 16px;
-    left: 0px;
+}
+
+
+.call-tool{
+    width: 235px;
+    position: fixed;
+    top: 15px;
+    left: 50%;
     z-index: 1;
     background: white;
-    padding-top: 30px;
-    box-shadow: 0px 5px 5px 0 #ccc;
+    box-shadow: 0px 0 5px 3px rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    overflow: hidden;
+    .num{
+        padding: 10px 8px;
+        background: $--color-success;
+        color: white;
+        .call-num{}
+        .call-duration{
+            float: right;
+        }
+    }
     .call-fun{
       display: flex;
       justify-content: space-around;
+      border-bottom: 1px solid $--border-color-lighter;
+      padding: 9px 0;
       li{
+          &.active{
+              .el-button{
+                  background: $--color-primary;
+                  border-color: $--color-primary;
+                  color: white;
+              }
+              & > span{
+                  color: $--color-primary;
+                  //font-weight: bold;
+              }
+          }
         //flex: 1;
         text-align: center;
+        cursor: pointer;
         span{
           color: #999;
           font-size: 12px;
         }
       }
     }
-  }
-  .call-content{
+}
+.call-content{
     padding: 0px 10px 10px 10px;
     h5{
-      padding: 8px 0;
+      padding: 10px 0 8px 0;
     }
-  }
-  .call-table{
-    border-top: 1px solid #ddd;
-    padding-top: 2px;
+}
+.call-table{
+    
     li{
-      padding-top: 3px;
+      padding: 3px 0;
       .el-button{
           float: right;
           padding: 3px 5px;
       }
     }
-  }
 }
+
 .call-header{
     /deep/ .el-input{
         margin-top: 5px;
