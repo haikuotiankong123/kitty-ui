@@ -285,7 +285,8 @@ export default {
         async editCommandCallFunc() {
             this.openCall=!this.openCall
             // 临时
-            this.$store.commit('setCallStatus', true)
+            let b = this.callStatus ? false : true ;
+            this.$store.commit('setCallStatus', b)
 
             let id = this.searchPhoneArr.length ? this.searchPhoneArr[0].id : null;
             // 无
