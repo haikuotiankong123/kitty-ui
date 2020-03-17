@@ -3,11 +3,11 @@ import axios from '../axios'
 /* 
  * 菜单管理模块
  */
-
+let modulePath = 'sysMenu'
  // 保存
 export const save = (data) => {
     return axios({
-        url: '/sysMenu/save',
+        url: '/'+modulePath+'/save',
         method: 'post',
         data
     })
@@ -15,7 +15,7 @@ export const save = (data) => {
 // 删除
 export const batchDelete = (data) => {
     return axios({
-        url: '/sysMenu/delete',
+        url: '/'+modulePath+'/delete',
         method: 'post',
         data
     })
@@ -23,7 +23,7 @@ export const batchDelete = (data) => {
 // 查找导航菜单树
 export const findNavTree = (params) => {
     return axios({
-        url: '/sysMenu/findNavTree',
+        url: '/'+modulePath+'/findNavTree',
         method: 'get',
         params
     })
@@ -31,7 +31,7 @@ export const findNavTree = (params) => {
 // 查找导航菜单树
 export const findMenuTree = () => {
     return axios({
-        url: '/sysMenu/findMenuTree',
+        url: '/'+modulePath+'/findMenuTree',
         method: 'get'
     })
 }
