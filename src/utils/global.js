@@ -6,8 +6,8 @@
 
 
 // 后台管理系统服务器地址
-//export const baseUrl = 'http://192.168.1.102:8088'
-export const baseUrl = 'http://m30a183279.qicp.vip/'    // 内网穿透
+export const baseUrl = 'http://localhost:8090'
+//export const baseUrl = 'http://m30a183279.qicp.vip/'    // 内网穿透
 // 系统数据备份还原服务器地址
 export const backupBaseUrl = 'http://localhost:8002'
 
