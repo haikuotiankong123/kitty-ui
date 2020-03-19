@@ -12,7 +12,7 @@ export function acountInfo(){
         departmentId: 89,
         empty: false,
         id: 82140,
-        internal: {account: "1010", busy: 1, companyId: 19, customerId: 0, did: "1010", empty: false, externalId: 8},
+        internal: {account: "1005", busy: 1, companyId: 19, customerId: 0, did: "1005", empty: false, externalId: 8, line_id:'IPPhone 17'},
         internalId: 1120,
         isBusy: 2,
         isCalling: 0,

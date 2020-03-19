@@ -19,7 +19,23 @@
             <span class="logo-name">智信通 &emsp;</span>
         </div>
         
-        <slot v-if="!collapse" name="header"></slot>
+        <!-- 坐席信息 -->
+        <template v-if="!collapse">
+        <header class="acount" v-if="routeInfo.name == '任务外呼'">
+            <p class="picture">
+                <img src="@/assets/images/picture.jpg" />
+            </p><br/>
+            <p class="name">{{acountInfo.name}}</p><br/>
+            <p><i class="el-icon-setting"></i> 个人信息</p><br/>
+            <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p><br/>
+            <p class="internal">坐席状态：
+                <span v-if="acountInfo.isBusy == 1"> 示忙</span>
+                <span v-if="acountInfo.isBusy == 2"> 空闲</span>
+            </p>
+        </header>
+        </template>
+        
+
         <!-- 导航菜单 -->
         <el-menu ref="navmenu" default-active="1" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
         :collapse="collapse" :collapse-transition="false" :unique-opened="true  "
@@ -27,7 +43,35 @@
         <!-- 导航菜单树组件，动态加载菜单 -->
         <menu-tree v-for="item in leftNavTree" :key="item.id" :menu="item"></menu-tree>
         </el-menu>
-        <slot v-if="!collapse" name="footer"></slot>
+        
+        <!-- 底部介绍 -->
+        <template v-if="!collapse">
+            <footer class="footer" v-if="routeInfo.name == '任务外呼'">
+                <p> 帮助 关于</p>
+                <p style="font-size: 12px; margin-top:10px;">广州智信通网络科技有限公司 <br/>版权所有</p>
+            </footer>
+        </template>
+        
+        <!-- 弹框 -->
+        <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+            <el-form :model="form">
+                
+                <el-form-item label="邮箱" :label-width="formLabelWidth">
+                    <el-input v-model="form.email" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号码" :label-width="formLabelWidth">
+                    <el-input v-model="form.mobile" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="转移至号码" :label-width="formLabelWidth">
+                    <el-input v-model="form.Fwd_Number" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <!-- <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            </div> -->
+        </el-dialog>
+
 	</div>
 </template>
 
@@ -37,7 +81,24 @@ import MenuTree from "@/components/MenuTree"
 export default {
     data(){
         return {
-        leftNavTree: []
+            leftNavTree: [],
+
+            dialogFormVisible: true,
+            form: {
+                email: '',
+                mobile: '',
+                Fwd_Number: '',
+
+                name: '',
+                region: '',
+                date1: '',
+                date2: '',
+                delivery: false,
+                type: [],
+                resource: '',
+                desc: ''
+            },
+            formLabelWidth: '120px'
         }
     },
     components:{
@@ -49,7 +110,9 @@ export default {
             themeColor: state=>state.app.themeColor,
             collapse: state=>state.app.collapse,
             navTree: state=>state.menu.navTree,
-            isCallout: state=>state.app.isCallout
+            isCallout: state=>state.app.isCallout,
+            routeInfo: state => state.app.routeInfo,
+            acountInfo: state => state.app.acountInfo
         }),
         mainTabs: {
             get () { return this.$store.state.tab.mainTabs },
@@ -126,14 +189,14 @@ export default {
 @import "@/assets/package/src/common/global.scss";
 
 .menu-bar-container {
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0;
     bottom: 0;
-    z-index: 1020;
+    //z-index: 1020;
     background: white;
     &>*{
-        width: 200px;
+        //width: 200px;
     }
     .shrink{
         position: absolute;

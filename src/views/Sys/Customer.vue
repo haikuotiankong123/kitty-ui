@@ -216,7 +216,18 @@ export default {
         })
     },
     mounted(){
+        let param = {
+            'extForm.mobile': '13602714553',
+            'extForm.line_id': 'IPPhone 17'
+        }
+        this.$api.assignExt(param)
+        setTimeout(()=>{
+            this.$api.QueryDevice()
+        },1000)
         
+        
+
+
         this.loadData();
         
         window.vm.$on('onOutgoing', (data)=>{

@@ -1,27 +1,7 @@
 <template>
   <div class="container">
         <!-- 导航菜单栏 -->
-        <nav-bar>
-            <template slot="header" v-if="routeInfo.name == '任务外呼'">
-                <header class="acount">
-                    <p class="picture">
-                        <img src="@/assets/images/picture.jpg" />
-                    </p><br/>
-                    <p class="name">{{acountInfo.name}}</p><br/>
-                    <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p><br/>
-                    <p class="internal">坐席状态：
-                        <span v-if="acountInfo.isBusy == 1"> 示忙</span>
-                        <span v-if="acountInfo.isBusy == 2"> 空闲</span>
-                    </p>
-                </header>
-            </template>
-            <template slot="footer" v-if="routeInfo.name == '任务外呼'">
-                <footer class="footer">
-                    <p> 帮助 关于</p>
-                    <p style="font-size: 12px; margin-top:10px;">广州智信通网络科技有限公司 <br/>版权所有</p>
-                </footer>
-            </template>
-        </nav-bar>
+        <nav-bar></nav-bar>
         <!-- 头部区域 -->
         <head-bar></head-bar>
         <!-- 主内容区域 -->
@@ -48,7 +28,6 @@ export default {
     },
     computed: {
         ...mapState({
-            routeInfo: state => state.app.routeInfo,
             acountInfo: state => state.app.acountInfo
         })
     },
@@ -67,7 +46,7 @@ export default {
         
         let websocketUrl = this.global.websocketUrl;
         let token = Cookies.get("token")
-        
+        console.log('ws地址------>', websocketUrl+token)
         let external
         window.ws = ws(websocketUrl+token, (resp)=>{
         
@@ -111,7 +90,7 @@ export default {
         });
 
         // 运行websocket
-        //window.ws.open();
+        window.ws.open();
     },
     
 };

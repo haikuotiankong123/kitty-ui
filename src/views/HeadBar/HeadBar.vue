@@ -23,7 +23,7 @@
                         icon="el-icon-phone" 
                         size="small" 
                         style="margin: 2px 2px 0 0;" 
-                        @click="editCommandCallFunc()" round>拨打</el-button>
+                        @click="directCall()" round>拨打</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -279,6 +279,13 @@ export default {
             
             this.$store.commit("setCustomerDetail", item)
             this.searchPhone = item.phone
+        },
+        // 直接拨打
+        directCall(){
+            let ext_id = this.acountInfo.internal.account
+            let ext_id_2 = this.searchPhone
+            let params = {ext_id,ext_id_2}
+            this.$api.ConnectExt(params)
         },
 
         // 拨打按钮
