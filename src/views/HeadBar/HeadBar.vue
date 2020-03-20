@@ -10,7 +10,7 @@
                     <el-autocomplete
                         v-model="searchPhone"
                         :fetch-suggestions="querySearchAsync"
-                        placeholder="请输入拨打号码"
+                        placeholder="请输入坐席号或手机号"
                         @select="handleSelect">
                         <template slot-scope="{item}">
                             <span>{{item.phone}}</span>
@@ -80,17 +80,17 @@
 
     <div class="" style="float:right; padding-right:15px;">
         <el-button  
-            v-if="acountInfo.isBusy === 1"
+            v-if="assignExt.noDisturb === 'yes'"
             type="warning" 
             size="small" 
             icon="el-icon-remove-outline" 
-            @click="editCallStatusFunc" round>示忙</el-button>
+            @click="assignExtFunc" round>取消免打扰</el-button>
         <el-button 
-            v-if="acountInfo.isBusy === 2"
+            v-else
             type="danger" 
             size="small" 
             icon="el-icon-more"
-            @click="editCallStatusFunc" round>示闲</el-button>
+            @click="assignExtFunc" round>开启免打扰</el-button>
     </div>
     
     <!-- 工具栏 -->
@@ -158,6 +158,7 @@ export default {
             themeColor: state=>state.app.themeColor,
             collapse: state=>state.app.collapse,
             navTree: state=>state.menu.navTree,
+            assignExt: state=>state.assign.assignExt,
             
             customerDetail: state=>state.app.customerDetail,
             callStatus: state=>state.app.callStatus,
@@ -177,13 +178,13 @@ export default {
         this.sysName = "Kitty Platform"
         var user = sessionStorage.getItem("user")
         if (user) {
-        this.user.name = user
-        this.user.avatar = require("@/assets/user.png")
+            this.user.name = user
+            this.user.avatar = require("@/assets/user.png")
         }
 
-        /* setTimeout(()=>{
-            this.$store.commit('setThemeColor', this.themeColor)
-        },1000) */
+        setTimeout(()=>{
+            console.log('分机---》', this.assignExt) 
+        },1000)
         
     },
     methods: {
@@ -230,11 +231,18 @@ export default {
             api.editHangup({uuid});
             //this.hangupResetData();
         },
-        editCallStatusFunc(){
-            let status = this.acountInfo.isBusy = this.acountInfo.isBusy == 1 ? 2 :1;
-            // 无
-            return;
-            this.$api.editCallStatus({status})
+        assignExtFunc(){
+            let param =  this.assignExt
+            let val = param.noDisturb
+            param.noDisturb = val  == 'yes' ? 'no' : 'yes';
+            console.log('参数---->', param)
+            this.$api.assignExt(param).then((resp)=>{
+                if(resp.success){
+                    this.$store.commit('setAssignExt',resp.data)
+                    this.$message(resp.message);
+                    console.log('分机编辑--->', this.assignExt)
+                }
+            })
         },
         // 获取客户列表
         querySearchAsync(phone, cb){
@@ -283,7 +291,7 @@ export default {
         // 直接拨打
         directCall(){
             //let ext_id = this.acountInfo.internal.account
-            let ext_id = '1003'
+            let ext_id = this.assignExt.id
             let num = this.searchPhone
             let prop = {}
             if(/^1[3456789]\d{9}$/.test(num)){

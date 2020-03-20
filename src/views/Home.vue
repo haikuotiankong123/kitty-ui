@@ -37,6 +37,10 @@ export default {
         MainContent
     },
     created(){
+        
+
+
+
         //console.log('开始路由---->', this.$route)
         this.$store.commit('setRouteInfo', this.$route)
         
