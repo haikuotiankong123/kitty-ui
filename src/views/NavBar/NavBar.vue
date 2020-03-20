@@ -21,20 +21,19 @@
         
         <!-- 坐席信息 -->
         <template v-if="!collapse">
-        <header class="acount" v-if="routeInfo.name == '任务外呼'">
-            <p class="picture">
-                <img src="@/assets/images/picture.jpg" />
-            </p><br/>
-            <p class="name">{{acountInfo.name}}</p><br/>
-            <p><i class="el-icon-setting"></i> 个人信息</p><br/>
-            <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p><br/>
-            <p class="internal">坐席状态：
-                <span v-if="acountInfo.isBusy == 1"> 示忙</span>
-                <span v-if="acountInfo.isBusy == 2"> 空闲</span>
-            </p>
-        </header>
+            <header class="acount" v-if="routeInfo.name == '任务外呼'">
+                <div class="picture">
+                    <img src="@/assets/images/picture.jpg" />
+                </div><br/>
+                <p class="name">{{acountInfo.name}}</p><br/>
+                <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> 个人信息</p><br/>
+                <p class="internal">坐席号：{{acountInfo.internal && acountInfo.internal.account}}</p><br/>
+                <p class="internal">坐席状态：
+                    <span v-if="acountInfo.isBusy == 1"> 示忙</span>
+                    <span v-if="acountInfo.isBusy == 2"> 空闲</span>
+                </p>
+            </header>
         </template>
-        
 
         <!-- 导航菜单 -->
         <el-menu ref="navmenu" default-active="1" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
@@ -53,22 +52,25 @@
         </template>
         
         <!-- 弹框 -->
-        <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-                
+        <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
+            <el-form :model="extForm" class="ext-form">
                 <el-form-item label="邮箱" :label-width="formLabelWidth">
-                    <el-input v-model="form.email" autocomplete="off"></el-input>
+                    <el-input v-model="extForm.email" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="手机号码" :label-width="formLabelWidth">
-                    <el-input v-model="form.mobile" autocomplete="off"></el-input>
+                    <el-input v-model="extForm.mobile" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="转移至号码" :label-width="formLabelWidth">
-                    <el-input v-model="form.Fwd_Number" autocomplete="off"></el-input>
+                    <el-input v-model="extForm.fwdNumber" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item :label-width="formLabelWidth">
+                    <el-button @click="dialogFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="subExtForm">确 定</el-button>
                 </el-form-item>
             </el-form>
             <!-- <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+                <el-button type="primary" @click="subExtForm">确 定</el-button>
             </div> -->
         </el-dialog>
 
@@ -83,22 +85,9 @@ export default {
         return {
             leftNavTree: [],
 
-            dialogFormVisible: true,
-            form: {
-                email: '',
-                mobile: '',
-                Fwd_Number: '',
-
-                name: '',
-                region: '',
-                date1: '',
-                date2: '',
-                delivery: false,
-                type: [],
-                resource: '',
-                desc: ''
-            },
-            formLabelWidth: '120px'
+            dialogFormVisible: false,
+            extForm: {},
+            formLabelWidth: '90px'
         }
     },
     components:{
@@ -127,9 +116,8 @@ export default {
     watch: {
         //$route: 'handleRoute'
         $route(){
-        this.handleRoute(this.$route);
-        this.handleLeftNav();
-        
+            this.handleRoute(this.$route);
+            this.handleLeftNav();
         }
     },
     created () {
@@ -137,6 +125,8 @@ export default {
     },
     mounted(){
         
+        this.assignExtFun({'lineid': 'IPPhone 17'})
+
         this.handleLeftNav();
         
     },
@@ -158,6 +148,24 @@ export default {
         handleselect(a, b) {
             console.log('handleselect')
         },
+        assignExtFun(obj){
+            let extForm = obj || this.extForm
+            let param = {}
+            for(let key in extForm){
+                param['extForm.'+key] = extForm[key]
+            }
+            this.$api.assignExt(param).then((resp)=>{
+                if(resp.success){
+                    this.extForm = resp.data
+                }
+            })
+        },
+        // 提交分机
+        subExtForm(){
+            this.assignExtFun()
+            this.dialogFormVisible = false;
+        },
+
         // 路由操作处理
         handleRoute (route) {
             // tab标签页选中, 如果不存在则先添加
@@ -188,6 +196,11 @@ export default {
 <style scoped lang="scss">
 @import "@/assets/package/src/common/global.scss";
 
+.ext-form{
+    /deep/ .el-form-item__label{
+        text-align: left;
+    }
+}
 .menu-bar-container {
     position: absolute;
     top: 0px;
@@ -228,6 +241,7 @@ export default {
         text-align: center;
         p{
             display: inline-block;
+            padding: 5px 0;
             &.name{
                 font-size: 16px;
                 font-weight: bold;
@@ -240,6 +254,7 @@ export default {
             border-radius: 50%;
             border: 4px solid #E4E7ED;
             overflow: hidden;
+            display: inline-block;
             img{
                 width: 100%;
                 height: 100%;

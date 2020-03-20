@@ -55,6 +55,7 @@ router.beforeEach((to, from, next) => {
     // 如果是访问登录界面，如果用户会话信息存在，代表已登录过，跳转到主页
     if(token) {
       next({ path: '/' })
+      //next({path: '/sys/customer'})
     } else {
       next()
     }

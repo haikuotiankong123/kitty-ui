@@ -282,10 +282,21 @@ export default {
         },
         // 直接拨打
         directCall(){
-            let ext_id = this.acountInfo.internal.account
-            let ext_id_2 = this.searchPhone
-            let params = {ext_id,ext_id_2}
-            this.$api.ConnectExt(params)
+            //let ext_id = this.acountInfo.internal.account
+            let ext_id = '1003'
+            let num = this.searchPhone
+            let prop = {}
+            if(/^1[3456789]\d{9}$/.test(num)){
+                prop = {outer_to: num}
+            }else{  
+                prop = {ext_id_2:num}
+            }
+            let params = {ext_id,...prop}
+            this.$api.ConnectExt(params).then((resp) => {
+
+            }).catch((err) => {
+                
+            })
         },
 
         // 拨打按钮

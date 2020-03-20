@@ -5,6 +5,10 @@ let api = {}
 
 api.QueryDevice = (data) => post('QueryDevice', data)
 
+/**
+ * 配置分机
+ * ext_id 必填
+ */
 api.assignExt = (data) => post('assignExt', data)
 
 /**
