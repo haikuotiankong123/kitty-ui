@@ -25,23 +25,34 @@
                         style="margin: 2px 2px 0 0;" 
                         @click="directCall()" round>拨打</el-button>
                 </el-form-item>
+                <el-button @click="tempCall">测试转接</el-button>
             </el-form>
         </div>
         <span><i class="el-icon-warning one"></i>离线 00:00:00</span>
         <span><i class="el-icon-phone two"></i>今天通话 00:00:00</span>
     </div>
     
-    <div class="call-tool" v-show="callStatus">
+    <div class="call-tool" v-show="callState.type">
         <div>
             <p class="num">
-                <span class="call-num"><i @click="onTemp" class="el-icon-phone-outline"></i> 13602714551</span> 
-                <span class="call-duration">00:00:00</span>
+                <span class="call-num">
+                    <i @click="onTemp" class="el-icon-phone-outline"></i> 
+                    <template v-if="callState.isVisitor">
+                        <i>{{callState.visitor && callState.visitor.from}}</i>
+                    </template>
+                    <template v-else>
+                        <i>{{callState.outer && callState.outer.to}}</i>
+                    </template>
+                </span> 
+                <span class="call-duration">{{countTime}}</span>
             </p>
             <ul class="call-fun">
                 <li v-for="(i, index) in callHandle" :key="index" @click="handleChange(index)" :class="{'active':curToolIndex == index}">
                     <el-button :icon="i.icon" size="mini" circle></el-button><br/><span>{{i.value}}</span>
                 </li>
             </ul>
+            <div>显示流程步骤</div>
+            <div>从哪里来------>转接到哪里----->分机号</div>
             <div class="call-content">
                 <div v-show="curToolIndex==0">
                     <h5>转接通话</h5>
@@ -140,10 +151,11 @@ export default {
                 {type: '', icon:'el-icon-close-notification', value:'静音'},
                 {type: '', icon:'el-icon-message', value:'挂机'}
             ],
-            curToolIndex: null
+            curToolIndex: null,
+            countTime: '',
+            timer: null
         }
     },
-  
     watch: {
         $route(data){
             
@@ -151,6 +163,13 @@ export default {
         navTree(){
             // 组件加载和导航数据加载并发的，所以监控导航数据
             this.loadData()
+        },
+        extState(data){
+            if(data.type == 'EXT_IDLE') this.closeTimer()
+        },
+        callState(data){
+            
+            if(data.type) this.countTimeFunc()
         }
     },
     computed:{
@@ -158,7 +177,9 @@ export default {
             themeColor: state=>state.app.themeColor,
             collapse: state=>state.app.collapse,
             navTree: state=>state.menu.navTree,
-            assignExt: state=>state.assign.assignExt,
+            assignExt: state=>state.ext.assignExt,
+            callState: state => state.ext.callState,
+            extState: state => state.ext.extState,
             
             customerDetail: state=>state.app.customerDetail,
             callStatus: state=>state.app.callStatus,
@@ -188,6 +209,29 @@ export default {
         
     },
     methods: {
+        tempCall(){
+            this.$api.connectExt({visitor_id:'123', ext_id:'1010'})
+        },
+        closeTimer(){
+            clearInterval(this.timer)
+            this.countTime = '00:00:00'
+        },
+        countTimeFunc(){
+            this.closeTimer()
+            let  total=0;
+            this.timer = setInterval(()=>{
+                let s, m, h;
+                total++;
+                console.log('统计时间---->', total)
+                s = parseInt(total%60);
+                m = parseInt((total/60)%60);
+                h = parseInt(total/3600)
+                s = s < 10 ? '0'+s : s;
+                m = m < 10 ? '0'+m : m;
+                h = h < 10 ? '0'+h : h;
+                this.countTime = h +':'+ m +':'+ s 
+            },1000)
+        },
         // 临时
         onTemp(){
             this.$store.commit("setCallStatus", false)

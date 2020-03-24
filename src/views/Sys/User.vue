@@ -45,7 +45,7 @@
 
 	<!--新增编辑界面-->
 	<el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-		<el-form :model="dataForm" label-width="80px" :rules="dataFormRules" ref="dataForm" :size="size"
+		<el-form :model="dataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="dataForm" :size="size"
 			label-position="right">
 			<el-form-item label="ID" prop="id" v-if="false">
 				<el-input v-model="dataForm.id" :disabled="true" auto-complete="off"></el-input>
@@ -53,6 +53,18 @@
 			<el-form-item label="用户名" prop="name">
 				<el-input v-model="dataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
+			
+			<el-form-item label="分机id" prop="extId">
+				<el-select v-model="dataForm.extId" placeholder="请选择">
+					<el-option
+						v-for="i in extAll"
+						:key="i.id"
+						:label="i.id"
+						:value="i.id">
+					</el-option>
+				</el-select>
+			</el-form-item>
+			
 			<el-form-item label="密码" prop="password">
 				<el-input v-model="dataForm.password" type="password" auto-complete="off"></el-input>
 			</el-form-item>
@@ -137,7 +149,8 @@ export default {
 				label: 'name',
 				children: 'children'
 			},
-			roles: []
+			roles: [],
+			extAll: []
 		}
 	},
 	methods: {
@@ -250,6 +263,7 @@ export default {
 			this.columns = [
 				{prop:"id", label:"ID", minWidth:50},
 				{prop:"name", label:"用户名", minWidth:120},
+				{prop:"extId", label:"分机id", minWidth:120},
 				{prop:"deptName", label:"机构", minWidth:120},
 				{prop:"roleNames", label:"角色", minWidth:100},
 				{prop:"email", label:"邮箱", minWidth:120},
@@ -264,6 +278,12 @@ export default {
       	}
 	},
 	mounted() {
+		this.$api.queryDevice().then((resp)=>{
+			if(resp.success){
+				this.extAll = resp.data.ext
+			}
+		})
+
 		this.findDeptTree()
 		this.initColumns()
 	}

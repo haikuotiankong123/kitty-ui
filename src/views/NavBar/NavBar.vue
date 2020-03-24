@@ -29,12 +29,14 @@
                 <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> 个人信息</p><br/>
                 <p class="internal">坐席号：{{assignExt.id}}</p><br/>
                 <p class="internal">坐席状态：
-                    <span v-if="queryExt.state == 'ready'">空闲</span>
-                    <span v-if="queryExt.state == 'active'">通话中</span>
-                    <span v-if="queryExt.state == 'progress'">拨号过程中</span>
-                    <span v-if="queryExt.state == 'offline'">分机离线</span>
-                    <span v-if="queryExt.state == 'offhook'">模拟分机听催挂音时的状态</span>
-                    
+                    <template v-if="extState.type">{{extState.name}}</template>
+                    <template v-else>
+                        <span v-if="queryExt.state == 'ready'">空闲</span>
+                        <span v-if="queryExt.state == 'active'">通话中</span>
+                        <span v-if="queryExt.state == 'progress'">拨号过程中</span>
+                        <span v-if="queryExt.state == 'offline'">分机离线</span>
+                        <span v-if="queryExt.state == 'offhook'">模拟分机听催挂音时的状态</span>
+                    </template>
                 </p>
             </header>
         </template>
@@ -79,6 +81,12 @@
                 <el-form-item label="邮箱" :label-width="formLabelWidth">
                     <el-input v-model="assignExt.email" autocomplete="off" placeholder="请输入邮箱"></el-input>
                 </el-form-item>
+                <el-form-item label="是否保存数据库" :label-width="formLabelWidth" >
+                    <el-radio-group v-model="assignExt.is_save">
+                        <el-radio label="true">是</el-radio>
+                        <el-radio label="false">否</el-radio>
+                    </el-radio-group>
+                </el-form-item>
                 <el-form-item label="是否录音" :label-width="formLabelWidth" >
                     <el-radio-group v-model="assignExt.record">
                         <el-radio label="on">是</el-radio>
@@ -120,7 +128,7 @@ export default {
 
             dialogFormVisible: false,
             extForm: {},
-            formLabelWidth: '90px'
+            formLabelWidth: '120px'
         }
     },
     components:{
@@ -136,8 +144,9 @@ export default {
             routeInfo: state => state.app.routeInfo,
             acountInfo: state => state.app.acountInfo,
 
-            assignExt: state => state.assign.assignExt,
-            queryExt: state => state.assign.queryExt
+            assignExt: state => state.ext.assignExt,
+            queryExt: state => state.ext.queryExt,
+            extState: state => state.ext.extState
         }),
         mainTabs: {
             get () { return this.$store.state.tab.mainTabs },
@@ -160,10 +169,9 @@ export default {
         this.handleRoute(this.$route)
     },
     mounted(){
-        this.loadData('IPPhone 17')
+        this.loadData('IPPhone 16')
 
         this.handleLeftNav();
-        
     },
     methods: {
         async loadData(val){

@@ -8,16 +8,16 @@ import tab from './modules/tab'
 import iframe from './modules/iframe'
 import user from './modules/user'
 import menu from './modules/menu'
-import assign from './modules/assign'
+import ext from './modules/ext'
 
 const store = new vuex.Store({
     modules: {
-        app: app,
-        tab: tab,
-        iframe: iframe,
-        user: user,
-        menu: menu,
-        assign: assign
+        app,
+        tab,
+        iframe,
+        user,
+        menu,
+        ext
     }
 })
 
