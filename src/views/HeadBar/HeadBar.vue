@@ -25,13 +25,14 @@
                         style="margin: 2px 2px 0 0;" 
                         @click="directCall()" round>拨打</el-button>
                 </el-form-item>
-                <el-button @click="tempCall">测试转接</el-button>
+                <!-- <el-button @click="tempCall">测试转接</el-button> -->
             </el-form>
         </div>
         <span><i class="el-icon-warning one"></i>离线 00:00:00</span>
         <span><i class="el-icon-phone two"></i>今天通话 00:00:00</span>
     </div>
     
+    <!--  -->
     <div class="call-tool" v-show="callState.type">
         <div>
             <p class="num">
@@ -58,12 +59,14 @@
                     <h5>转接通话</h5>
                     <p>
                         <el-input size="mini" style="width:170px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
-                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone">转接</el-button>
+                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransfer()">转接</el-button>
                     </p>
                     <h5>坐席号</h5>
                     <ul class="call-table">
-                        <li>admin--1010 <el-button size="mini" class="btn">转接</el-button></li>
-                        <li>esaycall--1020 <el-button size="mini" class="btn">转接</el-button></li>
+                        <li v-for="i in allExt" :key="i.id">
+                            {{i.id}}
+                            <el-button size="mini" class="btn" @click="onTransfer(i.id)">转接</el-button>
+                        </li>
                     </ul>
                 </div>
                 <p v-show="curToolIndex==1">
@@ -144,7 +147,7 @@ export default {
             newNavTree: [],
             loading: false,
             openCall: false,
-            searchPhone: '',
+            searchPhone: '13602714551',
             searchPhoneArr: [],
             callHandle: [
                 {type: 'primary', icon:'el-icon-edit', value:'转接'},
@@ -180,6 +183,7 @@ export default {
             assignExt: state=>state.ext.assignExt,
             callState: state => state.ext.callState,
             extState: state => state.ext.extState,
+            allExt: state => state.ext.allExt,
             
             customerDetail: state=>state.app.customerDetail,
             callStatus: state=>state.app.callStatus,
@@ -222,7 +226,6 @@ export default {
             this.timer = setInterval(()=>{
                 let s, m, h;
                 total++;
-                console.log('统计时间---->', total)
                 s = parseInt(total%60);
                 m = parseInt((total/60)%60);
                 h = parseInt(total/3600)
@@ -253,11 +256,59 @@ export default {
             })
             
         },
+        // 来电转接
+        visitorFunc(num){
+            let visitor = this.callState.visitor
+            console.log('来电转接--->',visitor)
+            if(!num && !visitor.recId){
+                console.log("请输入号码或来电id有误")
+                return
+            }
+            let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
+            let param = {
+                visitor_id: visitor.recId,
+                ...oAttrNum
+            }
+            this.$api.connectVisitor(param).then(resp => {
+                if(resp.success){
+                    this.$message("操作成功")
+                }
+            })
+        },
+        // 去电转接
+        outerFunc(num){
+            let outer = this.callState.outer
+            if(!num && !outer.recId){
+                console.log("请输入号码或去电id有误")
+                return
+            }
+            let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
+            let param = {
+                outer_id: outer.recId,
+                ...oAttrNum
+            }
+            
+            this.$api.connectOuter(param).then(resp => {
+                if(resp.success){
+                    this.$message("操作成功")
+                }
+            })
+        },
         // 转接
-        onShift(){
-            //无
-            return
-            if(this.shiftPhone){
+        onTransfer(extId){
+            return 
+            let isVisitor = this.callState.isVisitor
+            let num = extId || this.shiftPhone
+
+            if(isVisitor){
+                
+                this.visitorFunc(num)
+            }else{
+                
+                this.outerFunc(num)
+            }
+            
+            /* if(this.shiftPhone){
                 let params = {
                     toPhone: this.shiftPhone,
                     uuid: this.uuid
@@ -265,8 +316,9 @@ export default {
                 this.$api.editCallDeflect(params)
             }else{
                 this.$message('输入转接号码')
-            }
+            } */
         },
+        
         // 页面挂机
         onHook(){
             // 无
@@ -627,9 +679,10 @@ export default {
     }
 }
 .call-table{
-    
+    max-height: 150px;
+    overflow: auto;
     li{
-      padding: 3px 0;
+      padding: 5px 0;
       .el-button{
           float: right;
           padding: 3px 5px;

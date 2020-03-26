@@ -27,8 +27,8 @@
                 </div><br/>
                 <p class="name">{{acountInfo.name}}</p><br/>
                 <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> 个人信息</p><br/>
-                <p class="internal">坐席号：{{assignExt.id}}</p><br/>
-                <p class="internal">坐席状态：
+                <p class="internal">坐席号:{{assignExt.id}}</p>&ensp;
+                <p class="internal">状态:
                     <template v-if="extState.type">{{extState.name}}</template>
                     <template v-else>
                         <span v-if="queryExt.state == 'ready'">空闲</span>

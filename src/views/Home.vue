@@ -39,6 +39,7 @@ export default {
         MainContent
     },
     created(){
+        this.loadData();
 
         //console.log('开始路由---->', this.$route)
         this.$store.commit('setRouteInfo', this.$route)
@@ -58,7 +59,6 @@ export default {
             let json = JSON.parse(resp);
             let type = json.type
 
-
             // 分机状态：上线，下线，空闲，忙
             let aExtState = [
                 {type:'EXT_ONLINE', name: '在线'},
@@ -69,7 +69,7 @@ export default {
             let oState = aExtState.find(i => i.type == type)
             if(oState){
                 this.$store.commit('setExtState', {...oState,...json})
-                console.log('分机状态------>', this.extState)
+                //console.log('分机状态------>', this.extState)
                 if(type == "EXT_IDLE") this.$store.commit('setCallState', {})
                 return
             }
@@ -89,7 +89,7 @@ export default {
                 console.log('呼叫状态------>', this.callState)
                 return
             }
-
+            
             // 发起呼叫
             if(json.type === 'offering'){
                 external = json.fromPhone
@@ -128,7 +128,21 @@ export default {
         // 运行websocket
         window.ws.open();
     },
-    
+    methods: {
+        queryDeviceFunc(){
+            // 有个问题就同时请求多个接口时，数据无法返回
+            setTimeout(()=>{
+                this.$api.queryDevice().then(resp => {
+                    if(resp.success){
+                        this.$store.commit('setAllExt', resp.data.ext)
+                    }
+                })
+            },1000)
+        },
+        loadData(){
+            this.queryDeviceFunc()
+        }
+    }
 };
 </script>
 

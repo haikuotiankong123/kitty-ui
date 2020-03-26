@@ -63,6 +63,11 @@ api.ConnectExt = (data) => post('ConnectExt', data)
  */
 api.connectVisitor = (data) => post('ConnectVisitor', data)
 
+/**
+ * 还没有这个接口
+ */
+api.connectOuter = (data) => post('connectOuter', data)
+
 
 
 export default api

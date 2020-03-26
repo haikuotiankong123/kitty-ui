@@ -10,7 +10,8 @@ export default {
         // 分机状态
         extState:{},
         // 呼叫状态
-        callState: {}
+        callState: {},
+        allExt: []
     },
     mutations:{
         setAssignExt(state, data){
@@ -24,6 +25,9 @@ export default {
         },
         setCallState(state, data){
             state.callState = data
+        },
+        setAllExt(state, data){
+            state.allExt = data
         }
     },
     getters: {},

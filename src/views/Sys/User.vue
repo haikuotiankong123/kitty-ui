@@ -57,7 +57,7 @@
 			<el-form-item label="分机id" prop="extId">
 				<el-select v-model="dataForm.extId" placeholder="请选择">
 					<el-option
-						v-for="i in extAll"
+						v-for="i in allExt"
 						:key="i.id"
 						:label="i.id"
 						:value="i.id">
@@ -106,6 +106,7 @@ import KtTable from "@/views/Core/KtTable"
 import KtButton from "@/views/Core/KtButton"
 import TableColumnFilterDialog from "@/views/Core/TableColumnFilterDialog"
 import { format } from "@/utils/datetime"
+import {mapState} from "vuex"
 export default {
 	components:{
 		PopupTreeInput,
@@ -149,9 +150,13 @@ export default {
 				label: 'name',
 				children: 'children'
 			},
-			roles: [],
-			extAll: []
+			roles: []
 		}
+	},
+	computed:{
+		...mapState({
+			allExt: state => state.ext.allExt
+		})
 	},
 	methods: {
 		// 获取分页数据
@@ -278,12 +283,6 @@ export default {
       	}
 	},
 	mounted() {
-		this.$api.queryDevice().then((resp)=>{
-			if(resp.success){
-				this.extAll = resp.data.ext
-			}
-		})
-
 		this.findDeptTree()
 		this.initColumns()
 	}
