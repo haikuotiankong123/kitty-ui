@@ -56,17 +56,17 @@ api.assignExt = (data) =>{
  * <ext_id>: 主叫
  * <ext_id_2>: 被叫
  */
-api.ConnectExt = (data) => post('ConnectExt', data)
+api.ConnectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      // 无  临时
 
 /**
  * 处理来电转接功能，支持转分机，转语音菜单，外部电话
  */
-api.connectVisitor = (data) => post('ConnectVisitor', data)
+api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: '1004'})    // 临时
 
 /**
  * 还没有这个接口
  */
-api.connectOuter = (data) => post('connectOuter', data)
+api.connectOuter = (data) => post('ConnectOuter', {...data, sender: '1004'})        // 临时
 
 
 

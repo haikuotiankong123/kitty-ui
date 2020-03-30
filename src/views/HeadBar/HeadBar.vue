@@ -32,49 +32,83 @@
         <span><i class="el-icon-phone two"></i>今天通话 00:00:00</span>
     </div>
     
-    <!--  -->
-    <div class="call-tool" v-show="callState.type">
+    <!-- v-show="callState.type" -->
+    <div class="call-tool">
         <div>
             <p class="num">
                 <span class="call-num">
                     <i @click="onTemp" class="el-icon-phone-outline"></i> 
                     <template v-if="callState.isVisitor">
-                        <i>{{callState.visitor && callState.visitor.from}}</i>
+                        <i>{{callState.data && callState.data.from}}</i>
                     </template>
                     <template v-else>
-                        <i>{{callState.outer && callState.outer.to}}</i>
+                        <i>{{callState.data && callState.data.to}}</i>
                     </template>
                 </span> 
                 <span class="call-duration">{{countTime}}</span>
             </p>
             <ul class="call-fun">
-                <li v-for="(i, index) in callHandle" :key="index" @click="handleChange(index)" :class="{'active':curToolIndex == index}">
-                    <el-button :icon="i.icon" size="mini" circle></el-button><br/><span>{{i.value}}</span>
+                <li :class="{'active':curIndex == 0}" @click="onKeepCall()">
+                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
+                    <span>保持呼叫</span>
                 </li>
+                <li :class="{'active':curIndex == 1}" @click="onTransfer()">
+                    <el-button icon="el-icon-edit" size="mini" circle></el-button><br/>
+                    <span>转接</span>
+                </li>
+                <li :class="{'active':curIndex == 2}" @click="onThreeCall()">
+                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
+                    <span>咨询通话</span>
+                </li>
+                <li :class="{'active':curIndex == 3}" @click="onMute()">
+                    <el-button icon="el-icon-close-notification" size="mini" circle></el-button><br/>
+                    <span>静音</span>
+                </li>
+                <li :class="{'active':curIndex == 4}" @click="onHangup()">
+                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
+                    <span>挂机</span>
+                </li>
+
+                <!-- <li v-for="(i, index) in callHandle" :key="index" @click="handleChange(index)" :class="{'active':curToolIndex == index}">
+                    <el-button :icon="i.icon" size="mini" circle></el-button><br/><span>{{i.value}}</span>
+                </li> -->
             </ul>
-            <div>显示流程步骤</div>
-            <div>从哪里来------>转接到哪里----->分机号</div>
+            <!-- <div>显示流程步骤</div>
+            <div></div> -->
             <div class="call-content">
-                <div v-show="curToolIndex==0">
+                <div v-show="curIndex == 0">呼叫保持中...</div>
+                <div v-show="curIndex == 1">
+                    <p style="padding: 0 0 15px 20px;">
+                        <el-input size="mini" style="width:220px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
+                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
+                    </p>
+                    <div style="padding-top:15px; border-top: 1px dashed #c9ccd2;">
+                        <ul class="call-table">
+                            <li v-for="i in allExt" :key="i.id">
+                                {{i.id}}
+                                <el-button size="mini" class="btn" @click="onTransferFunc(i.id)">转接</el-button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div v-show="curIndex == 2"> 三方通话</div>
+                <div v-show="curIndex == 3">静音中</div>
+                <div v-show="curIndex == null">从哪里来的</div>
+
+                <!-- <div v-show="curToolIndex==0">
                     <h5>转接通话</h5>
                     <p>
                         <el-input size="mini" style="width:170px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
-                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransfer()">转接</el-button>
+                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
                     </p>
                     <h5>坐席号</h5>
                     <ul class="call-table">
                         <li v-for="i in allExt" :key="i.id">
                             {{i.id}}
-                            <el-button size="mini" class="btn" @click="onTransfer(i.id)">转接</el-button>
+                            <el-button size="mini" class="btn" @click="onTransferFunc(i.id)">转接</el-button>
                         </li>
                     </ul>
-                </div>
-                <p v-show="curToolIndex==1">
-                    静音中
-                </p>
-                <p v-show="curToolIndex==2">
-                    挂机中
-                </p>
+                </div> -->
             </div>
         </div>
     </div>
@@ -150,13 +184,17 @@ export default {
             searchPhone: '13602714551',
             searchPhoneArr: [],
             callHandle: [
+                {type: '', icon:'el-icon-message', value:'呼叫保持'},
+                {type: '', icon:'el-icon-message', value:'咨询通话'},       // 加入分机
                 {type: 'primary', icon:'el-icon-edit', value:'转接'},
                 {type: '', icon:'el-icon-close-notification', value:'静音'},
                 {type: '', icon:'el-icon-message', value:'挂机'}
+                
             ],
-            curToolIndex: null,
+
             countTime: '',
-            timer: null
+            timer: null,
+            curIndex: null
         }
     },
     watch: {
@@ -213,6 +251,34 @@ export default {
         
     },
     methods: {
+        showIndex(index){
+            let i = this.curIndex;
+            this.curIndex = i==index ? null : index ;
+        },
+        // 保持呼叫
+        onKeepCall(){
+            /* let i = this.curIndex;
+            this.curIndex = i==0 ? null : 0 ; */
+            this.showIndex(0)
+        },
+        // 转接
+        onTransfer(){
+            this.showIndex(1)
+        },
+        // 三方通话
+        onThreeCall(){
+            this.showIndex(2)
+        },
+        // 静音
+        onMute(){
+            this.showIndex(3)
+        },
+        // 挂断
+        onHangup(){
+            this.showIndex(4)
+        },
+
+
         tempCall(){
             this.$api.connectExt({visitor_id:'123', ext_id:'1010'})
         },
@@ -240,7 +306,7 @@ export default {
             this.$store.commit("setCallStatus", false)
         },
         handleChange(index){
-            this.curToolIndex = index;
+            
         },
         // 切换主题
         onThemeChange: function(themeColor) {
@@ -258,15 +324,15 @@ export default {
         },
         // 来电转接
         visitorFunc(num){
-            let visitor = this.callState.visitor
-            console.log('来电转接--->',visitor)
-            if(!num && !visitor.recId){
+            let data = this.callState.data
+            console.log('来电转接--->',data)
+            if(!num && !visitor.id){
                 console.log("请输入号码或来电id有误")
                 return
             }
             let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
             let param = {
-                visitor_id: visitor.recId,
+                visitor_id: data.id,
                 ...oAttrNum
             }
             this.$api.connectVisitor(param).then(resp => {
@@ -277,17 +343,18 @@ export default {
         },
         // 去电转接
         outerFunc(num){
-            let outer = this.callState.outer
-            if(!num && !outer.recId){
+            let data = this.callState.data
+            console.log('给我参数---》', data)
+            if(!num && !data.id){
                 console.log("请输入号码或去电id有误")
                 return
             }
             let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
             let param = {
-                outer_id: outer.recId,
+                outer_id: data.id,
                 ...oAttrNum
             }
-            
+            console.log('参数呢------->', param)
             this.$api.connectOuter(param).then(resp => {
                 if(resp.success){
                     this.$message("操作成功")
@@ -295,13 +362,12 @@ export default {
             })
         },
         // 转接
-        onTransfer(extId){
-            return 
+        onTransferFunc(extId){
+            
             let isVisitor = this.callState.isVisitor
             let num = extId || this.shiftPhone
 
             if(isVisitor){
-                
                 this.visitorFunc(num)
             }else{
                 
@@ -390,10 +456,11 @@ export default {
             let ext_id = this.assignExt.id
             let num = this.searchPhone
             let prop = {}
-            if(/^1[3456789]\d{9}$/.test(num)){
-                prop = {outer_to: num}
-            }else{  
+            /* /^1[3456789]\d{9}$/.test(num) */
+            if(num.length <= 4){
                 prop = {ext_id_2:num}
+            }else{  
+                prop = {outer_to: num}
             }
             let params = {ext_id,...prop}
             this.$api.ConnectExt(params).then((resp) => {
@@ -627,7 +694,7 @@ export default {
 
 
 .call-tool{
-    width: 235px;
+    width: 335px;
     position: fixed;
     top: 15px;
     left: 50%;
@@ -637,7 +704,7 @@ export default {
     border-radius: 5px;
     overflow: hidden;
     .num{
-        padding: 10px 8px;
+        padding: 10px;
         background: $--color-success;
         color: white;
         .call-num{}
@@ -649,7 +716,7 @@ export default {
       display: flex;
       justify-content: space-around;
       border-bottom: 1px solid $--border-color-lighter;
-      padding: 9px 0;
+      padding: 12px 0;
       li{
           &.active{
               .el-button{
@@ -673,7 +740,8 @@ export default {
     }
 }
 .call-content{
-    padding: 0px 10px 10px 10px;
+    height: 240px;
+    padding: 20px 10px 10px 10px;
     h5{
       padding: 10px 0 8px 0;
     }
@@ -682,7 +750,10 @@ export default {
     max-height: 150px;
     overflow: auto;
     li{
-      padding: 5px 0;
+        &:nth-child(odd){
+            background: #fafafa;
+        }
+      padding: 8px 20px;
       .el-button{
           float: right;
           padding: 3px 5px;
