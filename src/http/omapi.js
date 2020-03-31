@@ -56,7 +56,7 @@ api.assignExt = (data) =>{
  * <ext_id>: 主叫
  * <ext_id_2>: 被叫
  */
-api.ConnectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      // 无  临时
+api.connectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      // 无  临时
 
 
 /**

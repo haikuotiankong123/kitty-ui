@@ -26,7 +26,7 @@
                     <img src="@/assets/images/picture.jpg" />
                 </div><br/>
                 <p class="name">{{acountInfo.name}}</p><br/>
-                <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> 个人信息</p><br/>
+                <!-- <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> </p><br/> -->
                 <p class="internal">坐席号:{{queryExt.id}}</p>&ensp;
                 <p class="internal">状态:
                     <template v-if="extState.type">{{extState.name}}</template>
@@ -52,7 +52,7 @@
         <!-- 底部介绍 -->
         <template v-if="!collapse">
             <footer class="footer" v-if="routeInfo.name == '任务外呼'">
-                <p> 帮助 关于</p>
+                <p> <span @click="dialogFormVisible=true" style="cursor:pointer;">设置</span>  帮助 关于</p>
                 <p style="font-size: 12px; margin-top:10px;">广州智信通网络科技有限公司 <br/>版权所有</p>
             </footer>
         </template>
@@ -204,12 +204,12 @@ export default {
             })
         },
         queryExtFunc(){
-            let param = {ext_id: this.acountInfo.extId}
+            /* let param = {ext_id: this.acountInfo.extId}
             this.$api.queryExt(param).then((resp) => {
                 if(resp.success){
                     this.$store.commit('setQueryExt', resp.data)
                 } 
-            })
+            }) */
         },
         // 提交分机
         subExtForm(){
@@ -266,6 +266,12 @@ export default {
     &>*{
         //width: 200px;
     }
+    .el-menu{
+        .el-menu-item{
+            height: 50px;
+            line-height: 50px;
+        }
+    }
     .shrink{
         position: absolute;
         top: 40%;
@@ -290,7 +296,7 @@ export default {
         }
     }
     .acount{
-        padding: 15px 0;
+        padding: 10px 0;
         border-bottom: 1px solid #E4E7ED;
         margin-bottom: 10px;
         text-align: center;
@@ -300,7 +306,7 @@ export default {
             &.name{
                 font-size: 16px;
                 font-weight: bold;
-                line-height: 2;   
+                line-height: 1;   
             }
         }
         .picture{
@@ -320,6 +326,7 @@ export default {
         position: absolute;
         left: 0; 
         bottom: 10px;
+        width: 100%;
         p{
             text-align: center;
         }

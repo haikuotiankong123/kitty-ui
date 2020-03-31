@@ -166,8 +166,8 @@ export default {
             taskName: '',
             currentTask: {},
             listTaskCustomer:[],
-            tabArr: [{value:'未拨', type:1},{value:'已拨',type:2} ,{value:'待回拨',type:3} ],
-            currentCusType: {value:'未拨', type:1},
+            tabArr: [{value:'通话记录', type:1},{value:'待回拨',type:2} ],
+            currentCusType: {value:'通话记录', type:1},
             listQuestion: [],
 
             activeName: 'first',

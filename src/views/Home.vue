@@ -129,18 +129,59 @@ export default {
         window.ws.open();
     },
     methods: {
-        queryDeviceFunc(){
-            // 有个问题就同时请求多个接口时，数据无法返回
-            //setTimeout(()=>{
-                this.$api.queryDevice().then(resp => {
+        loadData(){
+            this.queueRequest()
+            
+        },
+        
+        async queueRequest(){
+            /* this.acountInfo.extId */
+            // 当前分机
+            let param = {ext_id: '1004'}
+            await this.$api.queryExt(param).then((resp) => {
+                        if(resp.success){
+                            this.$store.commit('setQueryExt', resp.data)
+                        } 
+                    }).catch(e => {
+                        this.$message.error(e.message)
+                    });
+
+            // 所有分机
+            await this.$api.queryDevice().then(resp => {
                     if(resp.success){
                         this.$store.commit('setAllExt', resp.data.ext)
                     }
-                })
-            //},1000)
-        },
-        loadData(){
-            this.queryDeviceFunc()
+                }).catch(e => {
+                    this.$message.error(e.message)
+                });
+
+            // 分机组
+            await this.$api.queryGroup().then(resp => {
+                    if(resp.success){
+                        let data = resp.data.map(i => {
+                            i.value = i.id;
+                            return i;
+                        })
+                        this.$store.commit('setQueryGroup', data)
+                    }
+                }).catch(er => {
+                    this.$message.error(er.message)
+                });
+
+            // 语音菜单
+            await this.$api.queryMenu().then(resp => {
+                    if(resp.success){
+                        let data = resp.data.map(i => {
+                            i.value = i.voiceFile;
+                            return i;
+                        })
+                        this.$store.commit('setQueryMenu', data)
+                    }
+                }).catch(er => {
+                    this.$message.error(er.message)
+                });
+
+            
         }
     }
 };

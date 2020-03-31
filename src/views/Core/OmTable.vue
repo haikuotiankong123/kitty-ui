@@ -203,7 +203,7 @@ export default {
     mounted() {
         this.refreshPageRequest(1)
         setTimeout(()=>{
-            console.log("表格------>", this.columns);
+            //console.log("表格------>", this.columns);
         },1000)
     }
 }

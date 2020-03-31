@@ -17,9 +17,10 @@
                         </template>
                     </el-autocomplete>
                 </el-form-item>
+                <!--  -->
                 <el-form-item style="float:right;">
                     <el-button type="success"
-                        :disabled="!searchPhone"
+                        :disabled="!searchPhone || !!callState.type"
                         icon="el-icon-phone" 
                         size="small" 
                         style="margin: 2px 2px 0 0;" 
@@ -31,8 +32,8 @@
         <span><i class="el-icon-phone two"></i>今天通话 00:00:00</span>
     </div>
     
-    <!-- v-show="callState.type" -->
-    <div class="call-tool">
+    <!--  -->
+    <div class="call-tool" v-if="callState.type">
         <div>
             <p class="num">
                 <span class="call-num">
@@ -89,7 +90,7 @@
                         <template v-if="transParam.trans == 'menu'">
                             <el-select style="width:120px;" size="mini" v-model="menuVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryMenuList" 
+                                    v-for="(i, index) in queryMenu" 
                                     :label="i.voiceFile"
                                     :value="i"
                                     :key="index"></el-option>
@@ -219,13 +220,15 @@ export default {
                 //{id: 7, trans:"voicefile", value:"播放语音"},
                 {id: 8, trans:"outer", value:"转外部电话"},
             ],
+            
+            tempBoo: true,
+            //queryGroup: [],
+
             transferType: "",
             transParam: {},
             cmd: '',
-            queryMenuList: [],
             menuVal: '',
             groupVal: '',
-            queryGroup: []
         }
     },
     filters: {
@@ -244,7 +247,16 @@ export default {
         },
         callState(data){
             
-            if(data.type) this.countTimeFunc()
+            if(data.type){
+                this.countTimeFunc()
+            }else{
+                this.cmd = ''
+                this.transferType = ''
+                this.transParam = {}
+                this.curIndex = null
+                this.menuVal = ''
+                this.groupVal = ''
+            }
         }
     },
     computed:{
@@ -257,6 +269,8 @@ export default {
             callState: state => state.ext.callState,
             extState: state => state.ext.extState,
             allExt: state => state.ext.allExt,
+            queryGroup: state=>state.ext.queryGroup,
+            queryMenu: state=>state.ext.queryMenu,
             
             customerDetail: state=>state.app.customerDetail,
             callStatus: state=>state.app.callStatus,
@@ -291,28 +305,32 @@ export default {
                 }
             })  
 
-            this.queryMenuFunc();
-
-            this.$api.queryGroup().then(resp => {
-                if(resp.success){
-                    this.queryGroup = resp.data.map(i => {
-                        i.value = i.id;
-                        return i;
-                    })
-                }
-            }).catch(er => {
-                this.$message.error(er.message)
-            })
+            //this.queryMenuFunc();
+            
+            /* setTimeout(()=> {
+                this.$api.queryGroup().then(resp => {
+                    if(resp.success){
+                        this.queryGroup = resp.data.map(i => {
+                            i.value = i.id;
+                            return i;
+                        })
+                    }
+                }).catch(er => {
+                    this.$message.error(er.message)
+                })
+            }, 1000) */
         },
         queryMenuFunc(){
-            this.$api.queryMenu().then(resp => {
-                if(resp.success){
-                    this.queryMenuList = resp.data.map(i => {
-                        i.value = i.voiceFile;
-                        return i;
-                    })
-                }
-            })
+            /* setTimeout(()=> {
+                this.$api.queryMenu().then(resp => {
+                    if(resp.success){
+                        this.queryMenu = resp.data.map(i => {
+                            i.value = i.voiceFile;
+                            return i;
+                        })
+                    }
+                })
+            }, 200) */
         },
         showIndex(index){
             let i = this.curIndex;
@@ -513,6 +531,7 @@ export default {
         },
         // 直接拨打
         directCall(){
+            
             let ext_id = this.queryExt.id
             let num = this.searchPhone
             let prop = {}
@@ -523,7 +542,7 @@ export default {
                 prop = {outer_to: num}
             }
             let params = {ext_id,...prop}
-            this.$api.ConnectExt(params).then((resp) => {
+            this.$api.connectExt(params).then((resp) => {
 
             }).catch((err) => {
                 
@@ -781,6 +800,7 @@ export default {
       border-bottom: 1px solid $--border-color-lighter;
       padding: 12px 0;
       li{
+          flex: 1;
           &.active{
               .el-button{
                   background: $--color-primary;

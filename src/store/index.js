@@ -10,6 +10,8 @@ import user from './modules/user'
 import menu from './modules/menu'
 import ext from './modules/ext'
 
+
+console.log('所有分机ext--->', ext)
 const store = new vuex.Store({
     modules: {
         app,

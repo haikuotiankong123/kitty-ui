@@ -200,6 +200,7 @@ function addDynamicRoutes (menuList = [], routes = []) {
             url += array[i].substring(0,1).toUpperCase() + array[i].substring(1) + '/'
          }
          url = url.substring(0, url.length - 1)
+
          route['component'] = resolve => require([`@/views/${url}`], resolve)
        } catch (e) {}
      }
