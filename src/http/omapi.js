@@ -58,16 +58,34 @@ api.assignExt = (data) =>{
  */
 api.ConnectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      // 无  临时
 
+
+/**
+ * 去电来电转接类型： 1：总机 | 2：挂断 | 3：分机 | 4：分机列表 | 5：分机组 | 6：IVR | 7：播放语音 | 8：转外部电话
+ * 所对应的字段名称： default | clear  | ext_id  |  ext_id    | grou_id  | menu_id|  voicfile  | outer_to
+ */
 /**
  * 处理来电转接功能，支持转分机，转语音菜单，外部电话
  */
 api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: '1004'})    // 临时
 
 /**
- * 还没有这个接口
+ * 去电转接
  */
 api.connectOuter = (data) => post('ConnectOuter', {...data, sender: '1004'})        // 临时
 
+/**
+ * 保存呼叫和静音
+ */
+api.controlCmd = data => post('ControlCmd', data)
 
+/**
+ * 语音菜单
+ */
+api.queryMenu = data => post('queryMenu', data)
+
+/**
+ * 分机组
+ */
+api.queryGroup = data => post('queryGroup', data)
 
 export default api

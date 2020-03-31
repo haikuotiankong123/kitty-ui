@@ -27,7 +27,7 @@
                 </div><br/>
                 <p class="name">{{acountInfo.name}}</p><br/>
                 <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> 个人信息</p><br/>
-                <p class="internal">坐席号:{{assignExt.id}}</p>&ensp;
+                <p class="internal">坐席号:{{queryExt.id}}</p>&ensp;
                 <p class="internal">状态:
                     <template v-if="extState.type">{{extState.name}}</template>
                     <template v-else>
@@ -59,15 +59,15 @@
         
         <!-- 弹框 -->
         <el-dialog title="个人信息" :visible.sync="dialogFormVisible" class="ext-form">
-            <el-form :model="assignExt" size="small">
+            <el-form :model="queryExt" size="small">
                 <el-form-item label="坐席号" :label-width="formLabelWidth">
-                    <el-input v-model="assignExt.id" disabled autocomplete="off"></el-input>
+                    <el-input v-model="queryExt.id" disabled autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="绑定手机" :label-width="formLabelWidth" >
-                    <el-input v-model="assignExt.mobile" autocomplete="off" placeholder="请输入手机号码"></el-input>
+                    <el-input v-model="queryExt.mobile" autocomplete="off" placeholder="请输入手机号码"></el-input>
                 </el-form-item>
                 <el-form-item label="转移方式" :label-width="formLabelWidth">
-                    <el-select v-model="assignExt.fwdType" placeholder="请选择" style="width:100%">
+                    <el-select v-model="queryExt.fwdType" placeholder="请选择" style="width:100%">
                         <el-option 
                             v-for="i in transfer" 
                             :key="i.value"
@@ -75,20 +75,20 @@
                             :label="i.label"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item v-if="assignExt.fwdType != 0" label="转移至号码" :label-width="formLabelWidth">
-                    <el-input v-model="assignExt.fwdNumber" autocomplete="off" placeholder="请输入转移至号码"></el-input>
+                <el-form-item v-if="queryExt.fwdType != 0" label="转移至号码" :label-width="formLabelWidth">
+                    <el-input v-model="queryExt.fwdNumber" autocomplete="off" placeholder="请输入转移至号码"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" :label-width="formLabelWidth">
-                    <el-input v-model="assignExt.email" autocomplete="off" placeholder="请输入邮箱"></el-input>
+                    <el-input v-model="queryExt.email" autocomplete="off" placeholder="请输入邮箱"></el-input>
                 </el-form-item>
                 <el-form-item label="是否保存数据库" :label-width="formLabelWidth" >
-                    <el-radio-group v-model="assignExt.is_save">
+                    <el-radio-group v-model="queryExt.is_save">
                         <el-radio label="true">是</el-radio>
                         <el-radio label="false">否</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="是否录音" :label-width="formLabelWidth" >
-                    <el-radio-group v-model="assignExt.record">
+                    <el-radio-group v-model="queryExt.record">
                         <el-radio label="on">是</el-radio>
                         <el-radio label="off">否</el-radio>
                     </el-radio-group>
@@ -98,10 +98,6 @@
                     <el-button type="primary" @click="subExtForm">确 定</el-button>
                 </el-form-item>
             </el-form>
-            <!-- <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="subExtForm">确 定</el-button>
-            </div> -->
         </el-dialog>
 
 	</div>
@@ -174,8 +170,8 @@ export default {
         this.handleLeftNav();
     },
     methods: {
-        async loadData(val){
-            await this.assignExtFunc({'lineid': val})
+        loadData(val){
+            //await this.assignExtFunc({'lineid': val})
             this.queryExtFunc()
         },
         //左侧导航
@@ -196,7 +192,7 @@ export default {
             console.log('handleselect')
         },
         assignExtFunc(obj){
-            let extForm = obj || this.assignExt
+            let extForm = obj || this.queryExt
             
             return this.$api.assignExt(extForm).then((resp)=>{
                 if(resp.success){
@@ -208,7 +204,7 @@ export default {
             })
         },
         queryExtFunc(){
-            let param = {ext_id: this.assignExt.id}
+            let param = {ext_id: this.acountInfo.extId}
             this.$api.queryExt(param).then((resp) => {
                 if(resp.success){
                     this.$store.commit('setQueryExt', resp.data)

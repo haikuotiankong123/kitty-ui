@@ -25,7 +25,6 @@
                         style="margin: 2px 2px 0 0;" 
                         @click="directCall()" round>拨打</el-button>
                 </el-form-item>
-                <!-- <el-button @click="tempCall">测试转接</el-button> -->
             </el-form>
         </div>
         <span><i class="el-icon-warning one"></i>离线 00:00:00</span>
@@ -37,7 +36,7 @@
         <div>
             <p class="num">
                 <span class="call-num">
-                    <i @click="onTemp" class="el-icon-phone-outline"></i> 
+                    <i class="el-icon-phone-outline"></i> 
                     <template v-if="callState.isVisitor">
                         <i>{{callState.data && callState.data.from}}</i>
                     </template>
@@ -50,7 +49,7 @@
             <ul class="call-fun">
                 <li :class="{'active':curIndex == 0}" @click="onKeepCall()">
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
-                    <span>保持呼叫</span>
+                    <span><i v-show="cmd == 'Hold'">取消</i>保持呼叫</span>
                 </li>
                 <li :class="{'active':curIndex == 1}" @click="onTransfer()">
                     <el-button icon="el-icon-edit" size="mini" circle></el-button><br/>
@@ -62,31 +61,57 @@
                 </li>
                 <li :class="{'active':curIndex == 3}" @click="onMute()">
                     <el-button icon="el-icon-close-notification" size="mini" circle></el-button><br/>
-                    <span>静音</span>
+                    <span><i v-show="cmd == 'Mute'">取消</i>静音</span>
                 </li>
                 <li :class="{'active':curIndex == 4}" @click="onHangup()">
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
                     <span>挂机</span>
                 </li>
 
-                <!-- <li v-for="(i, index) in callHandle" :key="index" @click="handleChange(index)" :class="{'active':curToolIndex == index}">
-                    <el-button :icon="i.icon" size="mini" circle></el-button><br/><span>{{i.value}}</span>
-                </li> -->
             </ul>
-            <!-- <div>显示流程步骤</div>
-            <div></div> -->
+            
             <div class="call-content">
                 <div v-show="curIndex == 0">呼叫保持中...</div>
                 <div v-show="curIndex == 1">
-                    <p style="padding: 0 0 15px 20px;">
-                        <el-input size="mini" style="width:220px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
-                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
+                    <p style="padding: 0 0 15px 10px;">
+                    
+                        <el-select v-model="transferType" size="mini" @change="getTransType($event)" style="width:120px;">
+                            <el-option 
+                                v-for="(i, index) in transferTypeList" 
+                                :label="i.value"
+                                :value="i"
+                                :key="index"></el-option>
+                        </el-select>
+                        <template v-if="transParam.trans == 'ext' || transParam.trans == 'outer' || transParam.trans == 'queue'">
+                            <el-input size="mini" style="width:120px;" v-model="shiftPhone" placeholder="请输入号码"></el-input>
+                            <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
+                        </template>
+                        <template v-if="transParam.trans == 'menu'">
+                            <el-select style="width:120px;" size="mini" v-model="menuVal" @change="ivrFunc($event)">
+                                <el-option 
+                                    v-for="(i, index) in queryMenuList" 
+                                    :label="i.voiceFile"
+                                    :value="i"
+                                    :key="index"></el-option>
+                            </el-select>
+                        </template>
+                        <template v-if="transParam.trans == 'group'">
+                            <el-select style="width:120px;" size="mini" v-model="groupVal" @change="ivrFunc($event)">
+                                <el-option 
+                                    v-for="(i, index) in queryGroup" 
+                                    :label="i.id"
+                                    :value="i"
+                                    :key="index"></el-option>
+                            </el-select>
+                        </template>                      
                     </p>
                     <div style="padding-top:15px; border-top: 1px dashed #c9ccd2;">
                         <ul class="call-table">
                             <li v-for="i in allExt" :key="i.id">
                                 {{i.id}}
-                                <el-button size="mini" class="btn" @click="onTransferFunc(i.id)">转接</el-button>
+                                <el-button size="mini" class="btn" 
+                                    :disabled="transParam.trans != 'ext' && transParam.trans != 'queue'" 
+                                    @click="onTransferFunc(i.id)">转接</el-button>
                             </li>
                         </ul>
                     </div>
@@ -94,21 +119,6 @@
                 <div v-show="curIndex == 2"> 三方通话</div>
                 <div v-show="curIndex == 3">静音中</div>
                 <div v-show="curIndex == null">从哪里来的</div>
-
-                <!-- <div v-show="curToolIndex==0">
-                    <h5>转接通话</h5>
-                    <p>
-                        <el-input size="mini" style="width:170px;" v-model="shiftPhone" placeholder="输入手机号或坐席号"></el-input>
-                        <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
-                    </p>
-                    <h5>坐席号</h5>
-                    <ul class="call-table">
-                        <li v-for="i in allExt" :key="i.id">
-                            {{i.id}}
-                            <el-button size="mini" class="btn" @click="onTransferFunc(i.id)">转接</el-button>
-                        </li>
-                    </ul>
-                </div> -->
             </div>
         </div>
     </div>
@@ -194,8 +204,32 @@ export default {
 
             countTime: '',
             timer: null,
-            curIndex: null
+            curIndex: null,
+            /**
+             * 去电和来电的转接： 1：总机 | 2：挂断 | 3：分机 | 4：分机列表 | 5：分机组 | 6：IVR | 7：播放语音 | 8：转外部电话
+             * 所对应的字段名称： default | clear  | ext_id  |  ext_id    | grou_id  | menu_id|  voicfile  | outer_to
+             */
+            transferTypeList: [
+                //{id: 1, trans:"default", value:"总机"},
+                //{id: 2, trans:"clear", value:"挂断"},
+                {id: 3, trans:"ext", value:"分机"},
+                {id: 4, trans:"queue", value:"分机列表"},
+                {id: 5, trans:"group", value:"分机组"},
+                {id: 6, trans:"menu", value:"IVR"},
+                //{id: 7, trans:"voicefile", value:"播放语音"},
+                {id: 8, trans:"outer", value:"转外部电话"},
+            ],
+            transferType: "",
+            transParam: {},
+            cmd: '',
+            queryMenuList: [],
+            menuVal: '',
+            groupVal: '',
+            queryGroup: []
         }
+    },
+    filters: {
+        
     },
     watch: {
         $route(data){
@@ -219,6 +253,7 @@ export default {
             collapse: state=>state.app.collapse,
             navTree: state=>state.menu.navTree,
             assignExt: state=>state.ext.assignExt,
+            queryExt: state=>state.ext.queryExt,
             callState: state => state.ext.callState,
             extState: state => state.ext.extState,
             allExt: state => state.ext.allExt,
@@ -244,22 +279,81 @@ export default {
             this.user.name = user
             this.user.avatar = require("@/assets/user.png")
         }
-
-        setTimeout(()=>{
-            console.log('分机---》', this.assignExt) 
-        },1000)
         
     },
     methods: {
+        loadData(){
+            this.newNavTree = JSON.parse(JSON.stringify(this.navTree));
+            this.newNavTree.forEach((i) => {
+                if(i.children && i.children.length>0){
+                    let url = i.children.find((item) => item).url
+                    i.url = url.split("/")[0]
+                }
+            })  
+
+            this.queryMenuFunc();
+
+            this.$api.queryGroup().then(resp => {
+                if(resp.success){
+                    this.queryGroup = resp.data.map(i => {
+                        i.value = i.id;
+                        return i;
+                    })
+                }
+            }).catch(er => {
+                this.$message.error(er.message)
+            })
+        },
+        queryMenuFunc(){
+            this.$api.queryMenu().then(resp => {
+                if(resp.success){
+                    this.queryMenuList = resp.data.map(i => {
+                        i.value = i.voiceFile;
+                        return i;
+                    })
+                }
+            })
+        },
         showIndex(index){
             let i = this.curIndex;
             this.curIndex = i==index ? null : index ;
         },
+        cmdFunc(obj){
+            let param = {
+                ext_id: this.queryExt.id,
+                ...obj
+            }
+            this.$api.controlCmd(param).then(resp => {
+                if(resp.success){
+                    this.$message(resp.message)
+                }else{
+                    this.$message(resp.message)
+                }
+            })
+        },
+        getTransType(e){
+            this.transParam = {trans: e.trans, transCode: e.id}
+            console.log("--->", this.transParam);
+            if(e.trans == 'default'){
+                this.onTransferFunc()
+            }
+        },
+        groupFunc(e){
+            console.log('------>', e)
+        },
+        // 转vir
+        ivrFunc(e){
+            let id = e.id
+            if(!id) return '无id'
+            this.onTransferFunc(id)
+        },
         // 保持呼叫
         onKeepCall(){
-            /* let i = this.curIndex;
-            this.curIndex = i==0 ? null : 0 ; */
             this.showIndex(0)
+            let cmd = this.cmd
+            this.cmd = cmd == 'Hold' ? 'Unhold' : 'Hold' ;
+            
+            this.cmdFunc({cmd: this.cmd})
         },
         // 转接
         onTransfer(){
@@ -272,16 +366,17 @@ export default {
         // 静音
         onMute(){
             this.showIndex(3)
+            let cmd = this.cmd
+            this.cmd = cmd == 'Mute' ? 'Unmute' : 'Mute' ; 
+            this.cmdFunc({cmd: this.cmd})
         },
         // 挂断
         onHangup(){
             this.showIndex(4)
+            this.transParam = {trans: 'clear'}
+            this.onTransferFunc()
         },
-
-
-        tempCall(){
-            this.$api.connectExt({visitor_id:'123', ext_id:'1010'})
-        },
+        
         closeTimer(){
             clearInterval(this.timer)
             this.countTime = '00:00:00'
@@ -301,64 +396,49 @@ export default {
                 this.countTime = h +':'+ m +':'+ s 
             },1000)
         },
-        // 临时
-        onTemp(){
-            this.$store.commit("setCallStatus", false)
-        },
-        handleChange(index){
-            
-        },
-        // 切换主题
-        onThemeChange: function(themeColor) {
-            this.$store.commit('setThemeColor', themeColor)
-        },
-        loadData(){
-            this.newNavTree = JSON.parse(JSON.stringify(this.navTree));
-            this.newNavTree.forEach((i) => {
-                if(i.children && i.children.length>0){
-                    let url = i.children.find((item) => item).url
-                    i.url = url.split("/")[0]
-                }
-            })
-            
-        },
+        
         // 来电转接
         visitorFunc(num){
             let data = this.callState.data
-            console.log('来电转接--->',data)
-            if(!num && !visitor.id){
-                console.log("请输入号码或来电id有误")
+            
+            if(!visitor.id){
+                this.$message("来电id不能为空！")
                 return
             }
-            let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
             let param = {
                 visitor_id: data.id,
-                ...oAttrNum
+                transValue: num,
+                ...this.transParam
             }
             this.$api.connectVisitor(param).then(resp => {
                 if(resp.success){
                     this.$message("操作成功")
                 }
+            }).catch(er => {
+                this.$message.error(er.message);
             })
         },
         // 去电转接
         outerFunc(num){
+            
             let data = this.callState.data
-            console.log('给我参数---》', data)
-            if(!num && !data.id){
-                console.log("请输入号码或去电id有误")
+            
+            if(!data.id){
+                this.$message("去电id不能为空！")
                 return
             }
-            let oAttrNum = /^1[3456789]\d{9}$/.test(num) ? {outer_to: num} : {ext_id: num};
             let param = {
                 outer_id: data.id,
-                ...oAttrNum
+                transValue: num,
+                ...this.transParam
             }
-            console.log('参数呢------->', param)
+            
             this.$api.connectOuter(param).then(resp => {
                 if(resp.success){
                     this.$message("操作成功")
                 }
+            }).catch(er => {
+                this.$message.error(er.message);
             })
         },
         // 转接
@@ -370,29 +450,10 @@ export default {
             if(isVisitor){
                 this.visitorFunc(num)
             }else{
-                
                 this.outerFunc(num)
             }
-            
-            /* if(this.shiftPhone){
-                let params = {
-                    toPhone: this.shiftPhone,
-                    uuid: this.uuid
-                }
-                this.$api.editCallDeflect(params)
-            }else{
-                this.$message('输入转接号码')
-            } */
         },
         
-        // 页面挂机
-        onHook(){
-            // 无
-            return
-            const uuid = this.uuid;
-            api.editHangup({uuid});
-            //this.hangupResetData();
-        },
         assignExtFunc(){
             let param =  this.assignExt
             let val = param.noDisturb
@@ -452,8 +513,7 @@ export default {
         },
         // 直接拨打
         directCall(){
-            //let ext_id = this.acountInfo.internal.account
-            let ext_id = this.assignExt.id
+            let ext_id = this.queryExt.id
             let num = this.searchPhone
             let prop = {}
             /* /^1[3456789]\d{9}$/.test(num) */
@@ -506,7 +566,10 @@ export default {
                 })
             }
         },
-
+        // 切换主题
+        onThemeChange: function(themeColor) {
+            this.$store.commit('setThemeColor', themeColor)
+        },
         // 折叠导航栏
         onCollapse: function() {
             this.$store.commit('onCollapse')

@@ -1,6 +1,7 @@
 
 export function acountInfo(){
     let data = {
+        extId: '1004',
         account: "admin",
         callcenterId: 2,
         canMessage: 0,

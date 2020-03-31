@@ -131,13 +131,13 @@ export default {
     methods: {
         queryDeviceFunc(){
             // 有个问题就同时请求多个接口时，数据无法返回
-            setTimeout(()=>{
+            //setTimeout(()=>{
                 this.$api.queryDevice().then(resp => {
                     if(resp.success){
                         this.$store.commit('setAllExt', resp.data.ext)
                     }
                 })
-            },1000)
+            //},1000)
         },
         loadData(){
             this.queryDeviceFunc()
