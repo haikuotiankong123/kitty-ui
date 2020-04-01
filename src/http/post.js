@@ -5,7 +5,7 @@ import router from '@/router'
 
 
 export function post(method, data){
-     
+    
     let url = ''
     if(data){
         for(let key in data){
@@ -49,6 +49,10 @@ export function post(method, data){
                 reject(d)
             }
         })
+        /* .catch(err => {
+            
+            window.vm.$message.error(err.message)
+        }) */
     })
 }
 

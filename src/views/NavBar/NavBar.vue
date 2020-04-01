@@ -140,9 +140,9 @@ export default {
             routeInfo: state => state.app.routeInfo,
             acountInfo: state => state.app.acountInfo,
 
-            assignExt: state => state.ext.assignExt,
-            queryExt: state => state.ext.queryExt,
-            extState: state => state.ext.extState
+            assignExt: state => state.assignExt,
+            queryExt: state => state.queryExt,
+            extState: state => state.extState
         }),
         mainTabs: {
             get () { return this.$store.state.tab.mainTabs },

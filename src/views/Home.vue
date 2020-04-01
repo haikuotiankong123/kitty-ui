@@ -29,8 +29,8 @@ export default {
     computed: {
         ...mapState({
             acountInfo: state => state.app.acountInfo,
-            extState: state => state.ext.extState,
-            callState: state => state.ext.callState
+            extState: state => state.extState,
+            callState: state => state.callState
         })
     },
     components:{
@@ -176,6 +176,7 @@ export default {
                             return i;
                         })
                         this.$store.commit('setQueryMenu', data)
+                        console.log('返回1----》', this.$store.state.queryMenu)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)

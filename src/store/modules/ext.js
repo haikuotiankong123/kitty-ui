@@ -2,7 +2,7 @@ import api from "@/http/omapi.js"
 
 //console.log('api----->', api)
 
-let state = {}
+/* let state = {}
 let mutations = {}
 
 for(let k in api){
@@ -11,7 +11,7 @@ for(let k in api){
     mutations['set'+ name] = function(state, data){
         this[k] = data
     }
-}
+} */
 // console.log('mutation----->', mutations)
 
 /**  ext是“分机”的英文单词extension的简写  */
@@ -31,7 +31,7 @@ export default {
         // 分机组
         queryGroup: [],
         // 语音菜单
-        queryMenu: []
+        queryMenu: [],
     },
     mutations:{
         setAssignExt(state, data){
@@ -54,7 +54,8 @@ export default {
         },
         setQueryMenu(state, data){
             state.queryMenu = data
-        }
+        },
+        
     },
     getters: {},
     actions: {}

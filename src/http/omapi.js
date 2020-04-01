@@ -37,7 +37,13 @@ api.queryMenu = data => post('queryMenu', data)
  * 配置语音菜单
  * <menu_id>
  */
-api.assignMenu = data => post('assignMenu', data)
+api.assignMenu = data => {
+    let param = {}
+    for(let key in data){
+        param['menuForm.'+key] = data[key]
+    }
+    return post('assignMenu', param)
+}
 
 /**
  * 配置分机
@@ -50,6 +56,26 @@ api.assignExt = (data) =>{
     }
     return post('assignExt', param)
 } 
+
+/**
+ * 设置分机组
+ */
+api.assignGroup = (data) => {
+    let param = {}
+    for(let key in data){
+        if(key == 'exts'){
+            param[key] = data[key]
+        }else{
+            param['groupForm.'+key] = data[key]
+        }
+    }
+    return post('AssignGroup', param)
+}
+/**
+ * 查询分机组
+ */
+api.queryGroup = data => post('queryGroup', data)
+
 
 /**
  * 分机呼分机
@@ -87,5 +113,11 @@ api.queryMenu = data => post('queryMenu', data)
  * 分机组
  */
 api.queryGroup = data => post('queryGroup', data)
+
+/**
+ * 查询语音文件
+ */
+api.queryVoice = data => post('QueryVoice', data)
+
 
 export default api

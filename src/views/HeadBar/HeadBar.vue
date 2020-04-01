@@ -47,7 +47,7 @@
                 </span> 
                 <span class="call-duration">{{countTime}}</span>
             </p>
-            <ul class="call-fun">
+            <ul class="call-fun" :style="{'pointer-events': callState.data ? 'inherit' : 'none'}">
                 <li :class="{'active':curIndex == 0}" @click="onKeepCall()">
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
                     <span><i v-show="cmd == 'Hold'">取消</i>保持呼叫</span>
@@ -68,7 +68,6 @@
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
                     <span>挂机</span>
                 </li>
-
             </ul>
             
             <div class="call-content">
@@ -264,13 +263,13 @@ export default {
             themeColor: state=>state.app.themeColor,
             collapse: state=>state.app.collapse,
             navTree: state=>state.menu.navTree,
-            assignExt: state=>state.ext.assignExt,
-            queryExt: state=>state.ext.queryExt,
-            callState: state => state.ext.callState,
-            extState: state => state.ext.extState,
-            allExt: state => state.ext.allExt,
-            queryGroup: state=>state.ext.queryGroup,
-            queryMenu: state=>state.ext.queryMenu,
+            assignExt: state=>state.assignExt,
+            queryExt: state=>state.queryExt,
+            callState: state => state.callState,
+            extState: state => state.extState,
+            allExt: state => state.allExt,
+            queryGroup: state=>state.queryGroup,
+            queryMenu: state=>state.queryMenu,
             
             customerDetail: state=>state.app.customerDetail,
             callStatus: state=>state.app.callStatus,
@@ -430,7 +429,7 @@ export default {
             }
             this.$api.connectVisitor(param).then(resp => {
                 if(resp.success){
-                    this.$message("操作成功")
+                    this.$message.error("操作成功")
                 }
             }).catch(er => {
                 this.$message.error(er.message);
@@ -442,7 +441,7 @@ export default {
             let data = this.callState.data
             
             if(!data.id){
-                this.$message("去电id不能为空！")
+                this.$message.error("去电id不能为空！")
                 return
             }
             let param = {
@@ -545,7 +544,7 @@ export default {
             this.$api.connectExt(params).then((resp) => {
 
             }).catch((err) => {
-                
+                this.$message.error(err.message)
             })
         },
 

@@ -155,7 +155,7 @@ export default {
 	},
 	computed:{
 		...mapState({
-			allExt: state => state.ext.allExt
+			allExt: state => state.allExt
 		})
 	},
 	methods: {
