@@ -16,22 +16,23 @@
             </el-form>
         </div> -->
 
-        <div style="float:left;padding-top:10px;padding-left:15px;">
-            <el-form size="mini" :inline="true" :model="filters">
+        <div style="padding:20px 15px 10px 15px;">
+            <el-form size="mini" :inline="true" style="float:left;">
                 <el-form-item>
-                    <el-input v-model="filters.name" placeholder="IVR名称"></el-input>
+                    <el-input v-model="queryMenuForm.menu_id" placeholder="请输入menu_id"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="findPage(null)">查询</el-button>
+                    <el-button type="primary" @click="queryMenuClick">查询</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleAdd">添加IVR</el-button>
                 </el-form-item>
-                {{queryMenu}}
             </el-form>
+
+            <el-button size="mini" style="float:right;" @click="onSync">同步</el-button>
         </div>
         
-        <om-table :data="pageTable" :columns="filterColumns" @findPage="findPage" @handleDelete="handleDelete" :showHandle="true">
+        <om-table :data="queryMenu" :columns="filterColumns" @findPage="findPage" @handleDelete="handleDelete" :showHandle="true">
             <template v-slot:handle="{scope}">
                 <el-button
                     size="mini"
@@ -42,6 +43,10 @@
                     @click="onDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </om-table>
+        <div>
+            <om-page name="queryMenu"></om-page>
+        </div>
+        
         
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="800px" :visible.sync="dialogVisible" :close-on-click-modal="false" class="dialog-form">
@@ -139,11 +144,17 @@
 <script>
 import KtTable from "@/views/Core/KtTable"
 import OmTable from "@/views/Core/OmTable"
-import {mapState} from "vuex"
+import OmPage from "@/views/Core/OmPage"
+import storeUtil from "@/store/storeUtil"
+import {mapState, mapActions} from "vuex"
 export default {
+    components: {
+        OmTable,
+        OmPage
+    },
     computed: {
         ...mapState({
-            //state=>state.queryMenu
+            queryMenuForm: state=>state.queryMenuForm,
             queryMenu: function(state){
                 console.log('返回2----》', state.queryMenu)
                 return state.queryMenu
@@ -162,7 +173,6 @@ export default {
                 totalSize: 12,
                 content: []
             },
-
             pageResult: {
                 pageNum: 1,
                 pageSize: 10,
@@ -263,9 +273,7 @@ export default {
             queryMenuList: []
         }
     },
-    components: {
-        OmTable
-    },
+    
     filters: {
         lastStr(val){
             if(!val) return;
@@ -276,24 +284,19 @@ export default {
         this.loadData()
     },
     methods: {
+        ...mapActions(storeUtil.actions),
         loadData(){
             this.initColumns()
-        
-            let flag = Array.isArray(this.queryMenu)
-            this.queryMenuList = this.queryMenu;
-            this.pageTable.content = flag ? this.queryMenu : [];
-            /* this.$api.queryMenu().then(resp => {
-                if(resp.success){
-                    let flag = Array.isArray(resp.data)
-                    this.pageTable.content = flag ? resp.data : [] ;
-                }
-            }); */
-
-            //
-            console.log('Why?------>', this.queryMenuList)
         },
         submitForm(){
 
+        },
+        onSync(){
+            let param = {
+                is_save: true
+            }
+            this.$store.commit('setQueryMenuForm', param)
+            this.queryMenuClick()
         },
         // 获取分页数据
 		findPage: function (data) {

@@ -47,10 +47,58 @@
                 </span> 
                 <span class="call-duration">{{countTime}}</span>
             </p>
-            <ul class="call-fun" :style="{'pointer-events': callState.data ? 'inherit' : 'none'}">
+            <div class="call-fun">
+                <el-button 
+                    size="mini" 
+                    icon="el-icon-message" 
+                    :class="{'btn-item':true,'active':curIndex == 0}" 
+                    :disabled="callState | callControl"  
+                    @click="onKeepCall()" 
+                    circle>
+                        <i v-show="cmd1 == 'Hold'">取消</i>呼叫保持
+                </el-button>
+                <el-button 
+                    size="mini" 
+                    icon="el-icon-edit" 
+                    :class="{'btn-item':true,'active':curIndex == 1}" 
+                    :disabled="callState | callControlIs" 
+                    @click="onTransfer()" 
+                    circle >
+                        转接
+                </el-button>
+                <el-button 
+                    size="mini" 
+                    icon="el-icon-message" 
+                    :class="{'btn-item':true,'active'
+                    :curIndex == 2}" :disabled="callState | callControlIs" 
+                    @click="onThreeCall()" 
+                    circle >
+                        咨询通话
+                </el-button>
+                <el-button 
+                    size="mini" 
+                    icon="el-icon-close-notification" 
+                    :class="{'btn-item':true,'active':curIndex == 3}" 
+                    :disabled="callState | callControl" 
+                    @click="onMute()" 
+                    circle >
+                        <i v-show="cmd2 == 'Mute'">取消</i>静音
+                </el-button>
+                <el-button 
+                    size="mini" 
+                    icon="el-icon-message" 
+                    :class="{'btn-item':true,'active':curIndex == 4}" 
+                    :disabled="callState | callControlIs"
+                     @click="onHangup()" 
+                    circle>
+                        挂机
+                </el-button>
+            </div>
+            <!-- :style="{'pointer-events': callState.data ? 'inherit' : 'none'}" -->
+            <!-- <ul class="call-fun" >
                 <li :class="{'active':curIndex == 0}" @click="onKeepCall()">
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
-                    <span><i v-show="cmd == 'Hold'">取消</i>保持呼叫</span>
+                    <span><i v-show="cmd == 'Hold'">取消</i>呼叫保持</span>
                 </li>
                 <li :class="{'active':curIndex == 1}" @click="onTransfer()">
                     <el-button icon="el-icon-edit" size="mini" circle></el-button><br/>
@@ -68,10 +116,10 @@
                     <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
                     <span>挂机</span>
                 </li>
-            </ul>
+            </ul> -->
             
             <div class="call-content">
-                <div v-show="curIndex == 0">呼叫保持中...</div>
+                <div v-show="curIndex == 0">{{cmd1 == 'Hold' ? '呼叫保持中...' : '已取消呼叫保持'}}</div>
                 <div v-show="curIndex == 1">
                     <p style="padding: 0 0 15px 10px;">
                     
@@ -83,13 +131,13 @@
                                 :key="index"></el-option>
                         </el-select>
                         <template v-if="transParam.trans == 'ext' || transParam.trans == 'outer' || transParam.trans == 'queue'">
-                            <el-input size="mini" style="width:120px;" v-model="shiftPhone" placeholder="请输入号码"></el-input>
-                            <el-button size="mini" type="primary" style="padding:7px;" :disabled="!shiftPhone" @click="onTransferFunc()">转接</el-button>
+                            <el-input size="mini" style="width:120px;" v-model="transferPhone" placeholder="请输入号码"></el-input>
+                            <el-button size="mini" type="primary" style="padding:7px;" :disabled="!transferPhone" @click="onTransferFunc()">转接</el-button>
                         </template>
                         <template v-if="transParam.trans == 'menu'">
                             <el-select style="width:120px;" size="mini" v-model="menuVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryMenu" 
+                                    v-for="(i, index) in queryMenu.list" 
                                     :label="i.voiceFile"
                                     :value="i"
                                     :key="index"></el-option>
@@ -98,7 +146,7 @@
                         <template v-if="transParam.trans == 'group'">
                             <el-select style="width:120px;" size="mini" v-model="groupVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryGroup" 
+                                    v-for="(i, index) in queryGroup.list" 
                                     :label="i.id"
                                     :value="i"
                                     :key="index"></el-option>
@@ -116,8 +164,11 @@
                         </ul>
                     </div>
                 </div>
-                <div v-show="curIndex == 2"> 三方通话</div>
-                <div v-show="curIndex == 3">静音中</div>
+                <div v-show="curIndex == 2"> 
+                    <el-input size="mini" style="width:120px;" v-model="transferPhone" placeholder="请输入号码"></el-input>
+                    <el-button size="mini" type="primary" style="padding:7px;" :disabled="!transferPhone" @click="onTransferFunc()">转接</el-button>
+                </div>
+                <div v-show="curIndex == 3">{{cmd2 == 'Mute' ? '静音中...' : '已取消静音'}}</div>
                 <div v-show="curIndex == null">从哪里来的</div>
             </div>
         </div>
@@ -187,7 +238,7 @@ export default {
                 role: "超级管理员",
                 registeInfo: "注册时间：2018-12-20 "
             },
-            shiftPhone: '',
+            transferPhone: '',
             newNavTree: [],
             loading: false,
             openCall: false,
@@ -221,17 +272,22 @@ export default {
             ],
             
             tempBoo: true,
-            //queryGroup: [],
-
             transferType: "",
             transParam: {},
             cmd: '',
+            cmd1: '',
+            cmd2: '',
             menuVal: '',
             groupVal: '',
         }
     },
     filters: {
-        
+        callControl(callState){
+            return !callState.data || !callState.data.id //|| !callState.isVisitor 
+        },
+        callControlIs(callState){
+            return !callState.data || !callState.data.id 
+        }
     },
     watch: {
         $route(data){
@@ -250,11 +306,14 @@ export default {
                 this.countTimeFunc()
             }else{
                 this.cmd = ''
+                this.cmd1 = ''
+                this.cmd2 = ''
                 this.transferType = ''
                 this.transParam = {}
                 this.curIndex = null
                 this.menuVal = ''
                 this.groupVal = ''
+                this.transferPhone = ''
             }
         }
     },
@@ -303,33 +362,7 @@ export default {
                     i.url = url.split("/")[0]
                 }
             })  
-
-            //this.queryMenuFunc();
-            
-            /* setTimeout(()=> {
-                this.$api.queryGroup().then(resp => {
-                    if(resp.success){
-                        this.queryGroup = resp.data.map(i => {
-                            i.value = i.id;
-                            return i;
-                        })
-                    }
-                }).catch(er => {
-                    this.$message.error(er.message)
-                })
-            }, 1000) */
-        },
-        queryMenuFunc(){
-            /* setTimeout(()=> {
-                this.$api.queryMenu().then(resp => {
-                    if(resp.success){
-                        this.queryMenu = resp.data.map(i => {
-                            i.value = i.voiceFile;
-                            return i;
-                        })
-                    }
-                })
-            }, 200) */
+  
         },
         showIndex(index){
             let i = this.curIndex;
@@ -364,13 +397,19 @@ export default {
             if(!id) return '无id'
             this.onTransferFunc(id)
         },
-        // 保持呼叫
+        // 呼叫保持
         onKeepCall(){
             this.showIndex(0)
-            let cmd = this.cmd
-            this.cmd = cmd == 'Hold' ? 'Unhold' : 'Hold' ;
-            
-            this.cmdFunc({cmd: this.cmd})
+            let cmd = this.cmd1
+            this.cmd1 = cmd == 'Hold' ? 'Unhold' : 'Hold' ;
+            this.cmdFunc({cmd: this.cmd1})
+        },
+        // 静音
+        onMute(){
+            this.showIndex(3)
+            let cmd = this.cmd2
+            this.cmd2 = cmd == 'Mute' ? 'Unmute' : 'Mute' ; 
+            this.cmdFunc({cmd: this.cmd2})
         },
         // 转接
         onTransfer(){
@@ -380,18 +419,12 @@ export default {
         onThreeCall(){
             this.showIndex(2)
         },
-        // 静音
-        onMute(){
-            this.showIndex(3)
-            let cmd = this.cmd
-            this.cmd = cmd == 'Mute' ? 'Unmute' : 'Mute' ; 
-            this.cmdFunc({cmd: this.cmd})
-        },
         // 挂断
         onHangup(){
+            let ext_id = this.queryExt.id
             this.showIndex(4)
             this.transParam = {trans: 'clear'}
-            this.onTransferFunc()
+            this.onTransferFunc(ext_id)
         },
         
         closeTimer(){
@@ -418,8 +451,8 @@ export default {
         visitorFunc(num){
             let data = this.callState.data
             
-            if(!visitor.id){
-                this.$message("来电id不能为空！")
+            if(!data || !data.id){
+                this.$message.error("来电id不能为空！")
                 return
             }
             let param = {
@@ -429,7 +462,7 @@ export default {
             }
             this.$api.connectVisitor(param).then(resp => {
                 if(resp.success){
-                    this.$message.error("操作成功")
+                    this.$message("操作成功")
                 }
             }).catch(er => {
                 this.$message.error(er.message);
@@ -440,7 +473,7 @@ export default {
             
             let data = this.callState.data
             
-            if(!data.id){
+            if(!data || !data.id){
                 this.$message.error("去电id不能为空！")
                 return
             }
@@ -462,7 +495,7 @@ export default {
         onTransferFunc(extId){
             
             let isVisitor = this.callState.isVisitor
-            let num = extId || this.shiftPhone
+            let num = extId || this.transferPhone
 
             if(isVisitor){
                 this.visitorFunc(num)
@@ -797,8 +830,29 @@ export default {
       display: flex;
       justify-content: space-around;
       border-bottom: 1px solid $--border-color-lighter;
-      padding: 12px 0;
-      li{
+      padding: 12px 10px 30px 10px;
+      .btn-item{
+            position: relative;
+            &.active{
+                background: $--color-primary;
+                border-color: $--color-primary;
+                color: white;
+            }
+            /deep/ &.active>span{
+                color: $--color-primary;
+            }
+      }
+      /deep/ .btn-item>i{
+          font-size: 16px;
+      }
+      /deep/ .btn-item>span{
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin: 5px 0 0 0;
+          transform: translate(-50%, 0);
+      }
+      /* li{
           flex: 1;
           &.active{
               .el-button{
@@ -808,17 +862,15 @@ export default {
               }
               & > span{
                   color: $--color-primary;
-                  //font-weight: bold;
               }
           }
-        //flex: 1;
         text-align: center;
         cursor: pointer;
         span{
           color: #999;
           font-size: 12px;
         }
-      }
+      } */
     }
 }
 .call-content{

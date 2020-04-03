@@ -3,7 +3,7 @@
     <!--表格栏-->
     <!-- :element-loading-text="$t('action.loading')"  -->
     <!-- v-loading="loading"  -->
-    <el-table :data="data.content" 
+    <el-table :data="data.list" 
         :highlight-current-row="highlightCurrentRow" 
         @selection-change="selectionChange" 
         @current-change="handleCurrentChange" 
@@ -11,7 +11,6 @@
         :stripe="stripe"
         :show-overflow-tooltip="showOverflowTooltip" 
         :max-height="maxHeight" 
-        :height="height" 
         :size="size" 
         :align="align" 
         style="width:100%;" >
@@ -29,6 +28,12 @@
             :type="column.type" 
             :formatter="column.formatter"
             :sortable="column.sortable==null?true:column.sortable">
+            <template slot-scope="scope">
+                <span v-if="!column.isSlot">
+                    {{scope.row[column.prop]}}
+                </span>
+                <slot v-else :name="column.prop" :row="scope.row"></slot>
+            </template>
         </el-table-column>
 
         <el-table-column label="操作" v-if="showHandle">
@@ -65,9 +70,9 @@
             style="float:left;" 
             v-if="showBatchDelete & showOperation"/> -->
 
-      <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" 
+      <!-- <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" 
         :current-page="pageRequest.pageNum" :page-size="pageRequest.pageSize" :total="data.totalSize" style="float:right;">
-      </el-pagination>
+      </el-pagination> -->
     </div>
   </div>
 </template>
@@ -94,11 +99,11 @@ export default {
         },
         maxHeight: {  // 表格最大高度
             type: Number,
-            default: 420
+            default: 620
         },
         height: {  // 表格最大高度
-            type: Number,
-            default: 250
+            type: String,
+            default: 'inherit'
         },
         showOperation: {  // 是否显示操作组件
             type: Boolean,

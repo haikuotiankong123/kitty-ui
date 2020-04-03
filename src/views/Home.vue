@@ -128,11 +128,12 @@ export default {
         // 运行websocket
         window.ws.open();
     },
+    mounted(){},
     methods: {
         loadData(){
             this.queueRequest()
             
-        },
+        },  
         
         async queueRequest(){
             /* this.acountInfo.extId */
@@ -158,11 +159,15 @@ export default {
             // 分机组
             await this.$api.queryGroup().then(resp => {
                     if(resp.success){
-                        let data = resp.data.map(i => {
+                        let list = resp.data.map(i => {
                             i.value = i.id;
                             return i;
                         })
-                        this.$store.commit('setQueryGroup', data)
+                        let result = {
+                            list,
+                            total: list.length
+                        }
+                        this.$store.commit('setQueryGroup', result)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)
@@ -171,12 +176,15 @@ export default {
             // 语音菜单
             await this.$api.queryMenu().then(resp => {
                     if(resp.success){
-                        let data = resp.data.map(i => {
+                        let list = resp.data.map(i => {
                             i.value = i.voiceFile;
                             return i;
                         })
-                        this.$store.commit('setQueryMenu', data)
-                        console.log('返回1----》', this.$store.state.queryMenu)
+                        let result = {
+                            list,
+                            total: 2
+                        }
+                        this.$store.commit('setQueryMenu', result)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)
