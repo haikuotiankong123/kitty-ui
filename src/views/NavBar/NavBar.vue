@@ -183,6 +183,7 @@ export default {
             // console.log("一级菜单子级------>", this.leftNavTree)
         },
         handleopen() {
+            
             console.log('handleopen')
         },
         handleclose() {
