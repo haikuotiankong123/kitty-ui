@@ -10,7 +10,8 @@ import ElementUI from 'element-ui'
 //import '@/assets/package/lib/index.css'
 import '@/assets/package/src/index.scss'
 import '@/assets/style.scss'
-import 'font-awesome/css/font-awesome.min.css'
+
+//import 'font-awesome/css/font-awesome.min.css'
 import '@/assets/iconfont/iconfont.css'
 
 

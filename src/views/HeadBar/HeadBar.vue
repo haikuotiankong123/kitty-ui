@@ -653,9 +653,11 @@ export default {
         
         // 切换路由
         handleRoute(menu){
-            let url = menu.children[0].url;
+            let child = menu.children[0]
+            let url = child.url || child.children[0].url;
             if(!url){
-                alert("无路由")
+                util.message("无路由")
+                return;
             }
             console.log("/" + url);
             this.$router.push("/" + url);

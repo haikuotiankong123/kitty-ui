@@ -219,6 +219,7 @@ export default {
 
         // 路由操作处理
         handleRoute (route) {
+            console.log('this.mainTabs----->', this.mainTabs)
             // tab标签页选中, 如果不存在则先添加
             var tab = this.mainTabs.filter(item => item.name === route.name)[0]
             if (!tab) {

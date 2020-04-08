@@ -1,5 +1,7 @@
 <template>
-    <h1>中继监控</h1>
+  <div>
+      <h1>分机队列</h1>
+  </div>
 </template>
 
 <script>
