@@ -45,8 +45,8 @@
         <el-menu ref="navmenu" default-active="1" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
         :collapse="collapse" :collapse-transition="false" :unique-opened="true  "
         @open="handleopen" @close="handleclose" @select="handleselect">
-        <!-- 导航菜单树组件，动态加载菜单 -->
-        <menu-tree v-for="item in leftNavTree" :key="item.id" :menu="item"></menu-tree>
+            <!-- 导航菜单树组件，动态加载菜单 -->
+            <menu-tree v-for="item in leftNavTree" :key="item.id" :menu="item"></menu-tree>
         </el-menu>
         
         <!-- 底部介绍 -->

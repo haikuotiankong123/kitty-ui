@@ -153,8 +153,6 @@ function changeMenu(arr){
   }
 }
 
-
-
 /**
 * 添加动态(菜单)路由
 * @param {*} menuList 菜单列表
@@ -182,15 +180,18 @@ function addDynamicRoutes (menuList = [], routes = []) {
         }
       }
       let path = getIFramePath(menuList[i].url)
+      
       if (path) {
         // 如果是嵌套页面, 通过iframe展示
         route['path'] = path
         route['component'] = resolve => require([`@/views/IFrame/IFrame`], resolve)
+        
         // 存储嵌套页面路由路径和访问URL
         let url = getIFrameUrl(menuList[i].url)
         let iFrameUrl = {'path':path, 'url':url}
         store.commit('addIFrameUrl', iFrameUrl)
       } else {
+        
        try {
          // 根据菜单URL动态加载vue组件，这里要求vue组件须按照url路径存储
          // 如url="sys/user"，则组件路径应是"@/views/sys/user.vue",否则组件加载不到

@@ -219,15 +219,6 @@ export default {
 
         this.loadData();
         
-        window.vm.$on('onOutgoing', (data)=>{
-            // 呼叫做...
-        })
-        window.vm.$on('answer', (data)=>{
-            // 接听做...
-        })
-        window.vm.$on('hangup', (data)=>{
-            // 挂机做...
-        })
     },
     methods :{
         handleQuestionChange(inx, id) {

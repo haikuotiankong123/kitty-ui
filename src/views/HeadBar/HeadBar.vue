@@ -37,7 +37,7 @@
         <div>
             <p class="num">
                 <span class="call-num">
-                    <i class="el-icon-phone-outline"></i> 
+                    <i class="el-icon-phone-outline" @click="onJoin('1006')"></i> 
                     <template v-if="callState.isVisitor">
                         <i>{{callState.data && callState.data.from}}</i>
                     </template>
@@ -165,8 +165,18 @@
                     </div>
                 </div>
                 <div v-show="curIndex == 2"> 
-                    <el-input size="mini" style="width:120px;" v-model="transferPhone" placeholder="请输入号码"></el-input>
-                    <el-button size="mini" type="primary" style="padding:7px;" :disabled="!transferPhone" @click="onTransferFunc()">转接</el-button>
+                    <el-input size="mini" style="width:120px;" v-model="joinExtNum" placeholder="请输入分机号"></el-input>
+                    <el-button size="mini" type="primary" style="padding:7px;" :disabled="!joinExtNum" @click="onJoin()">加入咨询</el-button>
+
+                    <div style="padding-top:15px; border-top: 1px dashed #c9ccd2;">
+                        <ul class="call-table">
+                            <li v-for="i in allExt" :key="i.id">
+                                {{i.id}}
+                                <el-button size="mini" class="btn"
+                                    @click="onJoin(i.id)">加入</el-button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div v-show="curIndex == 3">{{cmd2 == 'Mute' ? '静音中...' : '已取消静音'}}</div>
                 <div v-show="curIndex == null">从哪里来的</div>
@@ -224,6 +234,7 @@ import { mapState } from 'vuex'
 import Hamburger from "@/components/Hamburger"
 import PersonalPanel from "@/views/Core/PersonalPanel"
 import ThemePicker from "@/components/ThemePicker"
+import util from "@/utils/util"
 export default {
     components:{
         Hamburger,
@@ -279,6 +290,7 @@ export default {
             cmd2: '',
             menuVal: '',
             groupVal: '',
+            joinExtNum: ''
         }
     },
     filters: {
@@ -418,6 +430,19 @@ export default {
         // 三方通话
         onThreeCall(){
             this.showIndex(2)
+        },
+        onJoin(extId){
+            let num = extId || this.joinExtNum;
+            let param = {
+                ext_id: num
+            }
+            this.$api.connectConference(param).then(resp => {
+                if(resp.success){
+                    util.message(resp.message)
+                }
+            }).catch(err => {
+                util.error(err.message)
+            })
         },
         // 挂断
         onHangup(){
