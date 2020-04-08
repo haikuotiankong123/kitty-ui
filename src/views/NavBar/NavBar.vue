@@ -45,8 +45,8 @@
         <el-menu ref="navmenu" default-active="1" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
         :collapse="collapse" :collapse-transition="false" :unique-opened="true  "
         @open="handleopen" @close="handleclose" @select="handleselect">
-        <!-- 导航菜单树组件，动态加载菜单 -->
-        <menu-tree v-for="item in leftNavTree" :key="item.id" :menu="item"></menu-tree>
+            <!-- 导航菜单树组件，动态加载菜单 -->
+            <menu-tree v-for="item in leftNavTree" :key="item.id" :menu="item"></menu-tree>
         </el-menu>
         
         <!-- 底部介绍 -->
@@ -183,6 +183,7 @@ export default {
             // console.log("一级菜单子级------>", this.leftNavTree)
         },
         handleopen() {
+            
             console.log('handleopen')
         },
         handleclose() {
@@ -219,6 +220,7 @@ export default {
 
         // 路由操作处理
         handleRoute (route) {
+            console.log('this.mainTabs----->', this.mainTabs)
             // tab标签页选中, 如果不存在则先添加
             var tab = this.mainTabs.filter(item => item.name === route.name)[0]
             if (!tab) {

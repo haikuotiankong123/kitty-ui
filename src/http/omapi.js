@@ -105,6 +105,11 @@ api.connectOuter = (data) => post('ConnectOuter', {...data, sender: '1004'})    
 api.controlCmd = data => post('ControlCmd', data)
 
 /**
+ * 三方通话（只能邀请分机加入）
+ */
+api.connectConference = data => post('ConnectConference', {...data, sender: '1004'})
+
+/**
  * 语音菜单
  */
 api.queryMenu = data => post('queryMenu', data)
