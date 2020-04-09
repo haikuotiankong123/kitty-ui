@@ -11,6 +11,7 @@ import store from '@/store'
 import { getIFramePath, getIFrameUrl } from '@/utils/iframe'
 
 const Home = () => import("@/views/Home");
+const Customer = () => import("@/views/Workbench/Customer");
 
 Vue.use(Router)
 
@@ -29,7 +30,16 @@ const router = new Router({
             icon: 'fa fa-home fa-lg',
             index: 0
           }
-        }
+        },
+        {
+          path: '/workbench/customer',
+          name: '工作台',
+          component: Customer,
+          meta: {
+            icon: '',
+            index: 1
+          }
+        },
       ]
     },
     {

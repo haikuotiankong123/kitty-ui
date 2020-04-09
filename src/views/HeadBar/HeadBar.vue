@@ -6,7 +6,7 @@
         <div class="call">
             <el-form :inline="true" size="mini" :class="{'call-header':true,'is-callout': isCallout}">
                 <el-form-item style="width: 150px;">
-                    <!-- <el-input v-if="callStatus" v-model="customerDetail.phone" placeholder="来话处理"></el-input> -->
+                    
                     <el-autocomplete
                         v-model="searchPhone"
                         :fetch-suggestions="querySearchAsync"
@@ -94,29 +94,6 @@
                         挂机
                 </el-button>
             </div>
-            <!-- :style="{'pointer-events': callState.data ? 'inherit' : 'none'}" -->
-            <!-- <ul class="call-fun" >
-                <li :class="{'active':curIndex == 0}" @click="onKeepCall()">
-                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
-                    <span><i v-show="cmd == 'Hold'">取消</i>呼叫保持</span>
-                </li>
-                <li :class="{'active':curIndex == 1}" @click="onTransfer()">
-                    <el-button icon="el-icon-edit" size="mini" circle></el-button><br/>
-                    <span>转接</span>
-                </li>
-                <li :class="{'active':curIndex == 2}" @click="onThreeCall()">
-                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
-                    <span>咨询通话</span>
-                </li>
-                <li :class="{'active':curIndex == 3}" @click="onMute()">
-                    <el-button icon="el-icon-close-notification" size="mini" circle></el-button><br/>
-                    <span><i v-show="cmd == 'Mute'">取消</i>静音</span>
-                </li>
-                <li :class="{'active':curIndex == 4}" @click="onHangup()">
-                    <el-button icon="el-icon-message" size="mini" circle></el-button><br/>
-                    <span>挂机</span>
-                </li>
-            </ul> -->
             
             <div class="call-content">
                 <div v-show="curIndex == 0">{{cmd1 == 'Hold' ? '呼叫保持中...' : '已取消呼叫保持'}}</div>
@@ -198,6 +175,11 @@
     <div style="display:flex; height:100%; align-items: center; float:right">
 
     <div class="" style="float:right; padding-right:15px;">
+        <el-button 
+            size="small" 
+            type="warning"
+            @click="toWork()"
+            round>工作台</el-button>
         <el-button  
             v-if="assignExt.noDisturb === 'yes'"
             type="warning" 
@@ -343,13 +325,13 @@ export default {
             queryMenu: state=>state.queryMenu,
             
             customerDetail: state=>state.app.customerDetail,
-            callStatus: state=>state.app.callStatus,
             acountInfo: state=>state.app.acountInfo,
             uuid: state=>state.app.uuid,
             routeInfo: state => state.app.routeInfo,
             isCallout: state => state.app.isCallout
         }),
         activeIndex(){
+            console.log('索引------>', this.$route.path.split("/")[1])
             return this.$route.path.split("/")[1];
         }
     },
@@ -368,13 +350,9 @@ export default {
     methods: {
         loadData(){
             this.newNavTree = JSON.parse(JSON.stringify(this.navTree));
-            this.newNavTree.forEach((i) => {
-                if(i.children && i.children.length>0){
-                    let url = i.children.find((item) => item).url
-                    i.url = url.split("/")[0]
-                }
-            })  
-  
+        },
+        toWork(){
+            this.$router.push("/workbench/customer");
         },
         showIndex(index){
             let i = this.curIndex;
@@ -606,42 +584,7 @@ export default {
             })
         },
 
-        // 拨打按钮
-        async editCommandCallFunc() {
-            this.openCall=!this.openCall
-            // 临时
-            let b = this.callStatus ? false : true ;
-            this.$store.commit('setCallStatus', b)
-
-            let id = this.searchPhoneArr.length ? this.searchPhoneArr[0].id : null;
-            // 无
-            return;
-            if (id) {
-                // 无
-                this.$api.editCommandCall({customerId:id}).then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setCallStatus', true)
-                    }
-                })
-            }else{
-                let params = {
-                    phone: this.searchPhone,
-                    name: this.searchPhone,
-                    assign: 1,
-                    result: 1
-                }
-                // 无
-                let newCustomer = await this.$api.editCustomer(params)
-                this.$store.commit('setCustomerDetail', newCustomer)
-                let customerId = newCustomer.data.id
-                // 无
-                await this.$api.editCommandCall({customerId}).then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setCallStatus', true)
-                    }
-                })
-            }
-        },
+        
         // 切换主题
         onThemeChange: function(themeColor) {
             this.$store.commit('setThemeColor', themeColor)
@@ -659,7 +602,6 @@ export default {
                 util.message("无路由")
                 return;
             }
-            console.log("/" + url);
             this.$router.push("/" + url);
         }
     }
@@ -879,25 +821,6 @@ export default {
           margin: 5px 0 0 0;
           transform: translate(-50%, 0);
       }
-      /* li{
-          flex: 1;
-          &.active{
-              .el-button{
-                  background: $--color-primary;
-                  border-color: $--color-primary;
-                  color: white;
-              }
-              & > span{
-                  color: $--color-primary;
-              }
-          }
-        text-align: center;
-        cursor: pointer;
-        span{
-          color: #999;
-          font-size: 12px;
-        }
-      } */
     }
 }
 .call-content{

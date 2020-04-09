@@ -47,7 +47,7 @@ export default {
         //设置当前路由信息
         setRouteInfo(state, obj){
             state.routeInfo = obj;
-            state.isCallout = state.routeInfo.name == '任务外呼'
+            state.isCallout = state.routeInfo.name == '任务外呼' || state.routeInfo.name == '工作台'
         }
 
     },

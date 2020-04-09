@@ -21,7 +21,7 @@
         
         <!-- 坐席信息 -->
         <template v-if="!collapse">
-            <header class="acount" v-if="routeInfo.name == '任务外呼'">
+            <header class="acount" v-if="routeInfo.name == '任务外呼' || routeInfo.name == '工作台'">
                 <div class="picture">
                     <img src="@/assets/images/picture.jpg" />
                 </div><br/>
@@ -51,8 +51,11 @@
         
         <!-- 底部介绍 -->
         <template v-if="!collapse">
-            <footer class="footer" v-if="routeInfo.name == '任务外呼'">
-                <p> <span @click="dialogFormVisible=true" style="cursor:pointer;">设置</span>  帮助 关于</p>
+            <footer class="footer" v-if="routeInfo.name == '任务外呼' || routeInfo.name == '工作台'">
+                <p> 
+                    <span @click="dialogFormVisible=true" style="cursor:pointer;">设置</span>  帮助 关于 
+                    <span style="cursor: pointer;" @click="$router.push('/callCenter/queryExt')">后台</span>
+                </p>
                 <p style="font-size: 12px; margin-top:10px;">广州智信通网络科技有限公司 <br/>版权所有</p>
             </footer>
         </template>
@@ -183,7 +186,7 @@ export default {
             // console.log("一级菜单子级------>", this.leftNavTree)
         },
         handleopen() {
-            
+
             console.log('handleopen')
         },
         handleclose() {
