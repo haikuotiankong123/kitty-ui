@@ -36,3 +36,13 @@ export const findPermissions = (params) => {
         params
     })
 }
+
+
+// 临时分页查询
+export const findPage1 = (data) => {
+    return axios({
+        url: '/omBlacklist/findPage',
+        method: 'post',
+        data
+    })
+}

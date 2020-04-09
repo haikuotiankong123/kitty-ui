@@ -89,7 +89,7 @@ export default {
             sessionStorage.setItem('user', userInfo.account) // 保存用户到本地会话
             localStorage.setItem("acountInfo",'暂时无信息') // 账号信息保存到本地
             this.$store.commit('menuRouteLoaded', false) // 要求重新加载导航菜单
-            this.$router.push('/sys/customer')  // 登录成功，跳转到主页
+            this.$router.push('/workbench/customer')  // 登录成功，跳转到主页
           }
           this.loading = false
         }).catch((res) => {

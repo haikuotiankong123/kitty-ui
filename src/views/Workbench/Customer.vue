@@ -1,6 +1,7 @@
 <template>
   <div class="page-container" style="width:99%; height:100%;">
     <div class="left-task">
+        <!-- <i class="icons icon-baobiao7"></i> -->
         <el-form :inline="true" :model="formInline" class="select-task" size="small">
             <el-form-item label="请选择任务">
                 <el-select v-model="taskName" placeholder="请选择任务" @change="changeTask($event)" style="width:380px;">
