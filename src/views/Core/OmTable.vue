@@ -3,7 +3,7 @@
     <!--表格栏-->
     <!-- :element-loading-text="$t('action.loading')"  -->
     <!-- v-loading="loading"  -->
-    <el-table :data="data.list" 
+    <el-table :data="data.content || data.list" 
         :highlight-current-row="highlightCurrentRow" 
         @selection-change="selectionChange" 
         @current-change="handleCurrentChange" 
