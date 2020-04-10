@@ -9,14 +9,14 @@ import iframe from './modules/iframe'
 import user from './modules/user'
 import menu from './modules/menu'
 import first from './first'
-import two from './two'
+import table from './table'
 
 console.log('app', app)
-console.log('two', two)
+console.log('two', table)
 const store = new vuex.Store({
     ...first,
     modules: {
-        ...two,
+        ...table,
         app,
         tab,
         iframe,

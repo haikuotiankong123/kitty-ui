@@ -1,7 +1,7 @@
 // 导入所有接口
 import api from './api'
 import omapi from './omapi'
-import api2 from './api2'
+import tableApi from './tableApi'
 
 const install = Vue => {
     if (install.installed)
@@ -13,7 +13,7 @@ const install = Vue => {
         // 注意，此处挂载在 Vue 原型的 $api 对象上
         $api: {
             get() {
-                return {...api, ...omapi, ...api2}
+                return {...api, ...omapi, ...tableApi}
             }
         }
     })
