@@ -38,20 +38,18 @@
                     @click="onDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </om-table>
-        <om-page name="queryGroup"></om-page>
+        
     </div>
 </template>
 
 <script>
-import OmTable from "@/views/Core/OmTable"
-import OmPage from "@/views/Core/OmPage"
+import OmTable from "@/components/omTable"
 import {mapState, mapActions} from "vuex"
 import storeUtil from "@/store/storeUtil"
 
 export default {
     components: {
-        OmTable,
-        OmPage
+        OmTable
     },
     computed: {
         ...mapState({

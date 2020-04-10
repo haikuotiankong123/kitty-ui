@@ -43,9 +43,6 @@
                     @click="onDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </om-table>
-        <div>
-            <om-page name="queryMenu"></om-page>
-        </div>
         
         
         <!--新增编辑界面-->
@@ -143,14 +140,12 @@
 
 <script>
 import KtTable from "@/views/Core/KtTable"
-import OmTable from "@/views/Core/OmTable"
-import OmPage from "@/views/Core/OmPage"
+import OmTable from "@/components/omTable"
 import storeUtil from "@/store/storeUtil"
 import {mapState, mapActions} from "vuex"
 export default {
     components: {
-        OmTable,
-        OmPage
+        OmTable
     },
     computed: {
         ...mapState({

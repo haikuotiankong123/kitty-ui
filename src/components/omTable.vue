@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="om-table">
     <!--表格栏-->
     <!-- :element-loading-text="$t('action.loading')"  -->
     <!-- v-loading="loading"  -->
@@ -27,7 +27,7 @@
             :key="column.prop" 
             :type="column.type" 
             :formatter="column.formatter"
-            :sortable="column.sortable==null?true:column.sortable">
+            :sortable="column.sortable==null?false:column.sortable">
             <template slot-scope="scope">
                 <span v-if="!column.isSlot">
                     {{scope.row[column.prop]}}
@@ -39,6 +39,13 @@
         <el-table-column label="操作" v-if="showHandle">
             <template slot-scope="scope">
                 <slot name="handle" :scope="scope"></slot>
+                <el-button
+                    size="mini"
+                    @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                <el-button
+                    size="mini"
+                    type="danger"
+                    @click="handleDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </el-table-column>
         
@@ -70,9 +77,9 @@
             style="float:left;" 
             v-if="showBatchDelete & showOperation"/> -->
 
-      <!-- <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" 
+      <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" background
         :current-page="pageRequest.pageNum" :page-size="pageRequest.pageSize" :total="data.totalSize" style="float:right;">
-      </el-pagination> -->
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -119,7 +126,7 @@ export default {
         },
         stripe: {  // 是否显示斑马线
             type: Boolean,
-            default: true
+            default: false
         },
         highlightCurrentRow: {  // // 是否高亮当前行
             type: Boolean,
@@ -139,7 +146,7 @@ export default {
             // 分页信息
             pageRequest: {
                 pageNum: 1,
-                pageSize: 10
+                pageSize: 15
             },
             loading: false,  // 加载标识
             selections: []  // 列表选中列
@@ -186,34 +193,47 @@ export default {
             this.$confirm('确认删除选中记录吗？', '提示', {
                 type: 'warning'
             }).then(() => {
+                
                 let params = []
                 let idArray = (ids+'').split(',')
                 for(var i=0; i<idArray.length; i++) {
                     params.push({'id':idArray[i]})
-            }
-            this.loading = true
-            let callback = res => {
-                if(res.code == 200) {
-                    this.$message({message: '删除成功', type: 'success'})
-                    this.findPage()
-                } else {
-                    this.$message({message: '操作失败, ' + res.msg, type: 'error'})
                 }
-                this.loading = false
-            }
-            // console.log('删除操作----->', ids)
-            this.$emit('handleDelete', {params:params, callback:callback})}).catch(() => {})
+                
+                this.loading = true
+                let callback = res => {
+                    
+                    if(res.code == 200) {
+                        this.$message({message: '删除成功', type: 'success'})
+                        
+                        this.findPage()
+                        
+                    } else {
+                        this.$message({message: '操作失败, ' + res.msg, type: 'error'})
+                    }
+                    this.loading = false
+                }    
+                
+                this.$emit('handleDelete', {params:params, callback:callback});
+                
+
+            }).catch(() => {})
+            
         }
     },
     mounted() {
         this.refreshPageRequest(1)
-        setTimeout(()=>{
-            //console.log("表格------>", this.columns);
-        },1000)
     }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
+.om-table{
+    /deep/ .el-table th{
+        background: #EBEEF5 !important;
+        color: #666;
+        //border-top: 1px solid #c5c5c5;
+    }
+}
 </style>
