@@ -28,7 +28,42 @@ function getApiName(apiName){
     return obj;
 }
 
+/**
+ * 黑名单管理
+ */
 api.omBlacklist = getApiName('omBlacklist')
 
+/**
+ * 中继管理
+ * 中继状态，ready: 可用，active: 摘机、振铃或通话中，unwired: 未接线，offline: 离线
+ * 转接类型，ext：分机，menu：语音菜单，outer：外部电话，group：分机组，queue：分机队列
+ */
+api.omLine = getApiName('omLine')
+
+/**
+ * 分机管理
+ * 线路状态，Ready：空闲，Active：振铃，Progress：拨号中，Offline：离线，Offhook：听催挂音
+ * 呼叫转移方式，0：关闭，1：全转，2：遇忙或无应答转
+ * 呼叫权限，0：内线，1：市话，2：国内，3：国际
+ * 代接权限，Yes：允许，no：不允许
+ * 录音开关，on：开启，off：关闭
+ * api功能开关，0：关闭，7：开启
+ */
+api.omExt = getApiName('omExt')
+
+/**
+ * 分机组管理
+ */
+api.omGroup = getApiName('omGroup')
+
+/**
+ * 语音菜单管理
+ */
+api.omMenu = getApiName('omMenu')
+
+/**
+ * 来电直通车
+ */
+api.omDirect = getApiName('omDirect')
 
 export default api
