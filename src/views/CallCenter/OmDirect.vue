@@ -24,12 +24,9 @@
 
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="电话号码" prop="phone" >
 				<el-input v-model="editDataForm.phone" auto-complete="off"></el-input>
 			</el-form-item>
@@ -39,27 +36,15 @@
 			<el-form-item label="直通分机号" prop="extId" >
 				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="状态，1：生效，0：失效" prop="state" >
+			<el-form-item label="状态" prop="state" >
 				<el-input v-model="editDataForm.state" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="createTime" >
-				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateTime" >
-				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -89,15 +74,10 @@ export default {
 			},
             // 新增编辑界面数据
 			editDataForm: {
-				id: null,
 				phone: null,
 				remark: null,
 				extId: null,
-				state: null,
-				createBy: null,
-				createTime: null,
-				lastUpdateBy: null,
-				lastUpdateTime: null,
+				state: null
 			},
         }
     },
@@ -117,15 +97,11 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"", minWidth:100},
                 {prop:"phone", label:"电话号码", minWidth:100},
                 {prop:"remark", label:"说明信息", minWidth:100},
                 {prop:"extId", label:"直通分机号", minWidth:100},
-                {prop:"state", label:"状态，1：生效，0：失效", minWidth:100},
-                {prop:"createBy", label:"", minWidth:100},
-                {prop:"createTime", label:"", minWidth:100},
-                {prop:"lastUpdateBy", label:"", minWidth:100},
-                {prop:"lastUpdateTime", label:"", minWidth:100},
+                /* ，1：生效，0：失效 */
+                {prop:"state", label:"状态", minWidth:100}
             ]
             this.filterColumns = this.columns
             /* let showColumn = ['id', 'phone'] // 自定义显示表头
@@ -159,15 +135,10 @@ export default {
 			this.dialogVisible = true
 			this.operation = true
 			this.editDataForm = {
-				id: null,
 				phone: null,
 				remark: null,
 				extId: null,
-				state: null,
-				createBy: null,
-				createTime: null,
-				lastUpdateBy: null,
-				lastUpdateTime: null,
+				state: null
 			}
         },
         // 显示编辑界面

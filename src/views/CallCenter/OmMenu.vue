@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="电话号码">
-                    <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
+                <el-form-item label="语音菜单编号">
+                    <el-input v-model="dataForm.menuId" placeholder="请输入语音菜单编号"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -24,12 +24,9 @@
 
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="语音菜单编号" prop="menuId" >
 				<el-input v-model="editDataForm.menuId" auto-complete="off"></el-input>
 			</el-form-item>
@@ -54,24 +51,12 @@
 			<el-form-item label="按键结束符" prop="exit" >
 				<el-input v-model="editDataForm.exit" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="createTime" >
-				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateTime" >
-				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
-			</el-form-item>
-
+			
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -133,7 +118,7 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"", minWidth:100},
+                /* {prop:"id", label:"", minWidth:100}, */
                 {prop:"menuId", label:"语音菜单编号", minWidth:100},
                 {prop:"menuName", label:"语音菜单名称", minWidth:100},
                 {prop:"menuDesp", label:"语音菜单描述", minWidth:100},
@@ -141,17 +126,10 @@ export default {
                 {prop:"repeat", label:"重复次数", minWidth:100},
                 {prop:"direct", label:"是否直拨分机号", minWidth:100},
                 {prop:"infoLength", label:"拨号检测长度", minWidth:100},
-                {prop:"exit", label:"按键结束符", minWidth:100},
-                {prop:"createBy", label:"", minWidth:100},
-                {prop:"createTime", label:"", minWidth:100},
-                {prop:"lastUpdateBy", label:"", minWidth:100},
-                {prop:"lastUpdateTime", label:"", minWidth:100},
+                {prop:"exit", label:"按键结束符", minWidth:100}
             ]
             this.filterColumns = this.columns
-            /* let showColumn = ['id', 'phone'] // 自定义显示表头
-            this.filterColumns = showColumn.map(i => {
-                    return this.columns.find(obj => obj.prop == i)
-                }) */
+            
       	},
 
         // 批量删除

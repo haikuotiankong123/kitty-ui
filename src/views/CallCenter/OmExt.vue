@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="电话号码">
-                    <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
+                <el-form-item label="分机号">
+                    <el-input v-model="dataForm.extId" placeholder="请输入分机号"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -19,17 +19,20 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
-            <!-- <template v-slot:handle="{scope}"></template> -->
+			<template v-slot:state="{row}">
+				{{row.state | valToName(extState)}}
+			</template>
+            <!-- <template v-slot:handle="{row}"></template> -->
         </om-table>
 
         <!--新增编辑界面-->
-        <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+        <el-dialog class="column-three" :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
+			<!-- <el-form-item label="编号" prop="id" >
 				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
+			</el-form-item> -->
 			<el-form-item label="分机号" prop="extId" >
 				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
 			</el-form-item>
@@ -48,17 +51,18 @@
 			<el-form-item label="邮箱地址" prop="email" >
 				<el-input v-model="editDataForm.email" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="呼叫权限" prop="callRestriction" >
-				<el-input v-model="editDataForm.callRestriction" auto-complete="off"></el-input>
-			</el-form-item>
+			
 			<el-form-item label="代接权限" prop="callPickup" >
 				<el-input v-model="editDataForm.callPickup" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="noDisturb" >
-				<el-input v-model="editDataForm.noDisturb" auto-complete="off"></el-input>
-			</el-form-item>
+			
 			<el-form-item label="呼叫转移方式" prop="fwdType" >
-				<el-input v-model="editDataForm.fwdType" auto-complete="off"></el-input>
+				<el-select v-model="editDataForm.fwdType">
+					<el-option v-for="(i) in fwdType"
+						:key="i.value"
+						:label="i.label"
+						:value="i.value"></el-option>
+				</el-select>
 			</el-form-item>
 			<el-form-item label="呼叫转移号码" prop="fwdNumber" >
 				<el-input v-model="editDataForm.fwdNumber" auto-complete="off"></el-input>
@@ -70,23 +74,26 @@
 				<el-input v-model="editDataForm.mobile" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="录音开关" prop="record" >
-				<el-input v-model="editDataForm.record" auto-complete="off"></el-input>
+				<el-radio-group v-model="editDataForm.record">
+					<el-radio-button label="on">开</el-radio-button>
+					<el-radio-button label="off">关</el-radio-button>
+				</el-radio-group>
 			</el-form-item>
 			<el-form-item label="api功能开关" prop="api" >
 				<el-input v-model="editDataForm.api" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="线路状态" prop="state" >
+			<!-- <el-form-item label="线路状态" prop="state" >
 				<el-input v-model="editDataForm.state" auto-complete="off"></el-input>
-			</el-form-item>
+			</el-form-item> -->
 			<el-form-item label="注册IP" prop="registerIp" >
 				<el-input v-model="editDataForm.registerIp" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
-                <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">确 定</el-button>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -108,7 +115,30 @@ export default {
             size: 'mini',
             operation: false, // true:新增, false:编辑
             dialogVisible: false, // 新增编辑界面是否显示
-            editLoading: false,
+			editLoading: false,
+			extState: [
+                {
+                    value:'Ready',
+                    label: '空闲'
+                },{
+                    value:'Active',
+                    label: '振铃'
+                },{
+                    value:'Progress',
+                    label: '拨号中'
+                },{
+                    value:'Offline',
+                    label: '离线'
+                },{
+                    value:'Offhook',
+                    label: '听催挂音'
+                }
+			],
+			fwdType: [
+				{value: 0, label: '关闭'},
+				{value: 1, label: '全转'},
+				{value: 2, label: '遇忙或无应答转'}
+			],
             dataFormRules: {
 				name: [
 					{ required: true, message: '请输入用户名', trigger: 'blur' }
@@ -134,9 +164,9 @@ export default {
 				api: null,
 				state: null,
 				registerIp: null
-			},
+			}
         }
-    },
+	},
     mounted(){
         this.initColumns();
     },
@@ -154,19 +184,20 @@ export default {
       	initColumns() {
 			this.columns = [
                 {prop:"id", label:"编号", minWidth:100},
-                {prop:"extId", label:"分机号", minWidth:100},
+				{prop:"extId", label:"分机号", minWidth:100},
+				{prop:"state", label:"线路状态", minWidth:100, isSlot: true},
                 {prop:"lineid", label:"线路编号", minWidth:100},
                 {prop:"groups", label:"分机组", minWidth:100},
                 {prop:"voicefile", label:"排队语音文件", minWidth:100},
-                {prop:"callRestriction", label:"呼叫权限", minWidth:100},
                 {prop:"noDisturb", label:"", minWidth:100},
-                {prop:"fwdType", label:"呼叫转移方式", minWidth:100},
+                
+				/* 
+				{prop:"callRestriction", label:"呼叫权限", minWidth:100},
+				{prop:"fwdType", label:"呼叫转移方式", minWidth:100},
                 {prop:"fwdNumber", label:"呼叫转移号码", minWidth:100},
-                {prop:"fork", label:"同振号码", minWidth:100},
+				{prop:"fork", label:"同振号码", minWidth:100},
                 {prop:"mobile", label:"手机号码", minWidth:100},
-                {prop:"state", label:"线路状态", minWidth:100},
-				
-				/* {prop:"satffid", label:"工号", minWidth:100},
+				{prop:"satffid", label:"工号", minWidth:100},
 				{prop:"email", label:"邮箱地址", minWidth:100},
 				{prop:"callPickup", label:"代接权限", minWidth:100},
 				{prop:"record", label:"录音开关", minWidth:100},

@@ -508,7 +508,7 @@ export default {
         },
         
         assignExtFunc(){
-            let param =  this.assignExt
+            let param =  {extId: '1004'} //this.assignExt
             let val = param.noDisturb
             param.noDisturb = val  == 'yes' ? 'no' : 'yes';
             console.log('参数---->', param)

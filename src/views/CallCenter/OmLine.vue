@@ -20,7 +20,10 @@
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
             <template v-slot:state="{row}">
-                {{row.state | filterState}}
+                {{row.state | valToName(lineState)}}
+            </template>
+            <template v-slot:transferType="{row}">
+                {{row.transferType | valToName(transferType)}}
             </template>
             <!-- <template v-slot:handle="{row}"></template> -->
         </om-table>
@@ -47,10 +50,10 @@
 			</el-form-item>
 			
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -86,23 +89,46 @@ export default {
 				state: null,
 				transferType: null,
 				transferValue: null
-			},
+            },
+            lineState: [
+                {
+                    value:'ready',
+                    label: '可用'
+                },{
+                    value:'active',
+                    label: '摘机、振铃或通话中'
+                },{
+                    value:'unwired',
+                    label: '未接线'
+                },{
+                    value:'offline',
+                    label: '离线'
+                }
+            ],
+            transferType: [
+                {
+                    value:'ext',
+                    label: '分机'
+                },{
+                    value:'menu',
+                    label: '语音菜单'
+                },{
+                    value:'outer',
+                    label: '外部电话'
+                },{
+                    value:'group',
+                    label: '分机组'
+                },{
+                    value:'queue',
+                    label: '分机队列'
+                }
+            ]
         }
     },
     mounted(){
         this.initColumns();
     },
-    filters: {
-        filterState(val){
-            //ready: 可用，active: 摘机、振铃或通话中，unwired: 未接线，offline: 离线
-            let obj = {ready: '可用', active: '摘机、振铃或通话中', unwired: '未接线', offline: '离线'}
-            let result = ''
-            for(let key in obj){
-                if(key == val) result = obj[key]
-            }
-            return result;
-        }
-    },
+    
     computed:{
         ...mapState('omLine', {
             dataResp: state => state.dataResp,
@@ -120,7 +146,7 @@ export default {
                 {prop:"trunkId", label:"中继编号", minWidth:100},
                 {prop:"lineId", label:"中继编号", minWidth:100},
                 {prop:"state", label:"中继状态", isSlot: true, minWidth:100},
-                {prop:"transferType", label:"转接类型", minWidth:100},
+                {prop:"transferType", label:"转接类型", isSlot: true, minWidth:100},
                 {prop:"transferValue", label:"转接分机", minWidth:100},
             ]
             this.filterColumns = this.columns

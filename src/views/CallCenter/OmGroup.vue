@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="电话号码">
-                    <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
+                <el-form-item label="分机组ID">
+                    <el-input v-model="dataForm.groupId" placeholder="请输入分机组ID"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -19,12 +19,15 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
+            <template v-slot:distribution="{row}">
+                {{row.distribution | valToName(distribution)}}
+            </template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="100px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
 			<el-form-item label="编号" prop="id" >
@@ -36,27 +39,15 @@
 			<el-form-item label="语音文件" prop="voicefile" >
 				<el-input v-model="editDataForm.voicefile" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="有效值：sequential（顺选）、circular（轮选）、group（群振）" prop="distribution" >
+			<el-form-item label="有效值" prop="distribution" >
 				<el-input v-model="editDataForm.distribution" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="createTime" >
-				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="lastUpdateTime" >
-				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
-			</el-form-item>
-
+			
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -94,7 +85,17 @@ export default {
 				createTime: null,
 				lastUpdateBy: null,
 				lastUpdateTime: null,
-			},
+            },
+            distribution: [{
+                value:'sequential',
+                label: '顺选'
+            },{
+                value: 'circular',
+                label: '轮选'
+            },{
+                value: 'group',
+                label: '群振'
+            }]
         }
     },
     mounted(){
@@ -116,17 +117,9 @@ export default {
                 {prop:"id", label:"编号", minWidth:100},
                 {prop:"groupId", label:"分机组编号", minWidth:100},
                 {prop:"voicefile", label:"语音文件", minWidth:100},
-                {prop:"distribution", label:"有效值：sequential（顺选）、circular（轮选）、group（群振）", minWidth:100},
-                {prop:"createBy", label:"", minWidth:100},
-                {prop:"createTime", label:"", minWidth:100},
-                {prop:"lastUpdateBy", label:"", minWidth:100},
-                {prop:"lastUpdateTime", label:"", minWidth:100},
+                {prop:"distribution", label:"有效值", isSlot: true, minWidth:100}
             ]
             this.filterColumns = this.columns
-            /* let showColumn = ['id', 'phone'] // 自定义显示表头
-            this.filterColumns = showColumn.map(i => {
-                    return this.columns.find(obj => obj.prop == i)
-                }) */
       	},
 
         // 批量删除
