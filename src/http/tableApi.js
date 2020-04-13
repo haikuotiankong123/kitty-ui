@@ -66,4 +66,15 @@ api.omMenu = getApiName('omMenu')
  */
 api.omDirect = getApiName('omDirect')
 
+/**
+ * 客户标签管理
+ */
+api.usrBookmark = getApiName('usrBookmark')
+
+
+/**
+ * 客户模板管理
+ */
+api.usrCustomerConfig = getApiName('usrCustomerConfig')
+
 export default api

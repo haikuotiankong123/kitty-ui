@@ -23,8 +23,8 @@ let websocketUrl = ""
 let imgUrl = ""
 let host = ""
 if(process.env.NODE_ENV == 'development'){
-    //host = "localhost";
-    host = "192.168.10.31";
+    host = "localhost";
+    //host = "192.168.10.31";
 
     baseUrl = `http://${host}:8090`
 
