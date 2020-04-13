@@ -17,18 +17,16 @@
 	<!--表格树内容栏-->
     <el-table :data="tableTreeDdata" stripe size="mini" style="width: 100%;"
       rowKey="id" v-loading="loading" element-loading-text="$t('action.loading')">
-      <el-table-column
-        prop="id" header-align="center" align="center" width="80" label="ID">
-      </el-table-column>
+
       <table-tree-column 
-        prop="name" header-align="center" treeKey="id" width="150" label="名称">
+        prop="name" header-align="center" treeKey="id" width="350" label="名称">
       </table-tree-column>
-      <el-table-column header-align="center" align="center" label="图标">
+      <el-table-column header-align="center" align="center" width="120" label="图标">
         <template slot-scope="scope">
           <i :class="scope.row.icon || ''"></i>
         </template>
       </el-table-column>
-      <el-table-column prop="type" header-align="center" align="center" label="类型">
+      <el-table-column prop="type" header-align="center"  width="120"  align="center" label="类型">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.type === 0" size="small">目录</el-tag>
           <el-tag v-else-if="scope.row.type === 1" size="small" type="success">菜单</el-tag>
@@ -36,10 +34,10 @@
         </template>
       </el-table-column>
       <el-table-column 
-        prop="parentName" header-align="center" align="center" width="120" label="上级菜单">
+        prop="parentName" header-align="center" align="center" width="250" label="上级菜单">
       </el-table-column>
       <el-table-column
-        prop="url" header-align="center" align="center" width="150" 
+        prop="url" header-align="center" align="center" width="250" 
         :show-overflow-tooltip="true" label="菜单URL">
       </el-table-column>
       <el-table-column
@@ -47,10 +45,10 @@
         :show-overflow-tooltip="true" label="授权标识">
       </el-table-column>
       <el-table-column
-        prop="orderNum" header-align="center" align="center" label="排序">
+        prop="orderNum" header-align="center" align="center" width="150" label="排序">
       </el-table-column>
       <el-table-column
-        fixed="right" header-align="center" align="center" width="185" :label="$t('action.operation')">
+        fixed="right" header-align="center" align="center" :label="$t('action.operation')">
         <template slot-scope="scope">
           <kt-button icon="fa fa-edit" :label="$t('action.edit')" perms="sys:menu:edit" @click="handleEdit(scope.row)"/>
           <kt-button icon="fa fa-trash" :label="$t('action.delete')" perms="sys:menu:delete" type="danger" @click="handleDelete(scope.row)"/>

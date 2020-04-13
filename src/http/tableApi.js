@@ -77,4 +77,9 @@ api.usrBookmark = getApiName('usrBookmark')
  */
 api.usrCustomerConfig = getApiName('usrCustomerConfig')
 
+/**
+ * 业务类型设置
+ */
+api.usrType = getApiName('usrType')
+
 export default api
