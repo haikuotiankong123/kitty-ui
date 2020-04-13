@@ -6,15 +6,19 @@ import i18n from './i18n'
 import store from './store'
 import global from '@/utils/global'
 import ElementUI from 'element-ui'
+import filter from '@/filter/index'
 //import 'element-ui/lib/theme-chalk/index.css'
 //import '@/assets/package/lib/index.css'
 import '@/assets/package/src/index.scss'
-import '@/assets/style.scss'
+import '@/style/style.scss'
 
 //import 'font-awesome/css/font-awesome.min.css'
 import '@/assets/iconfont/iconfont.css'
 
 
+for(let key in filter){
+  Vue.filter(key, filter[key])
+}
 
 Vue.use(ElementUI)
 

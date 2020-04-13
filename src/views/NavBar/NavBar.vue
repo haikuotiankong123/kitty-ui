@@ -54,7 +54,7 @@
             <footer class="footer" v-if="routeInfo.name == '任务外呼' || routeInfo.name == '工作台'">
                 <p> 
                     <span @click="dialogFormVisible=true" style="cursor:pointer;">设置</span>  帮助 关于 
-                    <span style="cursor: pointer;" @click="$router.push('/callCenter/queryExt')">后台</span>
+                    <span style="cursor: pointer;" @click="$router.push('/callCenter/omExt')">后台</span>
                 </p>
                 <p style="font-size: 12px; margin-top:10px;">广州智信通网络科技有限公司 <br/>版权所有</p>
             </footer>
@@ -174,7 +174,6 @@ export default {
     },
     methods: {
         loadData(val){
-            //await this.assignExtFunc({'lineid': val})
             this.queryExtFunc()
         },
         //左侧导航

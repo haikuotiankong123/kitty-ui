@@ -2,14 +2,14 @@
   <div class="om-table">
     <!--表格栏-->
     <!-- :element-loading-text="$t('action.loading')"  -->
-    <!-- v-loading="loading"  -->
+    <!--   -->
     <el-table :data="data.content || data.list" 
+        v-loading="loading"
         :highlight-current-row="highlightCurrentRow" 
         @selection-change="selectionChange" 
         @current-change="handleCurrentChange" 
         :border="border" 
         :stripe="stripe"
-        :show-overflow-tooltip="showOverflowTooltip" 
         :max-height="maxHeight" 
         :size="size" 
         :align="align" 
@@ -27,7 +27,8 @@
             :key="column.prop" 
             :type="column.type" 
             :formatter="column.formatter"
-            :sortable="column.sortable==null?false:column.sortable">
+            :sortable="column.sortable==null?false:column.sortable"
+            :show-overflow-tooltip="showOverflowTooltip" >
             <template slot-scope="scope">
                 <span v-if="!column.isSlot">
                     {{scope.row[column.prop]}}
@@ -36,20 +37,22 @@
             </template>
         </el-table-column>
 
-        <el-table-column label="操作" v-if="showHandle">
+        <el-table-column label="操作" v-if="showHandle" :show-overflow-tooltip="showOverflowTooltip" >
             <template slot-scope="scope">
-                <slot name="handle" :scope="scope"></slot>
+                <slot name="handle" :row="scope.row"></slot>
                 <el-button
+                    v-if="showEdit"
                     size="mini"
+                    type="text"
                     @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                 <el-button
+                    v-if="showDelete"
                     size="mini"
-                    type="danger"
+                    type="text"
                     @click="handleDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </el-table-column>
         
-
         <!-- <el-table-column :label="$t('action.operation')" width="185" fixed="right" v-if="showOperation" header-align="center" align="center">
             <template slot-scope="scope">
                 <kt-button icon="fa fa-edit" :label="$t('action.edit')" :perms="permsEdit" :size="size" @click="handleEdit(scope.$index, scope.row)" />
@@ -67,17 +70,8 @@
             :disabled="selections.length===0" 
             style="float:left;" 
             v-if="showBatchDelete & showOperation">批量删除</el-button>
-        <!-- <kt-button 
-            label="批量删除"
-            :perms="permsDelete" 
-            :size="size" 
-            type="danger" 
-            @click="handleBatchDelete()" 
-            :disabled="selections.length===0" 
-            style="float:left;" 
-            v-if="showBatchDelete & showOperation"/> -->
-
-      <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" background
+        
+      <el-pagination small layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" background
         :current-page="pageRequest.pageNum" :page-size="pageRequest.pageSize" :total="data.totalSize" style="float:right;">
       </el-pagination>
     </div>
@@ -116,10 +110,6 @@ export default {
             type: Boolean,
             default: true
         },
-        showHandle: {   // 是否显示编辑
-            type: Boolean,
-            default: false
-        },
         border: {  // 是否显示边框
             type: Boolean,
             default: false
@@ -136,8 +126,21 @@ export default {
             type: Boolean,
             default: true
         },
+
         showBatchDelete: {  // 是否显示操作组件
             type: Boolean,
+            default: true
+        },
+        showHandle: {   // 是否显示操作
+            type: Boolean,
+            default: true
+        },
+        showEdit:{
+            type: Boolean,  // 是否显示编辑
+            default: true
+        },
+        showDelete: {
+            type: Boolean,  // 是否显示删除
             default: true
         }
     },
