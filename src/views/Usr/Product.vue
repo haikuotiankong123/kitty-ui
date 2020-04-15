@@ -81,13 +81,13 @@ export default {
         this.initColumns();
     },
     computed:{
-        ...mapState('usrBookmark', {
+        ...mapState('usrProduct', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrBookmark', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('usrProduct', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽

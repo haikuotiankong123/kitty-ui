@@ -27,14 +27,32 @@
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
+			<el-form-item label="" prop="id" >
 				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="名称" prop="name" >
-				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
+			<el-form-item label="" prop="companyId" >
+				<el-input v-model="editDataForm.companyId" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="" prop="label" >
+				<el-input v-model="editDataForm.label" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="1文本 2数字 3日期 4枚举单选 5枚举多选" prop="type" >
+				<el-input v-model="editDataForm.type" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="1启用 2禁用" prop="status" >
+				<el-input v-model="editDataForm.status" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="1必填 0非必填" prop="isRequired" >
+				<el-input v-model="editDataForm.isRequired" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="json枚举数据{1:'a'}" prop="jsonData" >
+				<el-input v-model="editDataForm.jsonData" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="默认值" prop="jsonValue" >
+				<el-input v-model="editDataForm.jsonValue" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
@@ -72,8 +90,14 @@ export default {
             // 新增编辑界面数据
 			editDataForm: {
 				id: null,
-				name: null,
+				companyId: null,
+				label: null,
+				type: null,
+				status: null,
+				isRequired: null,
+				jsonData: null,
 				remark: null,
+				jsonValue: null,
 			},
         }
     },
@@ -81,21 +105,27 @@ export default {
         this.initColumns();
     },
     computed:{
-        ...mapState('usrBookmark', {
+        ...mapState('usrCustomerConfig', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrBookmark', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('usrCustomerConfig', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
-                {prop:"name", label:"名称", minWidth:100},
+                {prop:"id", label:"", minWidth:100},
+                {prop:"companyId", label:"", minWidth:100},
+                {prop:"label", label:"", minWidth:100},
+                {prop:"type", label:"1文本 2数字 3日期 4枚举单选 5枚举多选", minWidth:100},
+                {prop:"status", label:"1启用 2禁用", minWidth:100},
+                {prop:"isRequired", label:"1必填 0非必填", minWidth:100},
+                {prop:"jsonData", label:"json枚举数据{1:'a'}", minWidth:100},
                 {prop:"remark", label:"", minWidth:100},
+                {prop:"jsonValue", label:"默认值", minWidth:100},
             ]
             this.filterColumns = this.columns
       	},
@@ -126,8 +156,14 @@ export default {
 			this.operation = true
 			this.editDataForm = {
 				id: null,
-				name: null,
+				companyId: null,
+				label: null,
+				type: null,
+				status: null,
+				isRequired: null,
+				jsonData: null,
 				remark: null,
+				jsonValue: null,
 			}
         },
         // 显示编辑界面

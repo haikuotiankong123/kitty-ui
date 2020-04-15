@@ -33,8 +33,20 @@
 			<el-form-item label="名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="remark" >
+			<el-form-item label="备注" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="创建人" prop="createBy" >
+				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="创建时间" prop="createTime" >
+				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="最后更新人" prop="lastUpdateBy" >
+				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="最后更新时间" prop="lastUpdateTime" >
+				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
@@ -74,6 +86,10 @@ export default {
 				id: null,
 				name: null,
 				remark: null,
+				createBy: null,
+				createTime: null,
+				lastUpdateBy: null,
+				lastUpdateTime: null,
 			},
         }
     },
@@ -81,13 +97,13 @@ export default {
         this.initColumns();
     },
     computed:{
-        ...mapState('usrBookmark', {
+        ...mapState('usrType', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrBookmark', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('usrType', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -95,7 +111,11 @@ export default {
 			this.columns = [
                 {prop:"id", label:"编号", minWidth:100},
                 {prop:"name", label:"名称", minWidth:100},
-                {prop:"remark", label:"", minWidth:100},
+                {prop:"remark", label:"备注", minWidth:100},
+                {prop:"createBy", label:"创建人", minWidth:100},
+                {prop:"createTime", label:"创建时间", minWidth:100},
+                {prop:"lastUpdateBy", label:"最后更新人", minWidth:100},
+                {prop:"lastUpdateTime", label:"最后更新时间", minWidth:100},
             ]
             this.filterColumns = this.columns
       	},
@@ -128,6 +148,10 @@ export default {
 				id: null,
 				name: null,
 				remark: null,
+				createBy: null,
+				createTime: null,
+				lastUpdateBy: null,
+				lastUpdateTime: null,
 			}
         },
         // 显示编辑界面

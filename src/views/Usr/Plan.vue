@@ -33,8 +33,32 @@
 			<el-form-item label="名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="remark" >
+			<el-form-item label="电话号码" prop="phone" >
+				<el-input v-model="editDataForm.phone" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="拨打时间" prop="callTime" >
+				<el-input v-model="editDataForm.callTime" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="分机号" prop="callExtId" >
+				<el-input v-model="editDataForm.callExtId" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="备注信息" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="类型，1：人工拨打，2：自动拨打" prop="type" >
+				<el-input v-model="editDataForm.type" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="创建时间" prop="createTime" >
+				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="创建人" prop="createBy" >
+				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="更新时间" prop="lastUpdateTime" >
+				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="更新人" prop="lastUpdateBy" >
+				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
@@ -73,7 +97,15 @@ export default {
 			editDataForm: {
 				id: null,
 				name: null,
+				phone: null,
+				callTime: null,
+				callExtId: null,
 				remark: null,
+				type: null,
+				createTime: null,
+				createBy: null,
+				lastUpdateTime: null,
+				lastUpdateBy: null,
 			},
         }
     },
@@ -81,13 +113,13 @@ export default {
         this.initColumns();
     },
     computed:{
-        ...mapState('usrBookmark', {
+        ...mapState('usrPlan', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrBookmark', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('usrPlan', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -95,7 +127,15 @@ export default {
 			this.columns = [
                 {prop:"id", label:"编号", minWidth:100},
                 {prop:"name", label:"名称", minWidth:100},
-                {prop:"remark", label:"", minWidth:100},
+                {prop:"phone", label:"电话号码", minWidth:100},
+                {prop:"callTime", label:"拨打时间", minWidth:100},
+                {prop:"callExtId", label:"分机号", minWidth:100},
+                {prop:"remark", label:"备注信息", minWidth:100},
+                {prop:"type", label:"类型，1：人工拨打，2：自动拨打", minWidth:100},
+                {prop:"createTime", label:"创建时间", minWidth:100},
+                {prop:"createBy", label:"创建人", minWidth:100},
+                {prop:"lastUpdateTime", label:"更新时间", minWidth:100},
+                {prop:"lastUpdateBy", label:"更新人", minWidth:100},
             ]
             this.filterColumns = this.columns
       	},
@@ -127,7 +167,15 @@ export default {
 			this.editDataForm = {
 				id: null,
 				name: null,
+				phone: null,
+				callTime: null,
+				callExtId: null,
 				remark: null,
+				type: null,
+				createTime: null,
+				createBy: null,
+				lastUpdateTime: null,
+				lastUpdateBy: null,
 			}
         },
         // 显示编辑界面
