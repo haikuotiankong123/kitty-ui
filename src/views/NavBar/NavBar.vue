@@ -168,21 +168,20 @@ export default {
         this.handleRoute(this.$route)
     },
     mounted(){
-        this.loadData('IPPhone 16')
-
+        
         this.handleLeftNav();
     },
     methods: {
-        loadData(val){
-            this.queryExtFunc()
-        },
+       
         //左侧导航
         handleLeftNav(){
             let parentId = this.$route.meta.parentId;
-            if(!parentId) return;
+            console.log('导航父级id----->', parentId);
+            if(!parentId) {
+                this.leftNavTree = []    
+                return;
+            }
             this.leftNavTree = this.navTree.find((i) => i.id == parentId).children;
-            // console.log("一级菜单id------>", this.$route.meta.parentId)
-            // console.log("一级菜单子级------>", this.leftNavTree)
         },
         handleopen() {
 
@@ -206,14 +205,7 @@ export default {
                 this.$message.error(err.message);
             })
         },
-        queryExtFunc(){
-            /* let param = {ext_id: this.acountInfo.extId}
-            this.$api.queryExt(param).then((resp) => {
-                if(resp.success){
-                    this.$store.commit('setQueryExt', resp.data)
-                } 
-            }) */
-        },
+        
         // 提交分机
         subExtForm(){
             this.assignExtFunc()

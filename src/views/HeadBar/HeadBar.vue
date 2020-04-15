@@ -112,18 +112,18 @@
                             <el-button size="mini" type="primary" style="padding:7px;" :disabled="!transferPhone" @click="onTransferFunc()">转接</el-button>
                         </template>
                         <template v-if="transParam.trans == 'menu'">
-                            <el-select style="width:120px;" size="mini" v-model="menuVal" @change="ivrFunc($event)">
+                            <el-select style="width:120px;" value-key="id" size="mini" v-model="menuVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryMenu.list" 
+                                    v-for="(i, index) in queryMenu" 
                                     :label="i.voiceFile"
                                     :value="i"
                                     :key="index"></el-option>
                             </el-select>
                         </template>
                         <template v-if="transParam.trans == 'group'">
-                            <el-select style="width:120px;" size="mini" v-model="groupVal" @change="ivrFunc($event)">
+                            <el-select style="width:120px;" size="mini" value-key="id" v-model="groupVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryGroup.list" 
+                                    v-for="(i, index) in queryGroup" 
                                     :label="i.id"
                                     :value="i"
                                     :key="index"></el-option>
@@ -181,7 +181,7 @@
             @click="toWork()"
             round>工作台</el-button>
         <el-button  
-            v-if="assignExt.noDisturb === 'yes'"
+            v-if="queryExt.noDisturb === 'yes'"
             type="warning" 
             size="small" 
             icon="el-icon-remove-outline" 
@@ -212,7 +212,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import Hamburger from "@/components/Hamburger"
 import PersonalPanel from "@/views/Core/PersonalPanel"
 import ThemePicker from "@/components/ThemePicker"
@@ -248,7 +248,7 @@ export default {
 
             countTime: '',
             timer: null,
-            curIndex: null,
+            curIndex: 1,
             /**
              * 去电和来电的转接： 1：总机 | 2：挂断 | 3：分机 | 4：分机列表 | 5：分机组 | 6：IVR | 7：播放语音 | 8：转外部电话
              * 所对应的字段名称： default | clear  | ext_id  |  ext_id    | grou_id  | menu_id|  voicfile  | outer_to
@@ -348,6 +348,7 @@ export default {
         
     },
     methods: {
+        ...mapActions(['queryExtClick']),
         loadData(){
             this.newNavTree = JSON.parse(JSON.stringify(this.navTree));
         },
@@ -508,15 +509,15 @@ export default {
         },
         
         assignExtFunc(){
-            let param =  {extId: '1004'} //this.assignExt
-            let val = param.noDisturb
-            param.noDisturb = val  == 'yes' ? 'no' : 'yes';
-            console.log('参数---->', param)
+            let param =  {extId: this.queryExt.id, lineid: this.queryExt.lineid}
+            let val = this.queryExt.noDisturb
+            let ext_id = this.queryExt.id
+            param.noDisturb = val == 'yes' ? 'no' : 'yes';
+            
             this.$api.assignExt(param).then((resp)=>{
                 if(resp.success){
-                    this.$store.commit('setAssignExt',resp.data)
+                    this.queryExtClick({ext_id})
                     this.$message(resp.message);
-                    console.log('分机编辑--->', this.assignExt)
                 }
             })
         },

@@ -116,7 +116,6 @@
             </p>
             <h5>坐席号</h5>
             <ul class="call-table">
-              <li>admin--1010 <el-button size="mini" class="btn">转接</el-button></li>
               <li>esaycall--1020 <el-button size="mini" class="btn">转接</el-button></li>
             </ul>
           </div>

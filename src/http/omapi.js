@@ -1,6 +1,7 @@
 
 import {post} from './post.js'
 
+let tempExt = '1005'
 
 /**
  * 切记 说三遍了
@@ -54,7 +55,7 @@ api.assignExt = (data) =>{
     for(let key in data){
         param['extForm.'+key] = data[key]
     }
-    return post('assignExt', param)
+    return post('assignExt', {...param})
 } 
 
 /**
@@ -82,7 +83,7 @@ api.queryGroup = data => post('queryGroup', data)
  * <ext_id>: 主叫
  * <ext_id_2>: 被叫
  */
-api.connectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      // 无  临时
+api.connectExt = (data) => post('ConnectExt', {...data, sender: tempExt})      // 无  临时
 
 
 /**
@@ -92,12 +93,12 @@ api.connectExt = (data) => post('ConnectExt', {...data, sender: '1004'})      //
 /**
  * 处理来电转接功能，支持转分机，转语音菜单，外部电话
  */
-api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: '1004'})    // 临时
+api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: tempExt})    // 临时
 
 /**
  * 去电转接
  */
-api.connectOuter = (data) => post('ConnectOuter', {...data, sender: '1004'})        // 临时
+api.connectOuter = (data) => post('ConnectOuter', {...data, sender: tempExt})        // 临时
 
 /**
  * 保存呼叫和静音
@@ -107,7 +108,7 @@ api.controlCmd = data => post('ControlCmd', data)
 /**
  * 三方通话（只能邀请分机加入）
  */
-api.connectConference = data => post('ConnectConference', {...data, sender: '1004'})
+api.connectConference = data => post('ConnectConference', {...data, sender: tempExt})
 
 /**
  * 语音菜单

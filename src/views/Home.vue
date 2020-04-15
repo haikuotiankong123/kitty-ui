@@ -138,7 +138,7 @@ export default {
         async queueRequest(){
             /* this.acountInfo.extId */
             // 当前分机
-            let param = {ext_id: '1004'}
+            let param = {ext_id: '1005'}
             await this.$api.queryExt(param).then((resp) => {
                         if(resp.success){
                             this.$store.commit('setQueryExt', resp.data)
@@ -159,15 +159,15 @@ export default {
             // 分机组
             await this.$api.queryGroup().then(resp => {
                     if(resp.success){
-                        let list = resp.data.map(i => {
+                        /* let list = resp.data.map(i => {
                             i.value = i.id;
                             return i;
                         })
                         let result = {
                             list,
                             total: list.length
-                        }
-                        this.$store.commit('setQueryGroup', result)
+                        } */
+                        this.$store.commit('setQueryGroup', resp.data)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)
@@ -176,15 +176,15 @@ export default {
             // 语音菜单
             await this.$api.queryMenu().then(resp => {
                     if(resp.success){
-                        let list = resp.data.map(i => {
+                        /* let list = resp.data.map(i => {
                             i.value = i.voiceFile;
                             return i;
                         })
                         let result = {
                             list,
                             total: 2
-                        }
-                        this.$store.commit('setQueryMenu', result)
+                        } */
+                        this.$store.commit('setQueryMenu', resp.data)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)
