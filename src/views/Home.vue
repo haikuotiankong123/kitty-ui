@@ -138,7 +138,7 @@ export default {
         async queueRequest(){
             /* this.acountInfo.extId */
             // 当前分机
-            let param = {ext_id: '1005'}
+            let param = {ext_id: '1004'}
             await this.$api.queryExt(param).then((resp) => {
                         if(resp.success){
                             this.$store.commit('setQueryExt', resp.data)
@@ -176,15 +176,16 @@ export default {
             // 语音菜单
             await this.$api.queryMenu().then(resp => {
                     if(resp.success){
-                        /* let list = resp.data.map(i => {
-                            i.value = i.voiceFile;
-                            return i;
-                        })
-                        let result = {
-                            list,
-                            total: 2
-                        } */
                         this.$store.commit('setQueryMenu', resp.data)
+                    }
+                }).catch(er => {
+                    this.$message.error(er.message)
+                });
+
+            // 中继
+            await this.$api.queryTrunk({trunk_id: '31604149'}).then(resp => {
+                    if(resp.success){
+                        this.$store.commit('setQueryTrunk', resp.data)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)

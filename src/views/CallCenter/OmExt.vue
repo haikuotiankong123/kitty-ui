@@ -189,7 +189,7 @@ export default {
                 {prop:"lineid", label:"线路编号", minWidth:100},
                 {prop:"groups", label:"分机组", minWidth:100},
                 {prop:"voicefile", label:"排队语音文件", minWidth:100},
-                {prop:"noDisturb", label:"", minWidth:100},
+                {prop:"noDisturb", label:"是否免打扰", minWidth:100},
                 
 				/* 
 				{prop:"callRestriction", label:"呼叫权限", minWidth:100},

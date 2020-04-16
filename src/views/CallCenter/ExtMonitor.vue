@@ -3,7 +3,15 @@
         <div class="button-container">
 
             <el-form :inline="true" style="margin-left: 20px;border-bottom: 1px solid #ebedf0">
-                
+                <el-form-item label="分机组：">
+                    <el-select v-model="groupName" value-key="id" @change="changeGroup" size="small">
+                        <el-option v-for="i in extGroup"
+                            :key="i.id"
+                            :label="i.id"
+                            :value="i"></el-option>
+                    </el-select>
+                </el-form-item>
+
                 <el-form-item label="坐席状态选择：" style="color: #0DAEAF;margin-bottom: 0">
                     <el-checkbox-group v-model="stateList">
                         
@@ -35,16 +43,6 @@
 
         </div>
 
-        <el-form size="small">
-            <el-form-item label="分机组">
-                <el-select v-model="groupName" value-key="id" @change="changeGroup">
-                    <el-option v-for="i in queryGroup"
-                        :key="i.id"
-                        :label="i.id"
-                        :value="i"></el-option>
-                </el-select>
-            </el-form-item>
-        </el-form>
 
         <div>
             <ul class="agent-list">
@@ -187,9 +185,18 @@ export default {
             groupData: state=>state.dataResp
         }),
         ...mapState({
-            queryGroup: state => state.queryGroup,
             queryExt: state => state.queryExt
         }),
+        extGroup(){
+            let data = this.$store.state.queryGroup
+            this.$nextTick(()=>{
+                if(data[0]){
+                    this.groupName = data[0];
+                    this.changeGroup(data[0])
+                }
+            })
+            return data;
+        },
         getExtList(){
             let arr = []
             this.extMonitor.forEach((i) => {
@@ -311,12 +318,13 @@ export default {
             this.$api.assignExt(param).then((resp)=>{
                 if(resp.success){
                     this.curExt = resp.data
-                    //this.queryExtClick({ext_id})
                     this.$message(resp.message);
                 }
             })
         },
         changeGroup(item){
+            
+            if(!item) return;
             if(item.ext && item.ext.length){
                 this.extMonitor = [];
                 this.queryExtFunc(item.ext)
@@ -333,7 +341,6 @@ export default {
                     }).catch(e => this.$message.error(e.message))
             })
             this.extMonitor = arr;
-            console.log('分机组分机-----》', this.extMonitor)
         },
         onCloseInternal(){
             this.curExt = {};
@@ -421,6 +428,7 @@ export default {
 	}
 }
 .agent-list{
+    padding: 30px 0;
 	li{
 		height: 100px;
 		width: 240px;

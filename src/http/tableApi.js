@@ -25,6 +25,11 @@ function getApiName(apiName){
         method: 'get',
         data
     })
+    obj.findTree = data => axios({
+        url: '/'+apiName+'/findTree',
+        method: 'get',
+        data
+    })
     return obj;
 }
 
@@ -62,6 +67,11 @@ api.omGroup = getApiName('omGroup')
 api.omMenu = getApiName('omMenu')
 
 /**
+ * 按键流程
+ */
+api.omMenuDtmf = getApiName('omMenuDtmf')
+
+/**
  * 来电直通车
  */
 api.omDirect = getApiName('omDirect')
@@ -81,5 +91,8 @@ api.usrCustomerConfig = getApiName('usrCustomerConfig')
  * 业务类型设置
  */
 api.usrType = getApiName('usrType')
+
+
+
 
 export default api

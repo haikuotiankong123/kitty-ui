@@ -1,7 +1,7 @@
 
 import {post} from './post.js'
 
-let tempExt = '1005'
+let tempExt = '1004'
 
 /**
  * 切记 说三遍了
@@ -124,6 +124,8 @@ api.queryGroup = data => post('queryGroup', data)
  * 查询语音文件
  */
 api.queryVoice = data => post('QueryVoice', data)
+
+
 
 
 export default api

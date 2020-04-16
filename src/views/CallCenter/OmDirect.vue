@@ -19,6 +19,9 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
+            <template v-slot:state="{row}">
+                {{row.state | filterState}}
+            </template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
@@ -37,7 +40,9 @@
 				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="状态" prop="state" >
-				<el-input v-model="editDataForm.state" auto-complete="off"></el-input>
+                <el-radio v-model="editDataForm.state" label="1">生效</el-radio>
+                <el-radio v-model="editDataForm.state" label="0">失效</el-radio>
+				<!-- <el-input v-model="editDataForm.state" auto-complete="off"></el-input> -->
 			</el-form-item>
 
             </el-form>
@@ -84,6 +89,13 @@ export default {
     mounted(){
         this.initColumns();
     },
+    filters:{
+        filterState(val){
+            if(!val) return
+            let result = val == 1 ? '生效' : '失效' ;
+            return result;
+        }   
+    },
     computed:{
         ...mapState('omDirect', {
             dataResp: state => state.dataResp,
@@ -101,7 +113,7 @@ export default {
                 {prop:"remark", label:"说明信息", minWidth:100},
                 {prop:"extId", label:"直通分机号", minWidth:100},
                 /* ，1：生效，0：失效 */
-                {prop:"state", label:"状态", minWidth:100}
+                {prop:"state", label:"状态", isSlot: true, minWidth:100}
             ]
             this.filterColumns = this.columns
             /* let showColumn = ['id', 'phone'] // 自定义显示表头

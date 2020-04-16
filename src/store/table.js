@@ -60,7 +60,7 @@ for( let name in api){
                 
                 return api[name][k](param).then(resp => {
                     let data = resp.data
-                    if(typeof(data) == "object"){                        
+                    if(k == "findPage"){                        
                         store.commit('setDataResp', data)
                     }
                     return resp;

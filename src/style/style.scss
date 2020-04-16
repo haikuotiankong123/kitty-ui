@@ -66,9 +66,15 @@ ul,li{
 }
 
 .el-dialog__body{
+    overflow: auto;
+    position: relative;
+    max-height: calc(90vh - 300px);
     padding: 30px 50px 20px 20px;
 }
 
+.el-dialog__footer{
+    border-top: 1px solid #E4E7ED;
+}
 .el-dialog__wrapper{
     &.column-two, &.column-three{
         &>.el-dialog{
