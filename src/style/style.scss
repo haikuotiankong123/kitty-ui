@@ -102,4 +102,21 @@ ul,li{
         }
     }
 }
-
+.el-dialog {
+    $diff: 50px;
+    max-height: calc(100% - #{diff});
+    overflow: hidden;
+    top: 10px;
+    //width: 90% !important;
+    max-width: 1204px;
+}
+.column-two {
+    width: 50%;
+    box-sizing: border-box;
+    float: left;
+    display: inline-block;
+}
+.del{
+    color: #ff4343;
+    cursor: pointer;
+}

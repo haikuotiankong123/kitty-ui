@@ -2,6 +2,7 @@
   <div class="om-table">
     <!--表格栏-->
     <!-- :element-loading-text="$t('action.loading')"  -->
+    
     <!--   -->
     <el-table :data="data.content || data.list" 
         v-loading="loading"
@@ -37,7 +38,7 @@
             </template>
         </el-table-column>
 
-        <el-table-column label="操作" v-if="showHandle" :show-overflow-tooltip="showOverflowTooltip" >
+        <el-table-column label="操作" v-if="showHandle" :show-overflow-tooltip="showOverflowTooltip" :width="handleWidth">
             <template slot-scope="scope">
                 <slot name="handle" :row="scope.row"></slot>
                 <el-button
@@ -120,7 +121,7 @@ export default {
         },
         highlightCurrentRow: {  // // 是否高亮当前行
             type: Boolean,
-            default: true
+            default: false
         },
         showOverflowTooltip: {  // 是否单行显示
             type: Boolean,
@@ -142,7 +143,11 @@ export default {
         showDelete: {
             type: Boolean,  // 是否显示删除
             default: true
-        }
+        },
+        handleWidth:{
+            type: Number,
+            default: 200
+        }     // 操作列的宽度
     },
     data() {
         return {
