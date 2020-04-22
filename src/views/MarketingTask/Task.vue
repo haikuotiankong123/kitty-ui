@@ -73,7 +73,7 @@
         <!--新增编辑界面-->
         <el-dialog class="" :title="operation?'新增':'编辑'" width="90%"  :visible.sync="dialogVisible" :close-on-click-modal="false">
             
-            <div class="column-two">
+            <div class="col-two">
                 <el-form label-width="100px" size="small" :model="editDataForm" :rules="rules">
                     <el-form-item label="项目标题" prop="name">
                         <el-input v-model="editDataForm.name"></el-input>
@@ -108,7 +108,7 @@
                 </el-form>
             </div>
 
-            <div class="column-two">
+            <div class="col-two">
                 <el-form label-width="100px" size="small" :model="editDataForm" :rules="rules">
 
                     <el-form-item label="拨打时段">
@@ -399,7 +399,5 @@ export default {
 
 <style lang="scss" scoped>
 
-.query-container{
-    padding-top:10px;padding-left:15px;
-}
+
 </style>

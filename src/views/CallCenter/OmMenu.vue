@@ -400,7 +400,5 @@ export default {
 	}
 	
 }
-.query-container{
-    padding-top:10px;padding-left:15px;
-}
+
 </style>

@@ -76,6 +76,13 @@ api.omMenuDtmf = getApiName('omMenuDtmf')
  */
 api.omDirect = getApiName('omDirect')
 
+
+
+/**
+ * 客户
+ */
+api.usrCustomer = getApiName('usrCustomer')
+
 /**
  * 客户标签管理
  */
@@ -91,6 +98,7 @@ api.usrCustomerConfig = getApiName('usrCustomerConfig')
  * 业务类型设置
  */
 api.usrType = getApiName('usrType')
+
 
 
 

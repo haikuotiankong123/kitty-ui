@@ -39,14 +39,30 @@
 			<el-form-item label="中继编号" prop="lineId" >
 				<el-input v-model="editDataForm.lineId" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="中继状态" prop="state" >
-				<el-input v-model="editDataForm.state" auto-complete="off"></el-input>
-			</el-form-item>
+			<!-- <el-form-item label="中继状态" prop="state" >
+                <el-select v-model="editDataForm.state">
+                    <el-option v-for="(i, index) in lineState" 
+                        :key="index"
+                        :label="i.label"
+                        :value="i.value"></el-option>
+                </el-select>
+			</el-form-item> -->
 			<el-form-item label="转接类型" prop="transferType" >
-				<el-input v-model="editDataForm.transferType" auto-complete="off"></el-input>
+                <el-select v-model="editDataForm.transferType" @change="changeType">
+                    <el-option v-for="(i, index) in transferType" 
+                        :key="index"
+                        :label="i.label"
+                        :value="i.value"></el-option>
+                </el-select>
 			</el-form-item>
-			<el-form-item label="转接分机" prop="transferValue" >
-				<el-input v-model="editDataForm.transferValue" auto-complete="off"></el-input>
+			<el-form-item label="转接值" prop="transferValue"  v-if="editDataForm.transferType">
+				<!-- <el-input v-model="editDataForm.transferValue" auto-complete="off"></el-input> -->
+                <template v-if="editDataForm.transferType == 'ext'"></template>
+                <template v-if="editDataForm.transferType == 'outer'"></template>
+
+                <template v-if="editDataForm.transferType == 'menu'"></template>
+                <template v-if="editDataForm.transferType == 'group'"></template>
+                <template v-if="editDataForm.transferType == 'queue'"></template>
 			</el-form-item>
 			
             </el-form>
@@ -122,7 +138,11 @@ export default {
                     value:'queue',
                     label: '分机队列'
                 }
-            ]
+            ],
+            omGroup: [],
+            omExt: [],
+            omMenu: [],
+            omQueue: []
         }
     },
     mounted(){
@@ -147,7 +167,7 @@ export default {
                 {prop:"lineId", label:"中继编号", minWidth:100},
                 {prop:"state", label:"中继状态", isSlot: true, minWidth:100},
                 {prop:"transferType", label:"转接类型", isSlot: true, minWidth:100},
-                {prop:"transferValue", label:"转接分机", minWidth:100},
+                {prop:"transferValue", label:"转接值", minWidth:100},
             ]
             this.filterColumns = this.columns
             /* let showColumn = ['id', 'phone'] // 自定义显示表头
@@ -191,6 +211,7 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
+            console.log('这条数据------》', params.row);
 			this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
@@ -217,13 +238,14 @@ export default {
 					})
 				}
 			})
-		}
+        },
+        changeType(item){
+            console.log('项目----》', item)
+        }
     }
 }
 </script>
 
-<style>
-.query-container{
-    padding-top:10px;padding-left:15px;
-}
+<style lang="scss" scoped>
+
 </style>

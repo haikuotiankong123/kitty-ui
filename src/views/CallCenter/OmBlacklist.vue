@@ -207,7 +207,5 @@ export default {
 </script>
 
 <style>
-.query-container{
-    padding-top:10px;padding-left:15px;
-}
+
 </style>

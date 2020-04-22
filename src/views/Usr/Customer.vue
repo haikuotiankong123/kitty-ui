@@ -23,29 +23,27 @@
         </om-table>
 
         <!--新增编辑界面-->
-        <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+        <el-dialog class="column-two" :title="operation?'新增':'编辑'" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
+			<!-- <el-form-item label="编号" prop="id" >
 				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
+			</el-form-item> -->
 			<el-form-item label="客户名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="电话号码" prop="phone" >
 				<el-input v-model="editDataForm.phone" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="代理商" prop="gender" >
+			<!-- <el-form-item label="代理商" prop="gender" >
 				<el-input v-model="editDataForm.gender" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="" prop="result" >
 				<el-input v-model="editDataForm.result" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="备注" prop="remark" >
-				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="createId" >
+			</el-form-item> -->
+			
+			<!-- <el-form-item label="" prop="createId" >
 				<el-input v-model="editDataForm.createId" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="" prop="createTime" >
@@ -59,17 +57,17 @@
 			</el-form-item>
 			<el-form-item label="动态字段2" prop="a2" >
 				<el-input v-model="editDataForm.a2" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="a3" >
+			</el-form-item> -->
+			<el-form-item label="邮箱" prop="a3" >
 				<el-input v-model="editDataForm.a3" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="a4" >
+			<el-form-item label="QQ" prop="a4" >
 				<el-input v-model="editDataForm.a4" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="a5" >
+			<el-form-item label="微信" prop="a5" >
 				<el-input v-model="editDataForm.a5" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="a6" >
+			<!-- <el-form-item label="" prop="a6" >
 				<el-input v-model="editDataForm.a6" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="" prop="a7" >
@@ -77,11 +75,11 @@
 			</el-form-item>
 			<el-form-item label="" prop="a8" >
 				<el-input v-model="editDataForm.a8" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="" prop="a9" >
+			</el-form-item> -->
+			<el-form-item label="性别" prop="a9" >
 				<el-input v-model="editDataForm.a9" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="a10" >
+			<!-- <el-form-item label="" prop="a10" >
 				<el-input v-model="editDataForm.a10" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="" prop="uuid" >
@@ -95,11 +93,11 @@
 			</el-form-item>
 			<el-form-item label="区" prop="area" >
 				<el-input v-model="editDataForm.area" auto-complete="off"></el-input>
-			</el-form-item>
+			</el-form-item> -->
 			<el-form-item label="地址" prop="address" >
 				<el-input v-model="editDataForm.address" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="客户类型，1：正式客户，2：任务客户" prop="type" >
+			<!-- <el-form-item label="客户类型" prop="type" >
 				<el-input v-model="editDataForm.type" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="任务编号" prop="taskId" >
@@ -107,13 +105,16 @@
 			</el-form-item>
 			<el-form-item label="用于机器流程标记" prop="flag" >
 				<el-input v-model="editDataForm.flag" auto-complete="off"></el-input>
+			</el-form-item> -->
+			<el-form-item label="备注" prop="remark" >
+				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
 			</el-form-item>
-
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
+			
         </el-dialog>
     </div>
 </template>
@@ -128,6 +129,22 @@ export default {
     },
     data(){
         return {
+			lists: [
+				{label: "客户姓名", value: 0, key: "name"},
+				{label: "电话", value: 0, key: "phone"},
+				// {label: "策略", value: 0, key: "a6"},
+				// {label: "客户昵称", value: 0, key: "a1"},
+				{label: "邮箱", value: 0, key: "a3"},
+				// {label: "品牌", value: 0, key: "a7"},
+				// {label: "客户等级", value: 0, key: "a2"},
+				{label: "QQ", value: 0, key: "a4"},
+				// {label: "分公司", value: 0, key: "a8"},
+				{label: "性别", value: 0, key: "a9"},
+				{label: "微信", value: 0, key: "a5"},
+				{label: "地址", value: 1, key: "address"},
+				{label: "备注", value: 1, key: "remark"},
+
+			],
             filterColumns: [],
             columns: [],
             timeRange: [],
@@ -189,16 +206,16 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
+                /* {prop:"id", label:"编号", minWidth:100}, */
                 {prop:"name", label:"客户名称", minWidth:100},
                 {prop:"phone", label:"电话号码", minWidth:100},
-                {prop:"gender", label:"代理商", minWidth:100},
-                {prop:"result", label:"", minWidth:100},
+                /* {prop:"gender", label:"代理商", minWidth:100},
+                {prop:"result", label:"", minWidth:100}, */
                 {prop:"remark", label:"备注", minWidth:100},
-                {prop:"createId", label:"", minWidth:100},
-                {prop:"createTime", label:"", minWidth:100},
+                /* {prop:"createId", label:"", minWidth:100},
+                {prop:"createTime", label:"", minWidth:100}, */
                 {prop:"companyId", label:"所属公司", minWidth:100},
-                {prop:"a1", label:"动态字段1", minWidth:100},
+                /* {prop:"a1", label:"动态字段1", minWidth:100},
                 {prop:"a2", label:"动态字段2", minWidth:100},
                 {prop:"a3", label:"", minWidth:100},
                 {prop:"a4", label:"", minWidth:100},
@@ -207,13 +224,15 @@ export default {
                 {prop:"a7", label:"", minWidth:100},
                 {prop:"a8", label:"", minWidth:100},
                 {prop:"a9", label:"", minWidth:100},
-                {prop:"a10", label:"", minWidth:100},
+                {prop:"a10", label:"", minWidth:100}, */
                 {prop:"uuid", label:"", minWidth:100},
-                {prop:"province", label:"省份", minWidth:100},
+                /* {prop:"province", label:"省份", minWidth:100},
                 {prop:"city", label:"城市", minWidth:100},
                 {prop:"area", label:"区", minWidth:100},
-                {prop:"address", label:"地址", minWidth:100},
-                {prop:"type", label:"客户类型，1：正式客户，2：任务客户", minWidth:100},
+				{prop:"address", label:"地址", minWidth:100}, */
+				
+				/* ，1：正式客户，2：任务客户 */
+                {prop:"type", label:"客户类型", minWidth:100},
                 {prop:"taskId", label:"任务编号", minWidth:100},
                 {prop:"flag", label:"用于机器流程标记", minWidth:100},
             ]
@@ -308,7 +327,5 @@ export default {
 </script>
 
 <style>
-.query-container{
-    padding-top:10px;padding-left:15px;
-}
+
 </style>

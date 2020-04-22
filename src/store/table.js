@@ -44,16 +44,20 @@ for( let name in api){
                 let param = {}
 
                 let form = store.state.dataForm
-                if(k == "findPage"){
+                if(k == "findPage" || k == "save" ){
                     let filter = {}
+                    let filterP = {}
                     for(let k in form){
                         let val = form[k]
                         if(val) filter[k] = val
                     }
-                    param = {columnFilterMap: filter}
-                    if(typeof(p) == 'object') {
-                        param = {...param, ...p}
+                    for(let i in p){
+                        let val = p[i]
+                        if(val) filterP[i] = val
                     }
+                    param = {columnFilterMap: filter, ...filterP}
+                    //param = {...param, ...filterP}
+                    
                 }else{
                     param = p;
                 }

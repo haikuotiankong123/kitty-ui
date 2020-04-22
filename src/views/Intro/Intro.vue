@@ -291,7 +291,7 @@ export default {
 //       font-size: 15px;
 //       padding-bottom: 10px;
 //     }
-//     .query-container{
+//     {
 //       padding: 10px;
 //       /deep/{
 //         .el-form-item{

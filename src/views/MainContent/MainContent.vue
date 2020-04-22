@@ -2,7 +2,7 @@
   <div id="main-container" class="main-container" :class="{'position-collapse-left':collapse,'position-left':!collapse, 'is-callout':!isCallout}">
     <!-- 标签页 -->
     <div class="tab-container">
-      <el-tabs class="tabs" size="mini" :class="{'position-collapse-left':collapse, 'position-left':!collapse}"
+      <el-tabs class="tabs" :class="{'position-collapse-left':collapse, 'position-left':!collapse}"
         v-model="mainTabsActiveName" :closable="true" type="card"
         @tab-click="selectedTabHandle" @tab-remove="removeTabHandle">
         <el-dropdown class="tabs-tools" :show-timeout="0" trigger="hover">

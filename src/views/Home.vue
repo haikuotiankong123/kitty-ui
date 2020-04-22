@@ -136,6 +136,7 @@ export default {
         },  
         
         async queueRequest(){
+            
             /* this.acountInfo.extId */
             // 当前分机
             let param = {ext_id: '1004'}
@@ -191,6 +192,8 @@ export default {
                     this.$message.error(er.message)
                 });
 
+            //this.$store.dispatch('omGroup/findAll')
+            //this.$api.omGroup.findAll()
             
         }
     }

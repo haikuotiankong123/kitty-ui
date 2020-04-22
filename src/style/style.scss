@@ -110,7 +110,7 @@ ul,li{
     //width: 90% !important;
     max-width: 1204px;
 }
-.column-two {
+.col-two {
     width: 50%;
     box-sizing: border-box;
     float: left;
@@ -119,4 +119,16 @@ ul,li{
 .del{
     color: #ff4343;
     cursor: pointer;
+}
+
+.query-container{
+    padding: 10px 10px 0 10px;
+    .el-form-item{
+        margin-bottom: 10px;
+    }
+}
+
+.el-table th{
+    background: #EBEEF5 !important;
+    color: #666;
 }
