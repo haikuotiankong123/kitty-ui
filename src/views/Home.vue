@@ -192,8 +192,11 @@ export default {
                     this.$message.error(er.message)
                 });
 
-            //this.$store.dispatch('omGroup/findAll')
-            //this.$api.omGroup.findAll()
+            this.$store.dispatch('omGroup/findAll')
+            this.$store.dispatch('omExt/findAll')
+            this.$store.dispatch('omMenu/findAll')
+            this.$store.dispatch('omLine/findAll')
+            
             
         }
     }

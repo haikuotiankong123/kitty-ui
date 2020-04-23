@@ -22,10 +22,22 @@ api.queryDevice = (data) => post('QueryDevice', data)
 api.queryExt = (data) => post('queryExt', data)
 
 /**
+ * 同步所有分机
+ * is_save
+ */
+api.queryAllExt = data => post('QueryAllExt', data)
+
+/**
  * 查询中继
  * <trunk_id>
  */
 api.queryTrunk = data => post('queryTrunk', data)
+
+/**
+ * 同步所有中继
+ * is_save
+ */
+api.queryAllTrunk = data => post('QueryAllTrunk', data)
 
 // 配置“分机，中继，语音菜单” “is_save=true”则会保存到数据库
 /**
@@ -125,7 +137,10 @@ api.queryGroup = data => post('queryGroup', data)
  */
 api.queryVoice = data => post('QueryVoice', data)
 
-
+/**
+ * 上传分机组到OM设备
+ */
+api.assignAllGroup = data => post('AssignAllGroup', data)
 
 
 export default api

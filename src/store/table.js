@@ -31,12 +31,16 @@ for( let name in api){
 
         obj.state.dataResp = {}
         obj.state.dataForm = {}
+        obj.state.findAll = []
 
         obj.mutations.setDataResp = function(state, data){
             state.dataResp = data
         }
         obj.mutations.setDataForm = function(state, data){
             state.dataForm = data
+        }
+        obj.mutations.setFindAll = function(state, data){
+            state.findAll = data
         }
 
         for(let k in value){
@@ -64,9 +68,8 @@ for( let name in api){
                 
                 return api[name][k](param).then(resp => {
                     let data = resp.data
-                    if(k == "findPage"){                        
-                        store.commit('setDataResp', data)
-                    }
+                    if(k == "findPage") store.commit('setDataResp', data)
+                    if(k == "findAll") store.commit('setFindAll', data)
                     return resp;
                     
                 }).catch((err)=>{

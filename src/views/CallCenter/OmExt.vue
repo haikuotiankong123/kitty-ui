@@ -9,10 +9,10 @@
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
                 </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="handleAdd">增加</el-button>
-                </el-form-item>
             </el-form>
+			<div class="right">
+                <el-button size="mini" type="success" @click="syncFunc">同步分机</el-button>
+            </div>
         </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
@@ -26,24 +26,28 @@
         </om-table>
 
         <!--新增编辑界面-->
-        <el-dialog class="column-three" :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+        <el-dialog class="column-two" :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="dialogClose">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<!-- <el-form-item label="编号" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item> -->
 			<el-form-item label="分机号" prop="extId" >
-				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
+				<el-input v-model="editDataForm.extId" auto-complete="off" disabled></el-input>
 			</el-form-item>
 			<el-form-item label="线路编号" prop="lineid" >
-				<el-input v-model="editDataForm.lineid" auto-complete="off"></el-input>
+				<el-input v-model="editDataForm.lineid" auto-complete="off" disabled></el-input>
 			</el-form-item>
 			<el-form-item label="工号" prop="satffid" >
 				<el-input v-model="editDataForm.satffid" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="分机组" prop="groups" >
-				<el-input v-model="editDataForm.groups" auto-complete="off"></el-input>
+				<!-- <el-input v-model="editDataForm.groups" auto-complete="off"></el-input> -->
+				<el-select multiple v-model="tempGroup" @change="changeGroup">
+					<el-option v-for="i in omGroupAll" 
+						:key="i.id"
+						:label="i.id"
+						:value="i.id">
+					</el-option>
+				</el-select>
 			</el-form-item>
 			<el-form-item label="排队语音文件" prop="voicefile" >
 				<el-input v-model="editDataForm.voicefile" auto-complete="off"></el-input>
@@ -79,16 +83,7 @@
 					<el-radio-button label="off">关</el-radio-button>
 				</el-radio-group>
 			</el-form-item>
-			<el-form-item label="api功能开关" prop="api" >
-				<el-input v-model="editDataForm.api" auto-complete="off"></el-input>
-			</el-form-item>
-			<!-- <el-form-item label="线路状态" prop="state" >
-				<el-input v-model="editDataForm.state" auto-complete="off"></el-input>
-			</el-form-item> -->
-			<el-form-item label="注册IP" prop="registerIp" >
-				<el-input v-model="editDataForm.registerIp" auto-complete="off"></el-input>
-			</el-form-item>
-
+			
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
@@ -108,6 +103,7 @@ export default {
     },
     data(){
         return {
+			tempGroup: [],
             filterColumns: [],
             columns: [],
             timeRange: [],
@@ -169,11 +165,20 @@ export default {
 	},
     mounted(){
         this.initColumns();
-    },
+	},
+	filters: {
+		filterGruop(val){
+			return [val]
+		}
+	},
     computed:{
-        ...mapState('omExt', {
-            dataResp: state => state.dataResp,
-            dataForm: state => state.dataForm
+		...mapState({
+            dataResp: state => state.omExt.dataResp,
+            dataForm: state => state.omExt.dataForm,
+
+            omExtAll: state => state.omExt.findAll,
+            omGroupAll: state => state.omGroup.findAll,
+            omMenuAll: state => state.omMenu.findAll,
         })
     },
     methods:{
@@ -183,9 +188,10 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
+				/* {prop:"id", label:"编号", minWidth:100}, 
+				{prop:"state", label:"线路状态", minWidth:100, isSlot: true},*/
 				{prop:"extId", label:"分机号", minWidth:100},
-				{prop:"state", label:"线路状态", minWidth:100, isSlot: true},
+				
                 {prop:"lineid", label:"线路编号", minWidth:100},
                 {prop:"groups", label:"分机组", minWidth:100},
                 {prop:"voicefile", label:"排队语音文件", minWidth:100},
@@ -258,21 +264,29 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
+			let groups = params.row.groups;
+			if(groups) this.tempGroup = groups.split(',')
+
 			this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
-        },
+		},
+		dialogClose(){
+			this.tempGroup = []
+		},
         // 编辑
 		submitForm: function () {
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
+						if(this.tempGroup.length) this.editDataForm.groups = this.tempGroup
+						console.log('----->',this.editDataForm.groups)
 						let params = Object.assign({}, this.editDataForm)
 
-						this.save(params).then((res) => {
+						this.$api.assignExt(params).then((res) => {
 							this.editLoading = false
-							if(res.code == 200) {
+							if(res.success) {
 								this.$message({ message: '操作成功', type: 'success' })
 								this.dialogVisible = false
 								this.$refs['editDataForm'].resetFields()
@@ -281,10 +295,22 @@ export default {
 							}
 							this.findPageFunc(null)
 						})
+						this.tempGroup = []
 					})
 				}
 			})
-		}
+		},
+		changeGroup(){
+			
+		},
+		syncFunc(){
+            this.$api.queryAllExt({is_save: 'true'}).then(resp => {
+				if(resp.success){
+					this.$message({ message: '同步成功', type: 'success' })
+					this.findPage(this.pageRequest)
+				}
+            })
+        }
     }
 }
 </script>

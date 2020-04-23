@@ -9,21 +9,25 @@
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
                 </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="handleAdd">增加</el-button>
-                </el-form-item>
             </el-form>
+            <div class="right">
+                <el-button size="mini" type="success" @click="syncFunc">同步中继</el-button>
+            </div>
         </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
+            :showBatchDelete="false"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
-            <template v-slot:state="{row}">
-                {{row.state | valToName(lineState)}}
+            <template v-slot:flag="{row}">
+                {{row.flag | filterFlag}}
             </template>
             <template v-slot:transferType="{row}">
                 {{row.transferType | valToName(transferType)}}
+            </template>
+            <template v-slot:transferValue="{row}">
+                {{tValue(row.transferValue, row.transferType)}}
             </template>
             <!-- <template v-slot:handle="{row}"></template> -->
         </om-table>
@@ -33,37 +37,59 @@
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="中继编号" prop="trunkId" >
-				<el-input v-model="editDataForm.trunkId" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="中继编号" prop="lineId" >
-				<el-input v-model="editDataForm.lineId" auto-complete="off"></el-input>
-			</el-form-item>
-			<!-- <el-form-item label="中继状态" prop="state" >
-                <el-select v-model="editDataForm.state">
-                    <el-option v-for="(i, index) in lineState" 
-                        :key="index"
-                        :label="i.label"
-                        :value="i.value"></el-option>
-                </el-select>
-			</el-form-item> -->
-			<el-form-item label="转接类型" prop="transferType" >
-                <el-select v-model="editDataForm.transferType" @change="changeType">
-                    <el-option v-for="(i, index) in transferType" 
-                        :key="index"
-                        :label="i.label"
-                        :value="i.value"></el-option>
-                </el-select>
-			</el-form-item>
-			<el-form-item label="转接值" prop="transferValue"  v-if="editDataForm.transferType">
-				<!-- <el-input v-model="editDataForm.transferValue" auto-complete="off"></el-input> -->
-                <template v-if="editDataForm.transferType == 'ext'"></template>
-                <template v-if="editDataForm.transferType == 'outer'"></template>
+                <el-form-item label="中继编号" prop="trunkId" >
+                    <el-input v-model="editDataForm.trunkId" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="线路ID" prop="lineId" >
+                    <el-input v-model="editDataForm.lineId" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="转接类型" prop="transferType" >
+                    <el-select v-model="editDataForm.transferType" @change="changeType">
+                        <el-option v-for="(i, index) in transferType" 
+                            :key="index"
+                            :label="i.label"
+                            :value="i.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="转接值" prop="transferValue"  v-if="editDataForm.transferType">
+                    
+                    <template v-if="editDataForm.transferType == 'ext'">
+                        <el-select filterable v-model="editDataForm.transferValue" placeholder="请选择">
+                            <el-option v-for="i in omExtAll" 
+                                :label="i.extId"
+                                :value="i.extId"
+                                :key="i.id"></el-option>
+                        </el-select>
+                    </template>
+                    <template v-if="editDataForm.transferType == 'outer'">
+                        <el-input v-model="editDataForm.transferValue" auto-complete="off" placeholder="请输入外部电话"></el-input>
+                    </template>
 
-                <template v-if="editDataForm.transferType == 'menu'"></template>
-                <template v-if="editDataForm.transferType == 'group'"></template>
-                <template v-if="editDataForm.transferType == 'queue'"></template>
-			</el-form-item>
+                    <template v-if="editDataForm.transferType == 'menu'">
+                        <el-select v-model="editDataForm.transferValue" placeholder="请选择">
+                            <el-option v-for="i in omMenuAll" 
+                                :label="i.menuName"
+                                :value="i.menuId"
+                                :key="i.id">
+                            </el-option>
+                        </el-select>
+                    </template>
+                    <template v-if="editDataForm.transferType == 'group'">
+                        <el-select filterable v-model="editDataForm.transferValue" placeholder="请选择">
+                            <el-option v-for="i in omGroupAll"
+                                :key="i.id"
+                                :label="i.id"
+                                :value="i.id"></el-option>
+                        </el-select>
+                    </template>
+                    <template v-if="editDataForm.transferType == 'queue'"></template>
+                </el-form-item>
+                <el-form-item label="状态" prop="flag" >
+                    <el-radio-group v-model="editDataForm.flag">
+                        <el-radio-button :label="1">启用</el-radio-button>
+                        <el-radio-button :label="0">禁用</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
 			
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -138,22 +164,46 @@ export default {
                     value:'queue',
                     label: '分机队列'
                 }
-            ],
-            omGroup: [],
-            omExt: [],
-            omMenu: [],
-            omQueue: []
+            ]
         }
     },
     mounted(){
         this.initColumns();
+        console.log('分------机----》', this.omExtAll)
     },
-    
+    filters: {
+        filterFlag(val){
+            if(val==1) return '启用'
+            if(val==0) return '禁用'
+        },
+        filterValue(val, type){
+            if(type == 'menu'){
+                
+            }else{
+                return val;
+            }
+        }
+    },
     computed:{
-        ...mapState('omLine', {
-            dataResp: state => state.dataResp,
-            dataForm: state => state.dataForm
-        })
+        ...mapState({
+            dataResp: state => state.omLine.dataResp,
+            dataForm: state => state.omLine.dataForm,
+
+            omExtAll: state => state.omExt.findAll,
+            omGroupAll: state => state.omGroup.findAll,
+            omMenuAll: state => state.omMenu.findAll,
+        }),
+        tValue(){
+            return (val, type)=>{
+                if(type == 'menu'){
+                    let menuId = parseInt(val)
+                    let result = this.omMenuAll.find(i => i.menuId == menuId)
+                    return result ? result.menuName : '';
+                }else{
+                    return val;
+                }
+            }
+        }
     },
     methods:{
         ...mapActions('omLine', ['findPage', 'findAll', 'save', 'delete']),
@@ -162,12 +212,11 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
                 {prop:"trunkId", label:"中继编号", minWidth:100},
-                {prop:"lineId", label:"中继编号", minWidth:100},
-                {prop:"state", label:"中继状态", isSlot: true, minWidth:100},
+                {prop:"lineId", label:"线路ID", minWidth:100},
                 {prop:"transferType", label:"转接类型", isSlot: true, minWidth:100},
-                {prop:"transferValue", label:"转接值", minWidth:100},
+                {prop:"transferValue", label:"转接值", isSlot: true, minWidth:100},
+                {prop:"flag", label:"状态", isSlot: true, minWidth:100},
             ]
             this.filterColumns = this.columns
             /* let showColumn = ['id', 'phone'] // 自定义显示表头
@@ -211,7 +260,7 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
-            console.log('这条数据------》', params.row);
+            if(params.row.transferType == "menu") params.row.transferValue = parseInt(params.row.transferValue)
 			this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
@@ -240,7 +289,12 @@ export default {
 			})
         },
         changeType(item){
-            console.log('项目----》', item)
+            console.log('------>', item)
+        },
+        syncFunc(){
+            this.$api.queryAllTrunk({is_save: 'true'}).then(resp => {
+                this.findPage(this.pageRequest)
+            })
         }
     }
 }

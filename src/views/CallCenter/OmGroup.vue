@@ -13,6 +13,10 @@
                     <el-button type="primary" @click="handleAdd">增加</el-button>
                 </el-form-item>
             </el-form>
+            <div class="right">
+                <el-button size="mini" type="success" @click="syncFunc">同步分机组</el-button>
+                <el-button size="mini" type="success" @click="uploadFunc">上传分机组</el-button>
+            </div>
         </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
@@ -22,25 +26,37 @@
             <template v-slot:distribution="{row}">
                 {{row.distribution | valToName(distribution)}}
             </template>
+            <template v-slot:exts="{row}">
+                {{row.exts | filterExts}}
+            </template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
         <!--新增编辑界面-->
-        <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+        <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="dialogClose">
             <el-form :model="editDataForm" label-width="100px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
-
-			<el-form-item label="编号" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="分机组编号" prop="groupId" >
 				<el-input v-model="editDataForm.groupId" auto-complete="off"></el-input>
 			</el-form-item>
+            <el-form-item label="分机">
+                <el-select multiple v-model="editDataForm.exts" placeholder="请选择" style="width:100%;">
+                    <el-option v-for="i in omExtAll" 
+                        :label="i.extId"
+                        :value="i.extId"
+                        :key="i.id"></el-option>
+                </el-select>
+            </el-form-item>
 			<el-form-item label="语音文件" prop="voicefile" >
 				<el-input v-model="editDataForm.voicefile" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="有效值" prop="distribution" >
-				<el-input v-model="editDataForm.distribution" auto-complete="off"></el-input>
+                <el-select v-model="editDataForm.distribution" placeholder="请选择" style="width:100%;">
+                    <el-option v-for="(i, index) in distribution"
+                        :label="i.label"
+                        :value="i.value"
+                        :key="index"></el-option>
+                </el-select>
 			</el-form-item>
 			
             </el-form>
@@ -95,17 +111,35 @@ export default {
             },{
                 value: 'group',
                 label: '群振'
-            }]
+            }],
+            exts: []
+        }
+    },
+    filters:{
+        filterExts(exts){
+            let arr = []
+            exts.forEach(i => {
+                arr.push(i.extId)
+            })
+            return arr.join(',')
         }
     },
     mounted(){
         this.initColumns();
     },
     computed:{
-        ...mapState('omGroup', {
+        /* ...mapState('omGroup', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        })
+        }), */
+        ...mapState({
+            dataResp: state => state.omGroup.dataResp,
+            dataForm: state => state.omGroup.dataForm,
+
+            omExtAll: state => state.omExt.findAll,
+            omGroupAll: state => state.omGroup.findAll,
+            omMenuAll: state => state.omMenu.findAll,
+        }),
     },
     methods:{
         ...mapActions('omGroup', ['findPage', 'findAll', 'save', 'delete']),
@@ -114,8 +148,8 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
                 {prop:"groupId", label:"分机组编号", minWidth:100},
+                {prop:"exts", label:"分机", isSlot: true, minWidth:100},
                 {prop:"voicefile", label:"语音文件", minWidth:100},
                 {prop:"distribution", label:"有效值", isSlot: true, minWidth:100}
             ]
@@ -159,7 +193,9 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
-			this.dialogVisible = true
+            params.row.exts = params.row.exts.map(i => i.extId)
+            
+            this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
         },
@@ -168,12 +204,14 @@ export default {
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
-						this.editLoading = true
+                        this.editLoading = true
+                        this.editDataForm.exts = this.editDataForm.exts.join(',')
 						let params = Object.assign({}, this.editDataForm)
-
-						this.save(params).then((res) => {
+                        
+                        this.$api.assignGroup(params).then(res => {
+						//this.save(params).then((res) => {
 							this.editLoading = false
-							if(res.code == 200) {
+							if(res.success) {
 								this.$message({ message: '操作成功', type: 'success' })
 								this.dialogVisible = false
 								this.$refs['editDataForm'].resetFields()
@@ -185,7 +223,20 @@ export default {
 					})
 				}
 			})
-		}
+        },
+        syncFunc(){
+            /* let total = this.omGroupAll.length;
+            this.omGroupAll.forEach(async (i, index) => {
+                await this.$api.assignGroup(i).catch(err => {
+                    this.$message({message: '操作失败, ' + err.msg, type: 'error'})
+                });
+                if(total == (idnex+1)) this.$message({ message: '操作成功', type: 'success' });
+            }) */
+        },
+        uploadFunc(){
+
+        },
+        dialogClose(){}
     }
 }
 </script>

@@ -13,6 +13,10 @@
                     <el-button type="primary" @click="handleAdd">增加</el-button>
                 </el-form-item>
             </el-form>
+			<div class="right">
+                <el-button size="mini" type="success" @click="syncFunc">同步语音菜单</el-button>
+				<el-button size="mini" type="success" @click="uploadFunc">上传语音菜单</el-button>
+            </div>
         </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
@@ -356,7 +360,9 @@ export default {
 					})
 				}
 			})
-		}
+		},
+		syncFunc(){},
+		uploadFunc(){}
     }
 }
 </script>

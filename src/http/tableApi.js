@@ -30,6 +30,7 @@ function getApiName(apiName){
         method: 'get',
         data
     })
+
     return obj;
 }
 
