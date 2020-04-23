@@ -53,11 +53,13 @@ for( let name in api){
                     let filterP = {}
                     for(let k in form){
                         let val = form[k]
-                        if(val) filter[k] = val
+                        if(val == undefined || val == null) continue;
+                        filter[k] = val
                     }
                     for(let i in p){
                         let val = p[i]
-                        if(val) filterP[i] = val
+                        if(val == undefined || val == null) continue;
+                        filterP[i] = val
                     }
                     param = {columnFilterMap: filter, ...filterP}
                     //param = {...param, ...filterP}

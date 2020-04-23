@@ -11,7 +11,7 @@
                 </el-form-item>
             </el-form>
 			<div class="right">
-                <el-button size="mini" type="success" @click="syncFunc">同步分机</el-button>
+                <el-button size="mini" type="success" @click="pullOm">从OM拉取</el-button>
             </div>
         </div>
         <om-table :data="dataResp"
@@ -36,16 +36,16 @@
 			<el-form-item label="线路编号" prop="lineid" >
 				<el-input v-model="editDataForm.lineid" auto-complete="off" disabled></el-input>
 			</el-form-item>
-			<el-form-item label="工号" prop="satffid" >
-				<el-input v-model="editDataForm.satffid" auto-complete="off"></el-input>
+			<el-form-item label="工号" prop="staffid" >
+				<el-input v-model="editDataForm.staffid" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="分机组" prop="groups" >
 				<!-- <el-input v-model="editDataForm.groups" auto-complete="off"></el-input> -->
 				<el-select multiple v-model="tempGroup" @change="changeGroup">
 					<el-option v-for="i in omGroupAll" 
-						:key="i.id"
-						:label="i.id"
-						:value="i.id">
+						:key="i.groupId"
+						:label="i.groupId"
+						:value="i.groupId">
 					</el-option>
 				</el-select>
 			</el-form-item>
@@ -57,7 +57,9 @@
 			</el-form-item>
 			
 			<el-form-item label="代接权限" prop="callPickup" >
-				<el-input v-model="editDataForm.callPickup" auto-complete="off"></el-input>
+				<el-radio v-model="editDataForm.callPickup" label="yes">允许</el-radio>
+                <el-radio v-model="editDataForm.callPickup" label="no">不允许</el-radio>
+				<!-- <el-input v-model="editDataForm.callPickup" auto-complete="off"></el-input> -->
 			</el-form-item>
 			
 			<el-form-item label="呼叫转移方式" prop="fwdType" >
@@ -87,7 +89,8 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">确 定</el-button>
+				<!-- :loading="editLoading" -->
+                <el-button size="small" type="primary" @click.native="submitForm" >确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -145,7 +148,7 @@ export default {
 				id: null,
 				extId: null,
 				lineid: null,
-				satffid: null,
+				staffid: null,
 				groups: null,
 				voicefile: null,
 				email: null,
@@ -203,7 +206,7 @@ export default {
                 {prop:"fwdNumber", label:"呼叫转移号码", minWidth:100},
 				{prop:"fork", label:"同振号码", minWidth:100},
                 {prop:"mobile", label:"手机号码", minWidth:100},
-				{prop:"satffid", label:"工号", minWidth:100},
+				{prop:"staffid", label:"工号", minWidth:100},
 				{prop:"email", label:"邮箱地址", minWidth:100},
 				{prop:"callPickup", label:"代接权限", minWidth:100},
 				{prop:"record", label:"录音开关", minWidth:100},
@@ -245,7 +248,7 @@ export default {
 				id: null,
 				extId: null,
 				lineid: null,
-				satffid: null,
+				staffid: null,
 				groups: null,
 				voicefile: null,
 				email: null,
@@ -265,7 +268,7 @@ export default {
         // 显示编辑界面
 		handleEdit: function (params) {
 			let groups = params.row.groups;
-			if(groups) this.tempGroup = groups.split(',')
+			if(groups.length > 0) this.tempGroup = groups.split(',').map(i => parseInt(i))
 
 			this.dialogVisible = true
 			this.operation = false
@@ -280,10 +283,9 @@ export default {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
-						if(this.tempGroup.length) this.editDataForm.groups = this.tempGroup
-						console.log('----->',this.editDataForm.groups)
+						this.editDataForm.groups = this.tempGroup
 						let params = Object.assign({}, this.editDataForm)
-
+						
 						this.$api.assignExt(params).then((res) => {
 							this.editLoading = false
 							if(res.success) {
@@ -303,13 +305,15 @@ export default {
 		changeGroup(){
 			
 		},
-		syncFunc(){
+		pullOm(){
             this.$api.queryAllExt({is_save: 'true'}).then(resp => {
 				if(resp.success){
-					this.$message({ message: '同步成功', type: 'success' })
+					this.$message({ message: '操作成功', type: 'success' })
 					this.findPage(this.pageRequest)
 				}
-            })
+            }).catch(err => {
+				util.error(err.message)
+			})
         }
     }
 }

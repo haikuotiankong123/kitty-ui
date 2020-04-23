@@ -27,21 +27,18 @@
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="" prop="remark" >
+			<el-form-item label="备注" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
 			</el-form-item>
 
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -93,9 +90,8 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"id", label:"编号", minWidth:100},
                 {prop:"name", label:"名称", minWidth:100},
-                {prop:"remark", label:"", minWidth:100},
+                {prop:"remark", label:"备注", minWidth:100},
             ]
             this.filterColumns = this.columns
       	},

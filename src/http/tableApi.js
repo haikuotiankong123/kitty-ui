@@ -101,7 +101,15 @@ api.usrCustomerConfig = getApiName('usrCustomerConfig')
 api.usrType = getApiName('usrType')
 
 
+/**
+ * 联系计划
+ */
+api.usrPlan = getApiName('usrPlan')
 
+/**
+ * 产品管理
+ */
+api.usrProduct = getApiName('usrProduct')
 
 
 export default api

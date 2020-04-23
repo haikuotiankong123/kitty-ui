@@ -41,19 +41,15 @@
 			</el-form-item>
             <!-- ，1：来电，2：去电 -->
 			<el-form-item label="黑名单类型" prop="type" >
-				<el-input v-model="editDataForm.type" ></el-input>
+                <el-radio v-model="editDataForm.type" :label="1">来电</el-radio>
+                <el-radio v-model="editDataForm.type" :label="2">去电</el-radio>
+				<!-- <el-input v-model="editDataForm.type" ></el-input> -->
 			</el-form-item>
             <!-- ，1：生效，2：失效 -->
 			<el-form-item label="状态" prop="state" >
-				<el-input v-model="editDataForm.state" ></el-input>
+                <el-radio v-model="editDataForm.state" :label="1">生效</el-radio>
+                <el-radio v-model="editDataForm.state" :label="2">失效</el-radio>
 			</el-form-item>
-			<!-- <el-form-item label="创建人" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" ></el-input>
-			</el-form-item>
-			<el-form-item label="修改人" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" ></el-input>
-			</el-form-item> -->
-
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
@@ -185,8 +181,9 @@ export default {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
-						let params = Object.assign({}, this.editDataForm)
-
+                        let params = Object.assign({}, this.editDataForm)
+                        console.log('----->', params)
+                        
 						this.save(params).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {

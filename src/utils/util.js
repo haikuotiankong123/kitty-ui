@@ -20,6 +20,8 @@ util.confirm = (title, func, callback) => {
 	});
 };
 
+
+
 util.message = msg => {
     window.vm.$message(msg)
 }
@@ -30,7 +32,14 @@ util.error = msg => {
 
 util.warning = msg => {
     window.vm.$message.warning(msg)
-} 
+}
+
+util.success = msg => {
+	window.vm.$message({
+		message: msg,
+		type: 'success'
+	})
+}
 
 const dateFormat = (date, fmt = 'yyyy-MM-dd') => {
     if(typeof(date) != 'object'){

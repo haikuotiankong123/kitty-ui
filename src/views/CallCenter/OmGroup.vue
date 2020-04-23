@@ -14,8 +14,8 @@
                 </el-form-item>
             </el-form>
             <div class="right">
-                <el-button size="mini" type="success" @click="syncFunc">同步分机组</el-button>
-                <el-button size="mini" type="success" @click="uploadFunc">上传分机组</el-button>
+                <el-button size="mini" type="success" @click="pullOm">从OM拉取</el-button>
+                <el-button size="mini" type="success" @click="uploadOm">上传到OM</el-button>
             </div>
         </div>
         <om-table :data="dataResp"
@@ -40,7 +40,7 @@
 				<el-input v-model="editDataForm.groupId" auto-complete="off"></el-input>
 			</el-form-item>
             <el-form-item label="分机">
-                <el-select multiple v-model="editDataForm.exts" placeholder="请选择" style="width:100%;">
+                <el-select multiple v-model="exts" placeholder="请选择" style="width:100%;">
                     <el-option v-for="i in omExtAll" 
                         :label="i.extId"
                         :value="i.extId"
@@ -62,7 +62,8 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
-                <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+                <!-- :loading="editLoading" -->
+                <el-button :size="size" type="primary" @click.native="submitForm" >提交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -193,7 +194,8 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
-            params.row.exts = params.row.exts.map(i => i.extId)
+            console.log('参数------>', params)
+            this.exts = params.row.exts.map(i => i.extId)
             
             this.dialogVisible = true
 			this.operation = false
@@ -205,11 +207,12 @@ export default {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
                         this.editLoading = true
-                        this.editDataForm.exts = this.editDataForm.exts.join(',')
-						let params = Object.assign({}, this.editDataForm)
+                        let form = JSON.parse(JSON.stringify(this.editDataForm));
+                            form.exts = this.exts.join(',')
+                            form.group_id = form.groupId
+						let params = Object.assign({}, form)
                         
                         this.$api.assignGroup(params).then(res => {
-						//this.save(params).then((res) => {
 							this.editLoading = false
 							if(res.success) {
 								this.$message({ message: '操作成功', type: 'success' })
@@ -219,22 +222,31 @@ export default {
 								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
 							}
 							this.findPageFunc(null)
-						})
+						}).catch(err => {
+                            util.error(err.message)
+                        })
 					})
 				}
 			})
         },
-        syncFunc(){
-            /* let total = this.omGroupAll.length;
-            this.omGroupAll.forEach(async (i, index) => {
-                await this.$api.assignGroup(i).catch(err => {
-                    this.$message({message: '操作失败, ' + err.msg, type: 'error'})
-                });
-                if(total == (idnex+1)) this.$message({ message: '操作成功', type: 'success' });
-            }) */
+        pullOm(){
+            this.$api.queryGroup({is_save: 'true'}).then(resp => {
+				if(resp.success){
+                    util.success('操作成功')
+                    this.findPage(this.pageRequest)
+				}
+			}).catch(err => {
+				util.error(err.message)
+			})
         },
-        uploadFunc(){
-
+        uploadOm(){
+            this.$api.assignAllGroup().then(resp => {
+                if(resp.success){
+                    util.success(resp.message)
+                }
+            }).catch(err => {
+                util.error(err.message)
+            })
         },
         dialogClose(){}
     }

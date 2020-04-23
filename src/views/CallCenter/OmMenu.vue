@@ -14,8 +14,8 @@
                 </el-form-item>
             </el-form>
 			<div class="right">
-                <el-button size="mini" type="success" @click="syncFunc">同步语音菜单</el-button>
-				<el-button size="mini" type="success" @click="uploadFunc">上传语音菜单</el-button>
+                <el-button size="mini" type="success" @click="pullOm">从OM拉取</el-button>
+				<el-button size="mini" type="success" @click="uploadOm">上传到OM</el-button>
             </div>
         </div>
         <om-table :data="dataResp"
@@ -30,6 +30,9 @@
         <el-dialog :title="operation?'新增':'编辑'" width="820px" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="closeDialogFunc">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
+				<el-form-item label="语音菜单编号" prop="menuId" >
+					<el-input v-model="editDataForm.menuId" placeholder="请输入语音菜单名称" auto-complete="off"></el-input>
+				</el-form-item>
 				<el-form-item label="语音菜单名称" prop="menuName" >
 					<el-input v-model="editDataForm.menuName" placeholder="请输入语音菜单名称" auto-complete="off"></el-input>
 				</el-form-item>
@@ -42,9 +45,6 @@
 				<el-form-item label="重复次数" prop="repeat" >
 					<el-input v-model="editDataForm.repeat" placeholder="请输入重复次数" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="是否直拨分机号" prop="direct" >
-					<el-input v-model="editDataForm.direct" auto-complete="off"></el-input>
-				</el-form-item>
 				<el-form-item label="拨号检测长度" prop="infoLength" >
 					<el-input v-model="editDataForm.infoLength" placeholder="请输入长度" auto-complete="off"></el-input>
 				</el-form-item>
@@ -53,12 +53,13 @@
 				</el-form-item>
 			</el-form>
 
-			<div class="h">
+			<div class="h" v-if="isKey">
 				<span class="text">按键事件</span>&emsp;
-				<el-button size="mini" v-if="!eventList.length" @click="addKey(editDataForm.menuId)" type="success" icon="el-icon-plus">增加事件</el-button>
+				<!-- v-if="!eventList.length" -->
+				<el-button size="mini" @click="addKey(editDataForm.menuId)" type="success" icon="el-icon-plus">增加事件</el-button>
 			</div>
 
-			<div class="key-event">
+			<div class="key-event" v-if="isKey">
 				<el-form :size="size" class="key-one">
 					<template v-for="(item, index) in eventList">
 						<el-form-item :label="item.dtmfKey | lastStr" :key="index" class="event-list" :class="{'show-child': showChild && index==childIndex}">
@@ -118,7 +119,8 @@
 
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click.native="closeDialog">取消</el-button>
-                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+				<!-- :loading="editLoading" -->
+                <el-button size="small" type="primary" @click.native="submitForm" >提交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -185,7 +187,8 @@ export default {
             VIRList: [],
             filters: {
                 name:''
-            },
+			},
+			isKey: false
         }
 	},
 	filters:{
@@ -225,7 +228,6 @@ export default {
                 {prop:"menuDesp", label:"语音菜单描述", minWidth:100},
                 {prop:"voiceFile", label:"语音文件", minWidth:100},
                 {prop:"repeat", label:"重复次数", minWidth:100},
-                {prop:"direct", label:"是否直拨分机号", minWidth:100},
                 {prop:"infoLength", label:"拨号检测长度", minWidth:100},
                 {prop:"exit", label:"按键结束符", minWidth:100}
             ]
@@ -261,6 +263,7 @@ export default {
         },
         // 显示新增界面
 		handleAdd: function () {
+			this.isKey = false;
 			this.dialogVisible = true
 			this.operation = true
 			this.editDataForm = {
@@ -281,12 +284,12 @@ export default {
         },
         // 显示编辑界面
 		handleEdit: function (params) {
+			this.isKey = true;
 			this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
 			
 			let menuId = params.row.menuId
-			
 			this.getKey(menuId).then(resp => {
 				this.eventList = resp
 			});
@@ -329,7 +332,9 @@ export default {
 		addKey(menuId){
 			if(!menuId) return;
 			for(let i=0; i<10; i++){
-				this.eventList.push({menuId, dtmfKey: i, dtmfValue: ''})
+				if(this.eventList.find(item => item.dtmfKey ==i)) continue;
+				this.eventList.splice(i,0,{menuId, dtmfKey: i, dtmfValue: ''})
+				//this.eventList.push({menuId, dtmfKey: i, dtmfValue: ''})
 			}
 			console.log('按键---->', this.eventList)
 		},
@@ -339,11 +344,16 @@ export default {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
-						let params = Object.assign({}, this.editDataForm)
-
-						this.save(params).then((res) => {
+						let form = this.editDataForm
+							form.menu_id = form.menuId
+							form.menu_name = form.menuName
+							if(form.exit == '#') form.exit = '%23'	// url字符转义 %23就是#
+						
+						let params = Object.assign({}, form)
+						
+						this.$api.assignMenu(params).then((res) => {
 							this.editLoading = false
-							if(res.code == 200) {
+							if(res.success) {
 								this.$message({ message: '操作成功', type: 'success' })
 								this.dialogVisible = false
 								this.$refs['editDataForm'].resetFields()
@@ -351,18 +361,38 @@ export default {
 								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
 							}
 							this.findPageFunc(null)
+						}).catch(err => {
+							util.error(err.message)
 						})
 
 						this.eventList.forEach(i => {
 							if((i.dtmfType != 'clear' || i.dtmfType != 'defalut') && !i.dtmfValue) return;
 							this.$api.omMenuDtmf.save(i)
 						})
+						this.eventList = []
 					})
 				}
 			})
 		},
-		syncFunc(){},
-		uploadFunc(){}
+		pullOm(){
+			this.$api.queryMenu({is_save: 'true'}).then(resp => {
+				if(resp.success){
+					util.success('操作成功')
+					this.findPage(this.pageRequest)
+				}
+			}).catch(err => {
+				util.error(err.message)
+			})
+		},
+		uploadOm(){
+			this.$api.assignAllMenu().then(resp => {
+				if(resp.success){
+					util.success(resp.message)
+				}
+			}).catch(err => {
+				util.error(err.message)
+			})
+		}
     }
 }
 </script>

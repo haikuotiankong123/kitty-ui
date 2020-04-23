@@ -13,6 +13,7 @@ export function post(method, data){
             url += '&' + key + '='+ data[key]
         }
     }
+
     let api = baseUrl + "/api?method=" + method + url
 
     return new Promise((resolve, reject) =>{

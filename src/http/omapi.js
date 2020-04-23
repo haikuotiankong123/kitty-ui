@@ -65,8 +65,15 @@ api.assignMenu = data => {
 api.assignExt = (data) =>{
     let param = {}
     for(let key in data){
-        param['extForm.'+key] = data[key]
+
+        if(key == 'groups'){
+            param[key] = data[key]
+        }else{
+            param['extForm.'+key] = data[key]
+        }
+        //param['extForm.'+key] = data[key]
     }
+    //console.log('配置分机--------->', param)
     return post('assignExt', {...param})
 } 
 
@@ -141,6 +148,11 @@ api.queryVoice = data => post('QueryVoice', data)
  * 上传分机组到OM设备
  */
 api.assignAllGroup = data => post('AssignAllGroup', data)
+
+/**
+ * 上传菜单组到OM设备
+ */
+api.assignAllMenu = data => post('AssignAllMenu', data)
 
 
 export default api

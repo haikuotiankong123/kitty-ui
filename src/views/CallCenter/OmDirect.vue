@@ -24,7 +24,7 @@
             </template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
-
+        
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
@@ -40,9 +40,8 @@
 				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="状态" prop="state" >
-                <el-radio v-model="editDataForm.state" label="1">生效</el-radio>
-                <el-radio v-model="editDataForm.state" label="0">失效</el-radio>
-				<!-- <el-input v-model="editDataForm.state" auto-complete="off"></el-input> -->
+                <el-radio v-model="editDataForm.state" :label="1">生效</el-radio>
+                <el-radio v-model="editDataForm.state" :label="0">失效</el-radio>
 			</el-form-item>
 
             </el-form>
@@ -91,7 +90,6 @@ export default {
     },
     filters:{
         filterState(val){
-            if(!val) return
             let result = val == 1 ? '生效' : '失效' ;
             return result;
         }   

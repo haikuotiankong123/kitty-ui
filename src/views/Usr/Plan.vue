@@ -19,17 +19,17 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
+			<template v-slot:type="{row}">
+				{{row.type | filterType }}
+			</template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
-
+		
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
@@ -42,30 +42,19 @@
 			<el-form-item label="分机号" prop="callExtId" >
 				<el-input v-model="editDataForm.callExtId" auto-complete="off"></el-input>
 			</el-form-item>
+			<el-form-item label="类型" prop="type" >
+				<el-radio v-model="editDataForm.type" :label="1">人工拨打</el-radio>
+                <el-radio v-model="editDataForm.type" :label="2">自动拨打</el-radio>
+			</el-form-item>
 			<el-form-item label="备注信息" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="类型，1：人工拨打，2：自动拨打" prop="type" >
-				<el-input v-model="editDataForm.type" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="创建时间" prop="createTime" >
-				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="创建人" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="更新时间" prop="lastUpdateTime" >
-				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="更新人" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
-			</el-form-item>
-
+			
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer">
                 <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
                 <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -111,7 +100,13 @@ export default {
     },
     mounted(){
         this.initColumns();
-    },
+	},
+	filters:{
+		filterType(val){
+			if(val == 1) return '人工拨打'
+			if(val == 2) return '自动拨打'
+		}
+	},
     computed:{
         ...mapState('usrPlan', {
             dataResp: state => state.dataResp,
@@ -131,7 +126,7 @@ export default {
                 {prop:"callTime", label:"拨打时间", minWidth:100},
                 {prop:"callExtId", label:"分机号", minWidth:100},
                 {prop:"remark", label:"备注信息", minWidth:100},
-                {prop:"type", label:"类型，1：人工拨打，2：自动拨打", minWidth:100},
+                {prop:"type", label:"类型", isSlot: true, minWidth:100},
                 {prop:"createTime", label:"创建时间", minWidth:100},
                 {prop:"createBy", label:"创建人", minWidth:100},
                 {prop:"lastUpdateTime", label:"更新时间", minWidth:100},

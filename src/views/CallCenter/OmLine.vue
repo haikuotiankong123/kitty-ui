@@ -11,7 +11,7 @@
                 </el-form-item>
             </el-form>
             <div class="right">
-                <el-button size="mini" type="success" @click="syncFunc">同步中继</el-button>
+                <el-button size="mini" type="success" @click="pullOm">从OM拉取</el-button>
             </div>
         </div>
         <om-table :data="dataResp"
@@ -291,9 +291,12 @@ export default {
         changeType(item){
             console.log('------>', item)
         },
-        syncFunc(){
+        pullOm(){
             this.$api.queryAllTrunk({is_save: 'true'}).then(resp => {
-                this.findPage(this.pageRequest)
+                if(resp.success){
+					this.$message({ message: '同步成功', type: 'success' })
+					this.findPage(this.pageRequest)
+				}
             })
         }
     }
