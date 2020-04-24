@@ -154,5 +154,9 @@ api.assignAllGroup = data => post('AssignAllGroup', data)
  */
 api.assignAllMenu = data => post('AssignAllMenu', data)
 
+/**
+ * 查询语音文件
+ */
+api.queryVoicefile = data => post('QueryVoicefile', data)
 
 export default api

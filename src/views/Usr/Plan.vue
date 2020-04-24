@@ -39,9 +39,16 @@
 			<el-form-item label="拨打时间" prop="callTime" >
 				<el-input v-model="editDataForm.callTime" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="分机号" prop="callExtId" >
-				<el-input v-model="editDataForm.callExtId" auto-complete="off"></el-input>
-			</el-form-item>
+
+			<el-form-item label="分机">
+                <el-select v-model="editDataForm.callExtId" placeholder="请选择" style="width:100%;">
+                    <el-option v-for="i in omExtAll" 
+                        :label="i.extId"
+                        :value="i.extId"
+                        :key="i.id"></el-option>
+                </el-select>
+            </el-form-item>
+
 			<el-form-item label="类型" prop="type" >
 				<el-radio v-model="editDataForm.type" :label="1">人工拨打</el-radio>
                 <el-radio v-model="editDataForm.type" :label="2">自动拨打</el-radio>
@@ -52,8 +59,8 @@
 			
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
-                <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+                <el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -99,7 +106,7 @@ export default {
         }
     },
     mounted(){
-        this.initColumns();
+		this.initColumns();
 	},
 	filters:{
 		filterType(val){
@@ -111,7 +118,10 @@ export default {
         ...mapState('usrPlan', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        })
+		}),
+		...mapState({
+			omExtAll: state => state.omExt.findAll
+		})
     },
     methods:{
         ...mapActions('usrPlan', ['findPage', 'findAll', 'save', 'delete']),

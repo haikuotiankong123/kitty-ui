@@ -19,6 +19,7 @@
             </div>
         </div>
         <om-table :data="dataResp"
+			:showBatchDelete="false"
             :columns="filterColumns"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
@@ -40,8 +41,17 @@
 					<el-input v-model="editDataForm.menuDesp" placeholder="请输入语音菜单描述" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="语音文件" prop="voiceFile" >
-					<el-input v-model="editDataForm.voiceFile" placeholder="请输入语音文件" auto-complete="off"></el-input>
+					<el-select v-model="editDataForm.voiceFile" style="width:100%;" placeholder="请选择">
+						<el-option v-for="(i, index) in queryVoicefile" 
+							:key="index"
+							:label="i"
+							:value="i">
+						</el-option>
+					</el-select>
 				</el-form-item>
+				<!-- <el-form-item label="语音文件" prop="voiceFile" >
+					<el-input v-model="editDataForm.voiceFile" placeholder="请输入语音文件" auto-complete="off"></el-input>
+				</el-form-item> -->
 				<el-form-item label="重复次数" prop="repeat" >
 					<el-input v-model="editDataForm.repeat" placeholder="请输入重复次数" auto-complete="off"></el-input>
 				</el-form-item>
@@ -213,6 +223,9 @@ export default {
         ...mapState('omMenu', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
+		}),
+		...mapState({
+			queryVoicefile: state => state.queryVoicefile
 		})
     },
     methods:{
@@ -243,8 +256,9 @@ export default {
 		},
         // 批量删除
 		handleDelete(data) {
-
-            this.delete(data.params).then(data!=null?data.callback:'')
+			
+			this.delete(data.params).then(data!=null?data.callback:'')
+			this.$api.assignMenu({menu_id: data.row.menuId})	// 删除OM上的
         },
 		ivrFunc(){},
         // 获取分页数据
@@ -350,7 +364,7 @@ export default {
 							if(form.exit == '#') form.exit = '%23'	// url字符转义 %23就是#
 						
 						let params = Object.assign({}, form)
-						
+						console.log('参数-----》', params)
 						this.$api.assignMenu(params).then((res) => {
 							this.editLoading = false
 							if(res.success) {

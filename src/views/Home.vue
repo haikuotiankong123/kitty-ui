@@ -192,6 +192,15 @@ export default {
                     this.$message.error(er.message)
                 });
 
+            // 语音文件
+            await this.$api.queryVoicefile().then(resp => {
+                    if(resp.success){
+                        this.$store.commit('setQueryVoicefile', resp.data)
+                    }
+                }).catch(er => {
+                    this.$message.error(er.message)
+                });
+
             this.$store.dispatch('omGroup/findAll')
             this.$store.dispatch('omExt/findAll')
             this.$store.dispatch('omMenu/findAll')

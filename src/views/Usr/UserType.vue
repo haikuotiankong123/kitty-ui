@@ -27,33 +27,18 @@
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="编号" prop="id" >
-				<el-input v-model="editDataForm.id" auto-complete="off"></el-input>
-			</el-form-item>
 			<el-form-item label="名称" prop="name" >
 				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
 			</el-form-item>
 			<el-form-item label="备注" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="创建人" prop="createBy" >
-				<el-input v-model="editDataForm.createBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="创建时间" prop="createTime" >
-				<el-input v-model="editDataForm.createTime" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="最后更新人" prop="lastUpdateBy" >
-				<el-input v-model="editDataForm.lastUpdateBy" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="最后更新时间" prop="lastUpdateTime" >
-				<el-input v-model="editDataForm.lastUpdateTime" auto-complete="off"></el-input>
-			</el-form-item>
-
+			
             </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
-                <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+            </span>
         </el-dialog>
     </div>
 </template>

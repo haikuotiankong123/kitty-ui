@@ -44,7 +44,9 @@ let aMutation = [...aApiName, 'callState', 'extState', 'allExt']
 aMutation.forEach(i => {
     let name = i.charAt(0).toUpperCase()+i.slice(1);
     mutations['set'+ name] = function(state, data){
-        if(state[i]) state[i] = data
+        
+        //if(state[i]) state[i] = data
+        state[i] = data
     }
     mutations['set'+ name + 'Form'] = function(state, data){
         if(state[i + 'Form']) state[i + 'Form'] = data

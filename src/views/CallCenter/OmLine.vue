@@ -17,6 +17,7 @@
         <om-table :data="dataResp"
             :columns="filterColumns"
             :showBatchDelete="false"
+            :showDelete="false"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">

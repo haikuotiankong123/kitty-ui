@@ -15,12 +15,18 @@
             </div>
         </div>
         <om-table :data="dataResp"
+			:showBatchDelete="false"
+			:showDelete="false"
             :columns="filterColumns"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
 			<template v-slot:state="{row}">
 				{{row.state | valToName(extState)}}
+			</template>
+			<template v-slot:noDisturb="{row}">
+				<el-tag v-if="row.noDisturb == 'no'" size="mini" type="success">启用</el-tag>
+				<el-tag v-if="row.noDisturb == 'yes'" size="mini" type="danger">禁用</el-tag>
 			</template>
             <!-- <template v-slot:handle="{row}"></template> -->
         </om-table>
@@ -37,11 +43,10 @@
 				<el-input v-model="editDataForm.lineid" auto-complete="off" disabled></el-input>
 			</el-form-item>
 			<el-form-item label="工号" prop="staffid" >
-				<el-input v-model="editDataForm.staffid" auto-complete="off"></el-input>
+				<el-input v-model="editDataForm.staffid" auto-complete="off" placeholder="请输入工号"></el-input>
 			</el-form-item>
 			<el-form-item label="分机组" prop="groups" >
-				<!-- <el-input v-model="editDataForm.groups" auto-complete="off"></el-input> -->
-				<el-select multiple v-model="tempGroup" @change="changeGroup">
+				<el-select multiple v-model="tempGroup" @change="changeGroup"  style="width:100%;" placeholder="请选择">
 					<el-option v-for="i in omGroupAll" 
 						:key="i.groupId"
 						:label="i.groupId"
@@ -50,39 +55,53 @@
 				</el-select>
 			</el-form-item>
 			<el-form-item label="排队语音文件" prop="voicefile" >
-				<el-input v-model="editDataForm.voicefile" auto-complete="off"></el-input>
+				<el-select v-model="editDataForm.voicefile" style="width:100%;" placeholder="请选择">
+					<el-option v-for="(i, index) in queryVoicefile" 
+						:key="index"
+						:label="i"
+						:value="i">
+					</el-option>
+				</el-select>
 			</el-form-item>
-			<el-form-item label="邮箱地址" prop="email" >
-				<el-input v-model="editDataForm.email" auto-complete="off"></el-input>
-			</el-form-item>
-			
-			<el-form-item label="代接权限" prop="callPickup" >
-				<el-radio v-model="editDataForm.callPickup" label="yes">允许</el-radio>
-                <el-radio v-model="editDataForm.callPickup" label="no">不允许</el-radio>
-				<!-- <el-input v-model="editDataForm.callPickup" auto-complete="off"></el-input> -->
+			<el-form-item label="邮箱地址" prop="email">
+				<el-input v-model="editDataForm.email" auto-complete="off" placeholder="请输入邮箱地址"></el-input>
 			</el-form-item>
 			
 			<el-form-item label="呼叫转移方式" prop="fwdType" >
-				<el-select v-model="editDataForm.fwdType">
+				<el-select v-model="editDataForm.fwdType" @change="changeType($event, editDataForm)" style="width:100%;" placeholder="请选择">
 					<el-option v-for="(i) in fwdType"
 						:key="i.value"
 						:label="i.label"
 						:value="i.value"></el-option>
 				</el-select>
 			</el-form-item>
-			<el-form-item label="呼叫转移号码" prop="fwdNumber" >
-				<el-input v-model="editDataForm.fwdNumber" auto-complete="off"></el-input>
+
+			<el-form-item label="代接权限" prop="callPickup" >
+				<el-radio-group v-model="editDataForm.callPickup">
+					<el-radio-button label="yes">允许</el-radio-button>
+					<el-radio-button label="no">不允许</el-radio-button>
+				</el-radio-group>
+			</el-form-item>
+
+			<el-form-item label="呼叫转移号码" prop="fwdNumber" v-if="isNumber">
+				<el-input v-model="editDataForm.fwdNumber" auto-complete="off" placeholder="请输入呼叫转移号码"></el-input>
 			</el-form-item>
 			<el-form-item label="同振号码" prop="fork" >
-				<el-input v-model="editDataForm.fork" auto-complete="off"></el-input>
+				<el-input v-model="editDataForm.fork" auto-complete="off" placeholder="请输入同振号码"></el-input>
 			</el-form-item>
 			<el-form-item label="手机号码" prop="mobile" >
-				<el-input v-model="editDataForm.mobile" auto-complete="off"></el-input>
+				<el-input v-model="editDataForm.mobile" auto-complete="off" placeholder="请输入手机号码"></el-input>
 			</el-form-item>
 			<el-form-item label="录音开关" prop="record" >
 				<el-radio-group v-model="editDataForm.record">
 					<el-radio-button label="on">开</el-radio-button>
 					<el-radio-button label="off">关</el-radio-button>
+				</el-radio-group>
+			</el-form-item>
+			<el-form-item label="状态" prop="noDisturb" >
+				<el-radio-group v-model="editDataForm.noDisturb">
+					<el-radio-button label="no">启用</el-radio-button>
+					<el-radio-button label="yes">禁用</el-radio-button>
 				</el-radio-group>
 			</el-form-item>
 			
@@ -163,11 +182,12 @@ export default {
 				api: null,
 				state: null,
 				registerIp: null
-			}
+			},
+			isNumber: true
         }
 	},
     mounted(){
-        this.initColumns();
+		this.initColumns();		
 	},
 	filters: {
 		filterGruop(val){
@@ -177,12 +197,13 @@ export default {
     computed:{
 		...mapState({
             dataResp: state => state.omExt.dataResp,
-            dataForm: state => state.omExt.dataForm,
+			dataForm: state => state.omExt.dataForm,
 
             omExtAll: state => state.omExt.findAll,
             omGroupAll: state => state.omGroup.findAll,
-            omMenuAll: state => state.omMenu.findAll,
-        })
+			omMenuAll: state => state.omMenu.findAll,
+			queryVoicefile: state => state.queryVoicefile
+		})
     },
     methods:{
         ...mapActions('omExt', ['findPage', 'findAll', 'save', 'delete']),
@@ -198,7 +219,7 @@ export default {
                 {prop:"lineid", label:"线路编号", minWidth:100},
                 {prop:"groups", label:"分机组", minWidth:100},
                 {prop:"voicefile", label:"排队语音文件", minWidth:100},
-                {prop:"noDisturb", label:"是否免打扰", minWidth:100},
+                {prop:"noDisturb", label:"状态", isSlot: true, minWidth:100},
                 
 				/* 
 				{prop:"callRestriction", label:"呼叫权限", minWidth:100},
@@ -214,10 +235,6 @@ export default {
                 {prop:"registerIp", label:"注册IP", minWidth:100} */
             ]
             this.filterColumns = this.columns
-            /* let showColumn = ['id', 'phone'] // 自定义显示表头
-            this.filterColumns = showColumn.map(i => {
-                    return this.columns.find(obj => obj.prop == i)
-                }) */
       	},
 
         // 批量删除
@@ -269,10 +286,19 @@ export default {
 		handleEdit: function (params) {
 			let groups = params.row.groups;
 			if(groups.length > 0) this.tempGroup = groups.split(',').map(i => parseInt(i))
+			if(params.row.fwdType == 0) this.isNumber = false
 
 			this.dialogVisible = true
 			this.operation = false
 			this.editDataForm = Object.assign({}, params.row)
+		},
+		changeType(val, item){
+			if(val === 0){
+				this.isNumber = false;
+				item.fwdNumber = null
+			}else{
+				this.isNumber = true;
+			}
 		},
 		dialogClose(){
 			this.tempGroup = []
@@ -296,6 +322,8 @@ export default {
 								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
 							}
 							this.findPageFunc(null)
+						}).catch(err => {
+							util.error(err.message)
 						})
 						this.tempGroup = []
 					})
@@ -306,6 +334,7 @@ export default {
 			
 		},
 		pullOm(){
+				
             this.$api.queryAllExt({is_save: 'true'}).then(resp => {
 				if(resp.success){
 					this.$message({ message: '操作成功', type: 'success' })

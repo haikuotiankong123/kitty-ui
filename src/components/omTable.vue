@@ -189,7 +189,7 @@ export default {
         },
         // 删除
         handleDelete: function (index, row) {
-            this.delete(row.id)
+            this.delete(row.id, row)
         },
         // 批量删除
         handleBatchDelete: function () {
@@ -197,7 +197,7 @@ export default {
             this.delete(ids)
         },
         // 删除操作
-        delete: function (ids) {
+        delete: function (ids, row={}) {
             this.$confirm('确认删除选中记录吗？', '提示', {
                 type: 'warning'
             }).then(() => {
@@ -222,7 +222,7 @@ export default {
                     this.loading = false
                 }    
                 
-                this.$emit('handleDelete', {params:params, callback:callback});
+                this.$emit('handleDelete', {params:params, callback:callback, row});
                 
 
             }).catch(() => {})

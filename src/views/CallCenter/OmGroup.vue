@@ -19,6 +19,7 @@
             </div>
         </div>
         <om-table :data="dataResp"
+            :showBatchDelete="false"
             :columns="filterColumns"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
@@ -47,9 +48,16 @@
                         :key="i.id"></el-option>
                 </el-select>
             </el-form-item>
-			<el-form-item label="语音文件" prop="voicefile" >
-				<el-input v-model="editDataForm.voicefile" auto-complete="off"></el-input>
+            <el-form-item label="语音文件" prop="voicefile" >
+				<el-select v-model="editDataForm.voicefile" style="width:100%;" placeholder="请选择">
+					<el-option v-for="(i, index) in queryVoicefile" 
+						:key="index"
+						:label="i"
+						:value="i">
+					</el-option>
+				</el-select>
 			</el-form-item>
+
 			<el-form-item label="有效值" prop="distribution" >
                 <el-select v-model="editDataForm.distribution" placeholder="请选择" style="width:100%;">
                     <el-option v-for="(i, index) in distribution"
@@ -61,9 +69,9 @@
 			
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
+                <el-button size="small" @click.native="dialogVisible = false">取消</el-button>
                 <!-- :loading="editLoading" -->
-                <el-button :size="size" type="primary" @click.native="submitForm" >提交</el-button>
+                <el-button size="small" type="primary" @click.native="submitForm" >提交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -140,6 +148,7 @@ export default {
             omExtAll: state => state.omExt.findAll,
             omGroupAll: state => state.omGroup.findAll,
             omMenuAll: state => state.omMenu.findAll,
+            queryVoicefile: state => state.queryVoicefile
         }),
     },
     methods:{
@@ -159,8 +168,9 @@ export default {
 
         // 批量删除
 		handleDelete(data) {
-
+            
             this.delete(data.params).then(data!=null?data.callback:'')
+            this.$api.assignGroup({group_id: data.row.groupId})
         },
 
         // 获取分页数据

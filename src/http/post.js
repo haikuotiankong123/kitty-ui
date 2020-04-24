@@ -9,11 +9,12 @@ export function post(method, data){
     let url = ''
     if(data){
         for(let key in data){
-            if(data[key] == undefined || data[key] == '' || data[key] == null) continue;
+            if(data[key] === undefined || data[key] === null) continue;
+            
             url += '&' + key + '='+ data[key]
         }
     }
-
+    
     let api = baseUrl + "/api?method=" + method + url
 
     return new Promise((resolve, reject) =>{
