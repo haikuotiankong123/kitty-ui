@@ -24,7 +24,7 @@
 
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
                 <el-form-item label="ID" prop="id" v-if="false">
                     <el-input v-model="editDataForm.id" :disabled="true" auto-complete="off"></el-input>
@@ -36,10 +36,10 @@
                     <el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
                 </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button :size="size" @click.native="dialogVisible = false">取消</el-button>
-                <el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+                <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+            </span>
         </el-dialog>
     </div>
 </template>

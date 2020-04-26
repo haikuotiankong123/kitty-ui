@@ -5,7 +5,7 @@
                 <el-form-item label="电话号码">
                     <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
                 </el-form-item>
-
+                
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
                 </el-form-item>
@@ -14,9 +14,9 @@
                 </el-form-item>
             </el-form>
         </div>
-        <om-table :data="dataResp"
-            :columns="filterColumns"
-            @findPage="findPageFunc"
+        <om-table :data="dataResp" 
+            :columns="filterColumns" 
+            @findPage="findPageFunc" 
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
             <!-- <template v-slot:handle="{scope}"></template> -->
@@ -24,16 +24,14 @@
 
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
-
-			<el-form-item label="名称" prop="name" >
-				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
-			</el-form-item>
-			<el-form-item label="备注" prop="remark" >
-				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
-			</el-form-item>
-
+                <el-form-item label="语音文件名称" prop="voiceName">
+                    <el-input v-model="editDataForm.voiceName" auto-complete="off" placeholder="请输入语音文件名称"></el-input>
+                </el-form-item>
+                <el-form-item label="语音文件描述" prop="voiceDesp">
+                    <el-input v-model="editDataForm.voiceDesp" auto-complete="off" placeholder="请输入语音文件描述"></el-input>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click.native="dialogVisible = false">取消</el-button>
@@ -68,9 +66,8 @@ export default {
 			},
             // 新增编辑界面数据
 			editDataForm: {
-				id: null,
-				name: null,
-				remark: null,
+                phone: '',
+                remark: ''
 			},
         }
     },
@@ -78,29 +75,32 @@ export default {
         this.initColumns();
     },
     computed:{
-        ...mapState('usrProduct', {
+        ...mapState('omVoicefile', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrProduct', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('omVoicefile', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                /* {prop:"id", label:"编号", minWidth:100}, */
-                {prop:"name", label:"名称", minWidth:100},
-                {prop:"remark", label:"备注", minWidth:100},
+                {prop:"voiceName", label:"语音文件名称", minWidth:100},
+                {prop:"voiceDesp", label:"语音文件描述", minWidth:100},
             ]
             this.filterColumns = this.columns
       	},
 
         // 批量删除
-		handleDelete(data) {
+		async handleDelete(data) {
+            let voicefile = data.row.voiceName;
+            
+            if(!voicefile) return '无语音文件'
 
-            this.delete(data.params).then(data!=null?data.callback:'')
+            let result = await this.$api.removeVoicefile({voicefile}).catch(err => util.error(err.message))
+            if(result.success) this.delete(data.params).then(data!=null?data.callback:'')
         },
 
         // 获取分页数据
@@ -110,9 +110,9 @@ export default {
 				this.pageRequest = data.pageRequest
             }
 
-            //this.$store.state.omBlacklist.dataForm.createTimeStart = util.dateFormat(this.timeRange[0], "yyyy-MM-dd HH:mm:ss")
-            //this.$store.state.omBlacklist.dataForm.createTimeEnd = util.dateFormat(this.timeRange[1], "yyyy-MM-dd HH:mm:ss")
-
+            //this.$store.state.omVoicefile.dataForm.createTimeStart = util.dateFormat(this.timeRange[0], "yyyy-MM-dd HH:mm:ss")
+            //this.$store.state.omVoicefile.dataForm.createTimeEnd = util.dateFormat(this.timeRange[1], "yyyy-MM-dd HH:mm:ss")
+            
 			this.findPage(this.pageRequest).then((res) => {
 
 			}).then(data!=null?data.callback:'')
@@ -122,9 +122,8 @@ export default {
 			this.dialogVisible = true
 			this.operation = true
 			this.editDataForm = {
-				id: null,
-				name: null,
-				remark: null,
+                voiceName: '',
+                voiceDesp: ''
 			}
         },
         // 显示编辑界面
@@ -140,7 +139,7 @@ export default {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
 						let params = Object.assign({}, this.editDataForm)
-
+						
 						this.save(params).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {
@@ -151,7 +150,8 @@ export default {
 								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
 							}
 							this.findPageFunc(null)
-						})
+                        })
+                        
 					})
 				}
 			})

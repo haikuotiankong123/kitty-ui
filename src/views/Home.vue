@@ -12,8 +12,9 @@
 <script>
 import {acountInfo} from '@/mock/modules/acountInfo'
 import {mapState} from 'vuex'
-import HeadBar from "./HeadBar/HeadBar"
-import NavBar from "./NavBar/NavBar"
+import util from '@/utils/util'
+import HeadBar from "@/components/HeadBar/HeadBar"
+import NavBar from "@/components/NavBar/NavBar"
 import MainContent from "./MainContent/MainContent"
 import Cookies from "js-cookie"
 import ws from "@/utils/ws"
@@ -160,14 +161,6 @@ export default {
             // 分机组
             await this.$api.queryGroup().then(resp => {
                     if(resp.success){
-                        /* let list = resp.data.map(i => {
-                            i.value = i.id;
-                            return i;
-                        })
-                        let result = {
-                            list,
-                            total: list.length
-                        } */
                         this.$store.commit('setQueryGroup', resp.data)
                     }
                 }).catch(er => {
@@ -184,13 +177,27 @@ export default {
                 });
 
             // 中继
-            await this.$api.queryTrunk({trunk_id: '31604149'}).then(resp => {
+            await this.$api.queryAllTrunk().then(resp => {
                     if(resp.success){
-                        this.$store.commit('setQueryTrunk', resp.data)
+                        this.$store.commit('setQueryAllTrunk', resp.data)
                     }
                 }).catch(er => {
                     this.$message.error(er.message)
                 });
+            
+            // 查询去电
+            await this.$api.queryOuter().then(resp => {
+                    this.$store.commit('setQueryOuter', resp.data)
+                }).catch(er => {
+                    util.error(er.message)
+                });
+
+            // 查询来电
+            await this.$api.queryVisitor().then(resp => {
+                    this.$store.commit('setQueryVisitor', resp.data)
+                }).catch(er => {
+                    util.error(er.message)
+                })
 
             // 语音文件
             await this.$api.queryVoicefile().then(resp => {
@@ -200,6 +207,8 @@ export default {
                 }).catch(er => {
                     this.$message.error(er.message)
                 });
+
+
 
             this.$store.dispatch('omGroup/findAll')
             this.$store.dispatch('omExt/findAll')

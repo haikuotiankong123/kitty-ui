@@ -27,7 +27,7 @@
                 </div><br/>
                 <p class="name">{{acountInfo.name}}</p><br/>
                 <!-- <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> </p><br/> -->
-                <p class="internal">坐席号:{{queryExt.id}}</p>&ensp;
+                <p class="internal">坐席号:{{queryExt.extId}}</p>&ensp;
                 <p class="internal">状态:
                     <template v-if="extState.type">{{extState.name}}</template>
                     <template v-else>
@@ -64,7 +64,7 @@
         <el-dialog title="个人信息" :visible.sync="dialogFormVisible" class="ext-form">
             <el-form :model="queryExt" size="small">
                 <el-form-item label="坐席号" :label-width="formLabelWidth">
-                    <el-input v-model="queryExt.id" disabled autocomplete="off"></el-input>
+                    <el-input v-model="queryExt.extId" disabled autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="绑定手机" :label-width="formLabelWidth" >
                     <el-input v-model="queryExt.mobile" autocomplete="off" placeholder="请输入手机号码"></el-input>

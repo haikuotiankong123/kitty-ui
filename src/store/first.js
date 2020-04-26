@@ -11,24 +11,19 @@ function firstUpper(str){
 }
 
 for(let i in api){
+    state[i] = []
     state[i + 'Form'] = {};
 
     actions[i+"Click"] = function(s, p={}){
         let store = this;
         
         let param = store.state[i+'Form'];
-        console.log('参数----->', param)
+        
         return api[i]({...param,...p}).then(resp => {
             if(resp.success){
                 let mutationName = 'set' + firstUpper(i)
                 let data = resp.data
                 
-                // 暂时 返回数据格式
-                /* let json = {
-                    list: data,
-                    total: data.length
-                } */
-
                 store.commit(mutationName, data)
             }
             return resp

@@ -111,5 +111,15 @@ api.usrPlan = getApiName('usrPlan')
  */
 api.usrProduct = getApiName('usrProduct')
 
+/**
+ * 语音文件
+ */
+api.omVoicefile = getApiName('omVoicefile')
+
+/**
+ * 客户模板 默认字段
+ */
+api.usrCustomerRequired = getApiName('usrCustomerRequired')
+
 
 export default api

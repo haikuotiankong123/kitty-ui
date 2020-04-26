@@ -361,7 +361,7 @@ export default {
         },
         cmdFunc(obj){
             let param = {
-                ext_id: this.queryExt.id,
+                ext_id: this.queryExt.extId,
                 ...obj
             }
             this.$api.controlCmd(param).then(resp => {
@@ -425,7 +425,7 @@ export default {
         },
         // 挂断
         onHangup(){
-            let ext_id = this.queryExt.id
+            let ext_id = this.queryExt.extId
             this.showIndex(4)
             this.transParam = {trans: 'clear'}
             this.onTransferFunc(ext_id)
@@ -509,9 +509,9 @@ export default {
         },
         
         assignExtFunc(){
-            let param =  {extId: this.queryExt.id, lineid: this.queryExt.lineid}
+            let param =  {extId: this.queryExt.extId, lineid: this.queryExt.lineid}
             let val = this.queryExt.noDisturb
-            let ext_id = this.queryExt.id
+            let ext_id = this.queryExt.extId
             param.noDisturb = val == 'yes' ? 'no' : 'yes';
             
             this.$api.assignExt(param).then((resp)=>{
@@ -568,7 +568,7 @@ export default {
         // 直接拨打
         directCall(){
             
-            let ext_id = this.queryExt.id
+            let ext_id = this.queryExt.extId
             let num = this.searchPhone
             let prop = {}
             /* /^1[3456789]\d{9}$/.test(num) */

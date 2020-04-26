@@ -159,4 +159,20 @@ api.assignAllMenu = data => post('AssignAllMenu', data)
  */
 api.queryVoicefile = data => post('QueryVoicefile', data)
 
+/**
+ * 删除语音文件
+ */
+api.removeVoicefile = data => post('RemoveVoicefile', data)
+
+/**
+ * 查询去电
+ */
+api.queryOuter = data => post('QueryOuter', data)
+
+/**
+ * 查询去电
+ */
+api.queryVisitor = data => post('QueryVisitor', data)
+
+
 export default api

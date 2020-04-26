@@ -1,15 +1,21 @@
 <template>
     <div>
-        <el-form :size="size" style="padding:20px 0 0 20px;">
-            <el-form-item label="请选择中继线">
-                <el-select v-model="lineVal">
-                    <el-option v-for="i in line" 
-                        :key="i.id"
-                        :label="i.id"
-                        :value="i.id"></el-option>
-                </el-select>
-            </el-form-item>
-        </el-form>
+        <div class="query-container">
+            <el-form :size="size">
+                <el-form-item label="请选择中继线">
+                    <el-select v-model="lineVal" @change="changeTrunk">
+                        <el-option label="全部" value="1"></el-option>
+                        <el-option v-for="i in queryAllTrunk" 
+                            :key="i.trunkId"
+                            :label="i.trunkId"
+                            :value="i.trunkId"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div class="right">
+                <el-button size="mini" type="success" @click="updateFunc">刷新</el-button>
+            </div>
+        </div>
         <div class="total">
             <el-radio-group v-model="radio1" :size="size" >
                 <el-radio-button label="当天"></el-radio-button>
@@ -51,8 +57,17 @@
                         label="状态">
                     </el-table-column>
                     <el-table-column
+                        label="中继号">
+                        <template v-slot="scope">
+                            {{scope.row.trunk || scope.row.to}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
                         prop="to"
                         label="接听号码">
+                        <template v-slot="scope">
+                            {{(scope.row.omExt && scope.row.omExt.id) || scope.row.to}}
+                        </template>
                     </el-table-column>
                 </el-table>
             </div>
@@ -72,6 +87,12 @@
                         label="状态">
                     </el-table-column>
                     <el-table-column
+                        label="中继号">
+                        <template v-slot="scope">
+                            {{scope.row.trunk}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column
                         prop="from"
                         label="本机号码">
                     </el-table-column>
@@ -87,8 +108,31 @@ import {mapState, mapActions} from 'vuex'
 export default {
     data(){
         return {
+            /* {
+                "callId": 61,
+                "from": "13602714551",
+                "omExt": {
+                    "id": 1004
+                },
+                "omType": "ext",
+                "state": "progress",
+                "to": "31603676"
+            }  */
+
+            /* {
+                "callId": 66,
+                "from": "1004",
+                "omExt": {
+                    "id": 1004
+                },
+                "omType": "ext",
+                "state": "talk",
+                "to": "13602714551",
+                "trunk": "31604149"
+            } */
+
             size: 'small',
-            tableData: {
+            /* tableData: {
                 id: '',
                 lineId: 'Line 3',
                 outer: [
@@ -111,31 +155,46 @@ export default {
                         trunk: '31604149'
                     }
                 ]
-            },
-            line: [
-                {
-                    "id": "31604149",
-                    "lineId": "Line 3"
-                },
-                {
-                    "id": "31603676",
-                    "lineId": "Line 4"
-                }
-            ],
-            lineVal: '',
+            }, */
+            line: [],
+            lineVal: '1',
             radio1: '当天'
         }
     },
     filters:{
         noUn(val){
-            
             if(!val) return [];
             return val
         }
     },
+    mounted(){
+        
+    },
     computed:{
-        queryTrunk(){
-            return this.$store.state.queryTrunk;
+        tableData(){
+            let outer = this.$store.state.queryOuter;
+            let visitor = this.$store.state.queryVisitor;
+            
+            return {outer, visitor}
+        },
+        ...mapState(['queryAllTrunk', 'queryOuter', 'queryVisitor']),
+    },
+    methods:{
+        ...mapActions([ 'queryOuterClick', 'queryVisitorClick']),
+        async changeTrunk(val){
+            if(val == '1'){
+                await this.queryOuterClick().catch(err => {})
+                this.queryVisitorClick()
+            }else{
+
+                this.$api.queryTrunk({'trunk_id':val}).then(resp => {
+                    this.$store.state.queryOuter = resp.data.outer;
+                    this.$store.state.queryVisitor = resp.data.visitor;
+                })
+            }
+        },
+        updateFunc(){
+            this.changeTrunk(this.lineVal)
         }
     }
 }

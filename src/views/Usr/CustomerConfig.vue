@@ -221,6 +221,7 @@ export default {
             editTempaleteVisible: false,
             checkList: ['选中且禁用', '复选框 A'],
             checked: true,
+            pageRequest: { pageNum: 1, pageSize: 15 },
             list: [
                 {label: "客户姓名", value: 0, key: "name"},
                 {label: "电话", value: 0, key: "phone"},
@@ -257,6 +258,10 @@ export default {
         this.tableData = listConfigCustomer();
 
         this.findPage()
+
+        this.$api.usrCustomerRequired.findPage(this.pageRequest).then(resp => {
+            console.log("------>>", resp.data.content[0])
+        })
     },
     methods: {
         ...mapActions('usrCustomerConfig', ['findPage', 'findAll', 'save', 'delete']),
