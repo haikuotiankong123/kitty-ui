@@ -4,10 +4,10 @@
 
             <el-form :inline="true" style="margin-left: 20px;border-bottom: 1px solid #ebedf0">
                 <el-form-item label="分机组：">
-                    <el-select v-model="groupName" value-key="id" @change="changeGroup" size="small">
+                    <el-select v-model="groupName" value-key="groupId" @change="changeGroup" size="small">
                         <el-option v-for="i in extGroup"
-                            :key="i.id"
-                            :label="i.id"
+                            :key="i.groupId"
+                            :label="i.groupId"
                             :value="i"></el-option>
                     </el-select>
                 </el-form-item>
@@ -51,8 +51,8 @@
 						<i class="icons icon-zhanghu2" :style="o | filterState('color')"></i>
 					</p>
 					<p class="agent-info">
-						<span style="color:#333;">{{o.id}}</span> <br/>
-						<span>{{o.id}}</span> <br/>
+						<span style="color:#333;">{{o.extId}}</span> <br/>
+						<span>{{o.extId}}</span> <br/>
                         <span><i :class=" o | filterState('icon')" ></i> {{o | filterState('text')}}</span>
 					</p>
 				</li>
@@ -66,8 +66,8 @@
 					<p style="line-height:1;">
 						<i class="icons icon-zhanghu2" style="font-size:60px;" :style="curExt | filterState('color')"></i>
 					</p>
-					<p style="color:#333;">{{curExt.id}}</p>
-					<p>{{curExt.id}}</p>
+					<p style="color:#333;">{{curExt.extId}}</p>
+					<p>{{curExt.extId}}</p>
                     <p><i :class=" curExt | filterState('icon')" ></i> {{curExt | filterState('text')}}</p>
 					<!-- <p v-if="curExt.lastOfferedCall" v-text="'状态时间：'+formatMsgTime(curExt.lastOfferedCall * 1000)" style="font-size:12px;"></p> -->
 				</header>
@@ -75,8 +75,19 @@
 					<p v-show="curExt.state == 'active'">
 						<el-button type="primary" size="small" @click="watchCall(curExt)">监听通话</el-button>
 					</p>
-					<p v-show="curExt.state == 'active'">
-						<el-button type="primary" size="small" @click="onThreeway(curExt)">插入对话</el-button>
+					<p v-show="curExt.state == 'active'" style="padding-bottom:20px;">
+						<el-button type="primary" size="small" @click="onThreeway()">加入对话</el-button><br/>
+                        
+                        <el-select v-if="isJoin" size="mini" 
+                            @change="onJoin"
+                            v-model="joinExt" 
+                            placeholder="请选择加入的分机号" 
+                            style="width:160px; margin-top:10px;">
+                            <el-option v-for="(i, index) in queryAllExt" 
+                                :key="index"
+                                :label="i.extId"
+                                :value="i.extId"></el-option>
+                        </el-select>
 					</p>
                     <p>
                         <el-button  
@@ -93,24 +104,6 @@
                             @click="assignExtFunc(curExt)" round>开启免打扰</el-button>
                     </p>
                     
-					<!-- <el-button
-						@click="editCallStatusFunc(curExt)"
-						style="background-color: #ffbc3c; padding:0;"
-						v-if="curExt.status === 'Available'"
-					>
-						<span style="color: white">
-						<i class="iconfont icon-shimang"></i>&nbsp;&nbsp;开启免打扰
-						</span>
-					</el-button>
-					<el-button
-						@click="editCallStatusFunc(curExt)"
-						v-if="curExt.status === 'Logged Out'"
-						style="background-color: #f45656;  padding:0;"
-					>
-						<span style="color: white">
-						<i class="iconfont icon-shixian"></i>&nbsp;&nbsp;取消免打扰
-						</span>
-					</el-button> -->
 				</div>
         </div>
     </div>
@@ -125,11 +118,16 @@ export default {
             curExt: {},
             curInternalVisible: false,
             groupName: '',
-            extMonitor: []
+            extMonitor: [],
+            joinExt: '',
+            isJoin: false
         }
     },
     mounted() {
         this.findPage();
+        setTimeout(() => {
+            console.log('分机--->', this.queryAllExt)
+        },3000)
         //this.$api.assignGroup({group_id: '1', exts: '1004, 1010, 1005, 1006',voicefile: 'welcome',distribution: 'circular'})
     },
     filters: {
@@ -185,16 +183,22 @@ export default {
             groupData: state=>state.dataResp
         }),
         ...mapState({
-            queryExt: state => state.queryExt
+            queryAllExt: state => state.queryAllExt
         }),
         extGroup(){
             let data = this.$store.state.queryGroup
-            this.$nextTick(()=>{
+            setTimeout(() => {
                 if(data[0]){
                     this.groupName = data[0];
                     this.changeGroup(data[0])
                 }
-            })
+            },1000)
+            /* this.$nextTick(()=>{
+                if(data[0]){
+                    this.groupName = data[0];
+                    this.changeGroup(data[0])
+                }
+            }) */
             return data;
         },
         getExtList(){
@@ -305,15 +309,16 @@ export default {
         ...mapActions(['queryExtClick']),
 
         loadData(){
-
+            this.changeGroup(this.groupName);
+            this.onCloseInternal()
         },
         assignExtFunc(curExt){
-            if(!(curExt && curExt.id)) return;
+            if(!(curExt && curExt.extId)) return;
 
-            let param =  {extId: curExt.id, lineid: curExt.lineid}
+            let param =  {extId: curExt.extId, lineid: curExt.lineid}
             //let val = curExt.noDisturb
-            let ext_id = curExt.id
-            param.noDisturb = curExt.noDisturb ? 'no' : 'yes';
+            let ext_id = curExt.extId
+            param.noDisturb = curExt.noDisturb == 'yes' ? 'no' : 'yes';
             
             this.$api.assignExt(param).then((resp)=>{
                 if(resp.success){
@@ -334,9 +339,8 @@ export default {
             if(!arrId) return;
             let arr = []
             arrId.forEach(async (i) => {
-                
                 // 不能使用queryExtClick请求
-                await this.$api.queryExt({ext_id: i.id}).then(resp => {
+                await this.$api.queryExt({ext_id: i.extId}).then(resp => {
                         arr.push(resp.data)
                     }).catch(e => this.$message.error(e.message))
             })
@@ -372,10 +376,25 @@ export default {
             const account = int.account
             //api.editEavesdrop({account})
         },
-        // 插入对话
+        onJoin(extId){
+            
+            //let num = extId || this.joinExtNum;
+            let param = {
+                ext_id: extId
+            }
+            this.$api.connectConference(param).then(resp => {
+                if(resp.success){
+                    util.message(resp.message)
+                }
+            }).catch(err => {
+                util.error(err.message)
+            })
+        },
+        // 加入对话
         onThreeway(int){
-            if(!(int && int.account )) return '分机参数有误';
-            const account = int.account
+            this.isJoin = true;
+            //if(!(int && int.account )) return '分机参数有误';
+            //const account = int.account
             //api.editThreeway({account})
         }
     }

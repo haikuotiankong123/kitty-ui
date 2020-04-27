@@ -54,12 +54,12 @@
                 </el-form-item>
                 <el-form-item label="转接值" prop="transferValue"  v-if="editDataForm.transferType">
                     
-                    <template v-if="editDataForm.transferType == 'ext'">
+                    <template v-if="editDataForm.transferType == 'ext' || editDataForm.transferType == 'queue'">
                         <el-select filterable v-model="editDataForm.transferValue" placeholder="请选择">
                             <el-option v-for="i in omExtAll" 
                                 :label="i.extId"
                                 :value="i.extId"
-                                :key="i.id"></el-option>
+                                :key="i.extId"></el-option>
                         </el-select>
                     </template>
                     <template v-if="editDataForm.transferType == 'outer'">
@@ -71,19 +71,19 @@
                             <el-option v-for="i in omMenuAll" 
                                 :label="i.menuName"
                                 :value="i.menuId"
-                                :key="i.id">
+                                :key="i.menuId">
                             </el-option>
                         </el-select>
                     </template>
                     <template v-if="editDataForm.transferType == 'group'">
                         <el-select filterable v-model="editDataForm.transferValue" placeholder="请选择">
                             <el-option v-for="i in omGroupAll"
-                                :key="i.id"
-                                :label="i.id"
-                                :value="i.id"></el-option>
+                                :key="i.groupId"
+                                :label="i.groupId"
+                                :value="i.groupId"></el-option>
                         </el-select>
                     </template>
-                    <template v-if="editDataForm.transferType == 'queue'"></template>
+                    <!-- <template v-if="editDataForm.transferType == 'queue'"></template> -->
                 </el-form-item>
                 <el-form-item label="状态" prop="flag" >
                     <el-radio-group v-model="editDataForm.flag">
@@ -170,7 +170,12 @@ export default {
     },
     mounted(){
         this.initColumns();
-        console.log('分------机----》', this.omExtAll)
+        setTimeout(()=>{
+            console.log('所有分机----》', this.omExtAll)
+            console.log('所有分机组---》', this.omGroupAll)
+            console.log('所有菜单----》', this.omMenuAll)
+        },3000)
+        
     },
     filters: {
         filterFlag(val){

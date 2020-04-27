@@ -17,79 +17,6 @@
         <div class="button-container">
             <div style="margin: 10px 20px;color: black;font-weight: bold;font-size: 16px">自定义字段</div>
 
-            <!-- <el-table :data="tableData" style="width: 100% " size="mini">
-
-                <el-table-column label="" width="100" :render-header="renderHeader">
-                    <template slot-scope="scope">
-                        <i class="icons icon-tianjia"
-                            @click="removeColumnItem(scope.$index,scope.row)"
-                            style="color: #F63A3A">
-                        </i>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="字段名称" width="400">
-                    <template slot-scope="scope">
-                        <el-input
-                                placeholder="最长五个字"
-                                v-model="scope.row.label"
-                                clearable
-                                size="mini"
-                                maxlength="5">
-                        </el-input>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="类型" width="400px">
-                    <template slot-scope="scope">
-                        <el-select v-model="scope.row.type" placeholder="请选择" size="mini">
-                            <el-option
-                                key="1"
-                                label="文本"
-                                :value=1>
-                            </el-option>
-                            <el-option
-                                key=4
-                                label="下拉"
-                                :value=4>
-                            </el-option>
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column label="字典" width="300px">
-                    <template slot-scope="scope">
-                        <el-button
-                            :disabled="scope.row.type==1"
-                            size="mini"
-                            @click="handleEditDict(scope.$index, scope.row)">编辑
-                        </el-button>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="启用">
-                    <template slot-scope="scope">
-                        <el-switch
-                                v-model="scope.row.status"
-                                :active-value="1"
-                                :inactive-value="0">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="必选">
-                    <template slot-scope="scope">
-                        <el-switch
-                                v-model="scope.row.isRequired"
-                                :active-value="1"
-                                :inactive-value="0">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-
-            </el-table> -->
-
-
-
             <el-table :data="dataResp.content" style="width: 100% " size="mini">
 
                 <el-table-column label="" width="100" :render-header="renderHeader">
@@ -161,9 +88,6 @@
 
             </el-table>
 
-
-
-
             <el-row style="margin: 20px">
                 <el-button type="primary" size="mini" @click="submitList">保存</el-button>
             </el-row>
@@ -206,8 +130,7 @@
 </template>
 
 <script>
-import {infoCustomerRequired} from '@/mock/modules/infoCustomerRequired'
-import {listConfigCustomer} from '@/mock/modules/listConfigCustomer'
+
 
 import {mapState, mapActions} from 'vuex'
 import util from '@/utils/util'
@@ -241,8 +164,7 @@ export default {
             value: '',
             testId: 999999,
             
-            dataForm: {},
-            tableData: []
+            dataForm: {}
         };
     },
     computed: {
@@ -254,23 +176,23 @@ export default {
         }
     },
     mounted(){
-        this.dataForm = infoCustomerRequired();
-        this.tableData = listConfigCustomer();
 
         this.findPage()
 
-        this.$api.usrCustomerRequired.findPage(this.pageRequest).then(resp => {
-            console.log("------>>", resp.data.content[0])
+        this.$api.usrCustomerRequired.findByCompanyId().then(resp => {
+            this.dataForm = resp.data || {}
         })
     },
     methods: {
         ...mapActions('usrCustomerConfig', ['findPage', 'findAll', 'save', 'delete']),
 
         submitList() {
+            
             for(let i=0; i<this.dataResp.content.length; i++){
                 let item = this.dataResp.content[i]
                 this.save(item);
             }
+            this.$api.usrCustomerRequired.save(this.dataForm)
         },
 
         handleEditDict(index, row) {

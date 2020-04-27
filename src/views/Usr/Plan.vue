@@ -50,8 +50,8 @@
             </el-form-item>
 
 			<el-form-item label="类型" prop="type" >
-				<el-radio v-model="editDataForm.type" :label="1">人工拨打</el-radio>
-                <el-radio v-model="editDataForm.type" :label="2">自动拨打</el-radio>
+				<el-radio v-model="editDataForm.type" label="1">人工拨打</el-radio>
+                <el-radio v-model="editDataForm.type" label="2">自动拨打</el-radio>
 			</el-form-item>
 			<el-form-item label="备注信息" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>

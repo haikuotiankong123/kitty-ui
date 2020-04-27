@@ -11,7 +11,7 @@
 
 <script>
 import {acountInfo} from '@/mock/modules/acountInfo'
-import {mapState} from 'vuex'
+import {mapState, mapActions} from 'vuex'
 import util from '@/utils/util'
 import HeadBar from "@/components/HeadBar/HeadBar"
 import NavBar from "@/components/NavBar/NavBar"
@@ -131,13 +131,18 @@ export default {
     },
     mounted(){},
     methods: {
+        ...mapActions(['queryAllExtClick', 'queryGroupClick', 'queryAllTrunkClick', 'queryOuterClick','queryVisitorClick', 'queryVoicefileClick']),
+
         loadData(){
             this.queueRequest()
-            
         },  
         
         async queueRequest(){
             
+            let h = err => {
+                util.error(err.message)
+            }
+
             /* this.acountInfo.extId */
             // 当前分机
             let param = {ext_id: '1004'}
@@ -145,68 +150,29 @@ export default {
                         if(resp.success){
                             this.$store.commit('setQueryExt', resp.data)
                         } 
-                    }).catch(e => {
-                        this.$message.error(e.message)
-                    });
+                    }).catch(h);
 
+            
             // 所有分机
-            await this.$api.queryDevice().then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setAllExt', resp.data.ext)
-                    }
-                }).catch(e => {
-                    this.$message.error(e.message)
-                });
+            await this.queryAllExtClick().catch(h)
 
             // 分机组
-            await this.$api.queryGroup().then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setQueryGroup', resp.data)
-                    }
-                }).catch(er => {
-                    this.$message.error(er.message)
-                });
+            await this.queryGroupClick().catch(h);
 
             // 语音菜单
-            await this.$api.queryMenu().then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setQueryMenu', resp.data)
-                    }
-                }).catch(er => {
-                    this.$message.error(er.message)
-                });
+            await this.$api.queryMenu().catch(h);
 
-            // 中继
-            await this.$api.queryAllTrunk().then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setQueryAllTrunk', resp.data)
-                    }
-                }).catch(er => {
-                    this.$message.error(er.message)
-                });
+            // 所有中继
+            await this.queryAllTrunkClick().catch(h);
             
             // 查询去电
-            await this.$api.queryOuter().then(resp => {
-                    this.$store.commit('setQueryOuter', resp.data)
-                }).catch(er => {
-                    util.error(er.message)
-                });
+            await this.queryOuterClick().catch(h);
 
             // 查询来电
-            await this.$api.queryVisitor().then(resp => {
-                    this.$store.commit('setQueryVisitor', resp.data)
-                }).catch(er => {
-                    util.error(er.message)
-                })
+            await this.queryVisitorClick().catch(h)
 
             // 语音文件
-            await this.$api.queryVoicefile().then(resp => {
-                    if(resp.success){
-                        this.$store.commit('setQueryVoicefile', resp.data)
-                    }
-                }).catch(er => {
-                    this.$message.error(er.message)
-                });
+            await this.queryVoicefileClick().catch(h);
 
 
 

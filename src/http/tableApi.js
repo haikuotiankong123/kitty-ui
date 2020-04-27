@@ -31,6 +31,13 @@ function getApiName(apiName){
         data
     })
 
+    if(apiName == 'usrCustomerRequired'){
+        obj.findByCompanyId = data => axios({
+            url: '/'+apiName+'/findByCompanyId?id=1',
+            method: 'get',
+        })
+    }
+
     return obj;
 }
 

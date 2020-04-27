@@ -31,9 +31,6 @@
         <el-dialog :title="operation?'新增':'编辑'" width="820px" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="closeDialogFunc">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
-				<el-form-item label="语音菜单编号" prop="menuId" >
-					<el-input v-model="editDataForm.menuId" placeholder="请输入语音菜单名称" auto-complete="off"></el-input>
-				</el-form-item>
 				<el-form-item label="语音菜单名称" prop="menuName" >
 					<el-input v-model="editDataForm.menuName" placeholder="请输入语音菜单名称" auto-complete="off"></el-input>
 				</el-form-item>
@@ -82,15 +79,25 @@
 								</el-option>
 							</el-select>
 
-							<template v-if="item.dtmfType == 'ext' || item.dtmfType == 'outer' || item.dtmfType == 'queue'">
+							<template v-if="item.dtmfType == 'outer'">
 								<el-input style="width:120px;" v-model="item.dtmfValue" placeholder="请输入号码"></el-input>
+							</template>
+							<template v-if="item.dtmfType == 'ext' || item.dtmfType == 'queue'">
+								<!-- @change="ivrFunc($event)" -->
+								<el-select style="width:120px;" v-model="item.dtmfValue" >
+									<el-option 
+										v-for="(i, index) in queryAllExt" 
+										:label="i.extId"
+										:value="i.extId"
+										:key="index"></el-option>
+								</el-select>
 							</template>
 							<template v-if="item.dtmfType == 'group'">
 								<el-select style="width:120px;" v-model="item.dtmfValue" @change="ivrFunc($event)">
 									<el-option 
-										v-for="(i, index) in omGroupAll" 
-										:label="i.id"
-										:value="i.id"
+										v-for="(i, index) in queryGroup" 
+										:label="i.groupId"
+										:value="i.groupId"
 										:key="index"></el-option>
 								</el-select>
 							</template>
@@ -98,8 +105,8 @@
 								<el-select style="width:120px;" v-model="item.dtmfValue" @change="showChild = false">
 									<el-option 
 										v-for="(i, index) in omMenuAll" 
-										:label="i.menuId"
-										:value="i.menuId"
+										:label="i.menuName"
+										:value="i.menuId + ''"
 										:key="index"></el-option>
 								</el-select>
 							</template>
@@ -179,16 +186,16 @@ export default {
 				{label:'总机', value:'default'},
 				{label:'挂断', value:'clear'},
 				{label:'分机', value:'ext'},
-				{label:'分机列表', value:'queue'},
+				{label:'分机队列', value:'queue'},
 				{label:'分机组', value:'group'},
-				{label:'IVR', value:'menu'},
+				{label:'语音菜单', value:'menu'},
 				{label:'播放语音', value:'voicefile'},
 				{label:'转外部电话', value:'outer'}
 			],
 			eventList: [],
 			selectedEventList: [],
 			omMenuAll: [],
-			omGroupAll: [],
+			
 			childKeys: [],
 			showChild: false,
 			childIndex: null, 
@@ -215,18 +222,13 @@ export default {
 		this.findAll().then(resp => {
 			this.omMenuAll = resp.data
 		})
-		this.$api.omGroup.findAll().then(resp => {
-			this.omGroupAll = resp.data
-		})
     },
     computed:{
         ...mapState('omMenu', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
 		}),
-		...mapState({
-			queryVoicefile: state => state.queryVoicefile
-		})
+		...mapState(['queryVoicefile', 'queryGroup', 'queryAllExt']),
     },
     methods:{
         ...mapActions('omMenu', ['findPage', 'findAll', 'save', 'delete']),
@@ -245,7 +247,6 @@ export default {
                 {prop:"exit", label:"按键结束符", minWidth:100}
             ]
             this.filterColumns = this.columns
-            
       	},
 		closeDialogFunc(){
 			this.showChild = false

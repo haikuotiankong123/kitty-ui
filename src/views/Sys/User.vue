@@ -57,10 +57,10 @@
 			<el-form-item label="分机id" prop="extId">
 				<el-select v-model="dataForm.extId" placeholder="请选择">
 					<el-option
-						v-for="i in allExt"
-						:key="i.id"
-						:label="i.id"
-						:value="i.id">
+						v-for="i in queryAllExt"
+						:key="i.extId"
+						:label="i.extId"
+						:value="i.extId">
 					</el-option>
 				</el-select>
 			</el-form-item>
@@ -155,7 +155,7 @@ export default {
 	},
 	computed:{
 		...mapState({
-			allExt: state => state.allExt
+			queryAllExt: state => state.queryAllExt
 		})
 	},
 	methods: {

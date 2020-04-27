@@ -45,7 +45,7 @@
                     <el-option v-for="i in omExtAll" 
                         :label="i.extId"
                         :value="i.extId"
-                        :key="i.id"></el-option>
+                        :key="i.extId"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="语音文件" prop="voicefile" >

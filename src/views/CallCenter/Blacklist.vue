@@ -26,9 +26,6 @@
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
-                <el-form-item label="ID" prop="id" v-if="false">
-                    <el-input v-model="editDataForm.id" :disabled="true" auto-complete="off"></el-input>
-                </el-form-item>
                 <el-form-item label="电话号码" prop="phone">
                     <el-input v-model="editDataForm.phone" auto-complete="off"></el-input>
                 </el-form-item>

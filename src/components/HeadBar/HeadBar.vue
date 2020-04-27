@@ -97,6 +97,7 @@
             
             <div class="call-content">
                 <div v-show="curIndex == 0">{{cmd1 == 'Hold' ? '呼叫保持中...' : '已取消呼叫保持'}}</div>
+                <!--  -->
                 <div v-show="curIndex == 1">
                     <p style="padding: 0 0 15px 10px;">
                     
@@ -112,7 +113,7 @@
                             <el-button size="mini" type="primary" style="padding:7px;" :disabled="!transferPhone" @click="onTransferFunc()">转接</el-button>
                         </template>
                         <template v-if="transParam.trans == 'menu'">
-                            <el-select style="width:120px;" value-key="id" size="mini" v-model="menuVal" @change="ivrFunc($event)">
+                            <el-select style="width:120px;" value-key="menuId" size="mini" v-model="menuVal" @change="ivrFunc($event)">
                                 <el-option 
                                     v-for="(i, index) in queryMenu" 
                                     :label="i.voiceFile"
@@ -121,10 +122,10 @@
                             </el-select>
                         </template>
                         <template v-if="transParam.trans == 'group'">
-                            <el-select style="width:120px;" size="mini" value-key="id" v-model="groupVal" @change="ivrFunc($event)">
+                            <el-select style="width:120px;" size="mini" value-key="groupId" v-model="groupVal" @change="ivrFunc($event)">
                                 <el-option 
                                     v-for="(i, index) in queryGroup" 
-                                    :label="i.id"
+                                    :label="i.groupId"
                                     :value="i"
                                     :key="index"></el-option>
                             </el-select>
@@ -132,25 +133,26 @@
                     </p>
                     <div style="padding-top:15px; border-top: 1px dashed #c9ccd2;">
                         <ul class="call-table">
-                            <li v-for="i in allExt" :key="i.id">
-                                {{i.id}}
+                            <li v-for="i in queryAllExt" :key="i.extId">
+                                {{i.extId}}
                                 <el-button size="mini" class="btn" 
                                     :disabled="transParam.trans != 'ext' && transParam.trans != 'queue'" 
-                                    @click="onTransferFunc(i.id)">转接</el-button>
+                                    @click="onTransferFunc(i.extId)">转接</el-button>
                             </li>
                         </ul>
                     </div>
                 </div>
+                <!--  -->
                 <div v-show="curIndex == 2"> 
                     <el-input size="mini" style="width:120px;" v-model="joinExtNum" placeholder="请输入分机号"></el-input>
                     <el-button size="mini" type="primary" style="padding:7px;" :disabled="!joinExtNum" @click="onJoin()">加入咨询</el-button>
 
                     <div style="padding-top:15px; border-top: 1px dashed #c9ccd2;">
                         <ul class="call-table">
-                            <li v-for="i in allExt" :key="i.id">
-                                {{i.id}}
+                            <li v-for="i in queryAllExt" :key="i.extId">
+                                {{i.extId}}
                                 <el-button size="mini" class="btn"
-                                    @click="onJoin(i.id)">加入</el-button>
+                                    @click="onJoin(i.extId)">加入</el-button>
                             </li>
                         </ul>
                     </div>
@@ -248,7 +250,9 @@ export default {
 
             countTime: '',
             timer: null,
-            curIndex: 1,
+            curIndex: null,
+            //curIndex: 1,
+            
             /**
              * 去电和来电的转接： 1：总机 | 2：挂断 | 3：分机 | 4：分机列表 | 5：分机组 | 6：IVR | 7：播放语音 | 8：转外部电话
              * 所对应的字段名称： default | clear  | ext_id  |  ext_id    | grou_id  | menu_id|  voicfile  | outer_to
@@ -277,10 +281,10 @@ export default {
     },
     filters: {
         callControl(callState){
-            return !callState.data || !callState.data.id //|| !callState.isVisitor 
+            return !callState.data || !(callState.data.id != undefined)  //|| !callState.isVisitor 
         },
         callControlIs(callState){
-            return !callState.data || !callState.data.id 
+            return !callState.data || !(callState.data.id != undefined) 
         }
     },
     watch: {
@@ -295,7 +299,7 @@ export default {
             if(data.type == 'EXT_IDLE') this.closeTimer()
         },
         callState(data){
-            
+            console.log('------>')
             if(data.type){
                 this.countTimeFunc()
             }else{
@@ -320,7 +324,7 @@ export default {
             queryExt: state=>state.queryExt,
             callState: state => state.callState,
             extState: state => state.extState,
-            allExt: state => state.allExt,
+            queryAllExt: state => state.queryAllExt,
             queryGroup: state=>state.queryGroup,
             queryMenu: state=>state.queryMenu,
             
@@ -384,7 +388,7 @@ export default {
         },
         // 转vir
         ivrFunc(e){
-            let id = e.id
+            let id = e.menuId || e.groupId
             if(!id) return '无id'
             this.onTransferFunc(id)
         },
@@ -477,12 +481,13 @@ export default {
             
             let data = this.callState.data
             
-            if(!data || !data.id){
+            if(!data || !(data.id != undefined)){
                 this.$message.error("去电id不能为空！")
                 return
             }
             let param = {
-                outer_id: data.id,
+                //outer_id: data.id,
+                outer_id: data.callId || data.callid,
                 transValue: num,
                 ...this.transParam
             }

@@ -84,8 +84,8 @@
     </div>
     <div class="customer">
         <h5 class="h5"><span class="active">客户资料</span></h5>
-        <el-form :inline="true" :show-message="false" label-width="75px"
-                class="query-container" size="small" :model="customerDetail" ref="customerDetail">
+        <el-form :inline="true" :show-message="false" label-width="90px" :rules="rules"
+                class="user-container" size="small" :model="customerDetail" ref="customerDetail">
             
             <el-form-item label="客户姓名" prop="name">
                 <el-input :disabled="isEditable" placeholder="请输入客户姓名" v-model="customerDetail.name" class="e-input"> </el-input>
@@ -204,7 +204,8 @@ export default {
             filterColumns: [],
             showOperation: false,
             timer: null,
-            callTime: "0"
+            callTime: "0",
+            rules:  {}
         }
     },
     components:{
@@ -218,9 +219,17 @@ export default {
     mounted(){
 
         this.loadData();
-        
+        this.$api.usrCustomerRequired.findByCompanyId().then(resp => {
+            this.isRequiredRule(resp.data)
+        })
     },
     methods :{
+        isRequiredRule(obj = {}){
+            for(let k in obj){
+                let rule = {required: obj[k], message: '必填', trigger: 'blur'}
+                this.$set(this.rules, k, rule)
+            }
+        },
         handleQuestionChange(inx, id) {
             this.listQuestion[inx].answerId = id == this.listQuestion[inx].answerId ? 0 : id
         },
@@ -496,7 +505,7 @@ export default {
         padding: 20px;
         border: 1px solid $--border-color-lighter;
     }
-    .query-container{
+    .user-container{
       margin: 25px 10px;
       padding: 25px 0;
       border: 1px solid $--border-color-lighter;
@@ -506,7 +515,7 @@ export default {
           margin-right: 0;
         }
         .el-form-item__content{
-            width: 220px;
+            //width: 220px;
         }
         .block{
           width: 100%;
