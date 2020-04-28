@@ -82,51 +82,112 @@
         </div>
 
     </div>
+
     <div class="customer">
         <h5 class="h5"><span class="active">客户资料</span></h5>
-        <el-form :inline="true" :show-message="false" label-width="90px" :rules="rules"
-                class="user-container" size="small" :model="customerDetail" ref="customerDetail">
-            
-            <el-form-item label="客户姓名" prop="name">
-                <el-input :disabled="isEditable" placeholder="请输入客户姓名" v-model="customerDetail.name" class="e-input"> </el-input>
-            </el-form-item>
-            
-            <el-form-item label="电话" prop="phone">
-                <el-input :disabled="isEditable" placeholder="请输入电话" v-model="customerDetail.phone" class="e-input"> </el-input>
-            </el-form-item>
-            
-            <el-form-item label="邮箱" prop="a3">
-                <el-input :disabled="isEditable" placeholder="请输入邮箱" v-model="customerDetail.a3" class="e-input"> </el-input>
-            </el-form-item>
+        <div class="user-container">
+            <el-form :inline="true" :show-message="false" label-width="90px" :rules="rules"
+                    size="small" :model="customerDetail" ref="customerDetail">
+                <el-form-item label="客户姓名" prop="name">
+                    <el-input :disabled="isEditable" placeholder="请输入客户姓名" v-model="customerDetail.name" class="e-input"> </el-input>
+                </el-form-item>
+                
+                <el-form-item label="电话" prop="phone">
+                    <el-input :disabled="isEditable" placeholder="请输入电话" v-model="customerDetail.phone" class="e-input"> </el-input>
+                </el-form-item>
+                
+                <el-form-item label="邮箱" prop="a3">
+                    <el-input :disabled="isEditable" placeholder="请输入邮箱" v-model="customerDetail.a3" class="e-input"> </el-input>
+                </el-form-item>
 
-            <el-form-item label="微信" prop="a5">
-                <el-input :disabled="isEditable" placeholder="请输入微信" v-model="customerDetail.a5" class="e-input"> </el-input>
-            </el-form-item>
-            
-            <el-form-item label="地址" prop="address">
-                <el-input :disabled="isEditable" placeholder="请输入地址" v-model="customerDetail.address" class="e-input" > </el-input>
-            </el-form-item>
-            
-            <el-form-item label="QQ" prop="a4">
-                <el-input :disabled="isEditable" placeholder="请输入QQ" v-model="customerDetail.a4" class="e-input" > </el-input>
-            </el-form-item>
+                <el-form-item label="微信" prop="a5">
+                    <el-input :disabled="isEditable" placeholder="请输入微信" v-model="customerDetail.a5" class="e-input"> </el-input>
+                </el-form-item>
+                
+                <el-form-item label="地址" prop="address">
+                    <el-input :disabled="isEditable" placeholder="请输入地址" v-model="customerDetail.address" class="e-input" > </el-input>
+                </el-form-item>
+                
+                <el-form-item label="QQ" prop="a4">
+                    <el-input :disabled="isEditable" placeholder="请输入QQ" v-model="customerDetail.a4" class="e-input" > </el-input>
+                </el-form-item>
 
-            <el-form-item label="性别" prop="a9">
-            <el-radio-group :disabled="isEditable" class="e-input" v-model="customerDetail.a9">
-                <el-radio-button label="男">男</el-radio-button>
-                <el-radio-button label="女">女</el-radio-button>
-            </el-radio-group>
-            </el-form-item>
+                <el-form-item label="性别" prop="a9">
+                    <el-radio-group :disabled="isEditable" class="e-input" v-model="customerDetail.a9">
+                        <el-radio-button label="男">男</el-radio-button>
+                        <el-radio-button label="女">女</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+                
+                <el-form :inline="true" size="small" :model="idn" label-width="90px">
+                    <template v-for="(i,index) in configValueList">
+                        <el-form-item
+                            v-if="i.status"
+                            :key="index"
+                            :label="i.label"
+                            :rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }"
+                            :prop="i.id+''">
+                            <el-input v-if="i.type == 1"  
+                                :disabled="isEditable" 
+                                :placeholder="'请输入' + i.label" 
+                                v-model="idn[i.id]" 
+                                class="e-input"> </el-input>
+                            <el-select v-if="i.type == 4"
+                                :disabled="isEditable"
+                                v-model="idn[i.id]" 
+                                :placeholder="'请选择' + i.label" 
+                                class="e-input"
+                                style="width:200px;">
+                                <el-option v-for="k in JSON.parse(i.jsonData)" 
+                                    :label="k"
+                                    :value="k"
+                                    :key="k"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </template>
+                </el-form>
 
-            <el-form-item label="备注" prop="remark" class="block">
-            <el-input :disabled="isEditable" type="textarea" placeholder="请输入备注" v-model="customerDetail.remark"></el-input>
-            </el-form-item>
+                <el-form-item label="备注" prop="remark" class="block">
+                    <el-input :disabled="isEditable" type="textarea" placeholder="请输入备注" v-model="customerDetail.remark"></el-input>
+                </el-form-item>
 
-            <el-form-item label=" " class="block" style="margin:10px 0 0 0;">
-            <el-button :disabled="isEditable" type="primary" @click="submitForm('customerDetail')">保存客户资料</el-button>
-            <el-button :disabled="!isEditable" type="primary" @click="isEditable = !isEditable">编辑资料</el-button>
-            </el-form-item>
-        </el-form>
+                <el-form-item label=" " class="block" style="margin:10px 0 0 0;">
+                    <el-button :disabled="isEditable" type="primary" @click="submitForm('customerDetail')">保存客户资料</el-button>
+                    <el-button :disabled="!isEditable" type="primary" @click="isEditable = !isEditable">编辑资料</el-button>
+                </el-form-item>
+
+            </el-form>
+
+            <!-- <el-form :inline="true" size="small" :model="idn">
+                <template v-for="(i,index) in customerDetail.configValueList">
+                    <el-form-item
+                        v-if="i.status"
+                        :key="index"
+                        :label="i.label"
+                        :rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }"
+                        :prop="i.id+''">
+                        <el-input v-if="i.type == 1"  
+                            :disabled="isEditable" 
+                            :placeholder="'请输入' + i.label" 
+                            v-model="idn[i.id]" 
+                            class="e-input"> </el-input>
+                        <el-select v-if="i.type == 4"
+                            :disabled="isEditable"
+                            v-model="idn[i.id]" 
+                            :placeholder="'请选择' + i.label" 
+                            class="e-input"
+                            style="width:200px;">
+                            <el-option v-for="k in JSON.parse(i.jsonData)" 
+                                :label="k"
+                                :value="k"
+                                :key="k"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
+            </el-form> -->
+
+        </div>
+
         <div class="skill">
             <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="开场话术" name="first">
@@ -205,7 +266,10 @@ export default {
             showOperation: false,
             timer: null,
             callTime: "0",
-            rules:  {}
+            rules:  {},
+            jsonValueMap: {},
+            configValueList: [],
+            idn: {}
         }
     },
     components:{
@@ -221,7 +285,14 @@ export default {
         this.loadData();
         this.$api.usrCustomerRequired.findByCompanyId().then(resp => {
             this.isRequiredRule(resp.data)
-        })
+        });
+        this.$api.usrCustomerConfig.findAll().then(resp => {
+            let data = resp.data
+            this.configValueList = data
+            data || data.forEach(i => {
+                    this.$set(this.idn, i.id, i.jsonValue)
+                })
+        });
     },
     methods :{
         isRequiredRule(obj = {}){
@@ -257,7 +328,10 @@ export default {
         }).then(data!=null?data.callback:'')
         },
         submitForm(formName) {
-            this.$refs[formName].validate((valid) => {
+            this.customerDetail.jsonValueMap = JSON.stringify(this.idn)
+            console.log('编辑客户-----》', this.customerDetail)
+            
+            /* this.$refs[formName].validate((valid) => {
                 if (valid) {
                     alert('submit!');
                     this.isEditable = true
@@ -265,7 +339,7 @@ export default {
                     console.log('error submit!!');
                     return false;
                 }
-            });
+            }); */
         },
         
         editCommandCallFunc(row){

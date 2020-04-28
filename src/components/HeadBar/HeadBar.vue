@@ -349,7 +349,6 @@ export default {
             this.user.name = user
             this.user.avatar = require("@/assets/user.png")
         }
-        
     },
     methods: {
         ...mapActions(['queryExtClick']),
@@ -486,8 +485,7 @@ export default {
                 return
             }
             let param = {
-                //outer_id: data.id,
-                outer_id: data.callId || data.callid,
+                outer_id: data.id,  // 在修改当中
                 transValue: num,
                 ...this.transParam
             }

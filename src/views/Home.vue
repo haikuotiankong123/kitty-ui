@@ -131,7 +131,7 @@ export default {
     },
     mounted(){},
     methods: {
-        ...mapActions(['queryAllExtClick', 'queryGroupClick', 'queryAllTrunkClick', 'queryOuterClick','queryVisitorClick', 'queryVoicefileClick']),
+        ...mapActions(['queryAllExtClick', 'queryGroupClick', 'queryAllTrunkClick', 'queryOuterClick','queryVisitorClick', 'queryVoicefileClick','queryMenuClick']),
 
         loadData(){
             this.queueRequest()
@@ -160,7 +160,7 @@ export default {
             await this.queryGroupClick().catch(h);
 
             // 语音菜单
-            await this.$api.queryMenu().catch(h);
+            await this.queryMenuClick().catch(h);
 
             // 所有中继
             await this.queryAllTrunkClick().catch(h);
