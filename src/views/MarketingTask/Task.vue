@@ -21,9 +21,7 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
-            <template v-slot:project="{row}">
-                <span>{{row.project.name}}</span>
-            </template>
+            
             <template v-slot:time="{row}">
                 {{/00:00:00$/.test(row.beginDate) ? row.beginDate.slice(0, 10) : row.beginDate}} 到
                 {{/00:00:00$/.test(row.endDate) ? row.endDate.slice(0, 10) : row.endDate}} 
@@ -70,78 +68,97 @@
             </template>
         </om-table>
 
-        <!--新增编辑界面-->
-        <el-dialog class="" :title="operation?'新增':'编辑'" width="90%"  :visible.sync="dialogVisible" :close-on-click-modal="false">
+
+        <!-- <el-form label-width="80px" size="small" :model="$store.state.editTaskForm" :rules="rules">
+
+            <el-form-item label="任务名称" prop="name">
+                <el-input v-model="$store.state.editTaskForm.name"></el-input>
+            </el-form-item>
+
+            <el-form-item label="所属项目" prop="projectId">
+                <ag-select v-model="$store.state.editTaskForm.projectId" :data="$store.state.selectProject"
+                            placeholder="请选择所属项目"/>
+            </el-form-item>
+
+            <el-form-item label="任务状态">
+                <el-radio-group v-model="$store.state.editTaskForm.status" @change="radioFunc">
+                    <el-radio-button label="0">未开始</el-radio-button>
+                    <el-radio-button label="1">进行中</el-radio-button>
+                    <el-radio-button label="4">已暂停</el-radio-button>
+                    <el-radio-button label="2">已完成</el-radio-button>
+                </el-radio-group>
+            </el-form-item>
+            <el-form-item label="任务周期">
+                <el-date-picker v-model="$store.state.editTaskForm.beginDate"
+                                type="date" format="yyyy-MM-dd"
+                                value-format="yyyy-MM-dd"
+                                placeholder="开始日期"/>
+                至
+                <el-date-picker v-model="$store.state.editTaskForm.endDate"
+                                type="date"
+                                format="yyyy-MM-dd"
+                                value-format="yyyy-MM-dd"
+                                placeholder="截止日期"/>
+            </el-form-item>
             
-            <div class="col-two">
-                <el-form label-width="100px" size="small" :model="editDataForm" :rules="rules">
-                    <el-form-item label="项目标题" prop="name">
-                        <el-input v-model="editDataForm.name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="问卷模板">
-                        <!-- <ag-select v-model="editDataForm.questionGroupId"
-                                    :data="$store.state.listQuestionGroup"></ag-select> -->
-                    </el-form-item>
-                    <el-form-item label="项目整理模板">
-                        <!-- <ag-select v-model="editDataForm.messageGroupId"
-                                    :data="$store.state.listMessageGruop"></ag-select> -->
-                    </el-form-item>
+            <el-form-item label="选择坐席">
+                <el-input v-model="amTitle" readonly style="width: 462px"></el-input>
+                <a class="button" size="mini" @click="editSeat">选择坐席</a>
+            </el-form-item>
 
-                    <el-form-item label="拨打设置">
+            <el-form-item label="任务描述">
+                <el-input type="textarea" v-model="$store.state.editTaskForm.remark"></el-input>
+            </el-form-item>
 
-                        <el-select v-model="editDataForm.type" placeholder="请选择">
-                            <el-option key="1" label="人工" :value=1></el-option>
-                            <el-option key="2" label="机器" :value=2></el-option>
-                            <el-option key="0" label="未设置" :value=0></el-option>
-                        </el-select>
+        </el-form> -->
 
-                    </el-form-item>
+        <el-dialog class="" :title="operation?'新增':'编辑'" width="60%"  :visible.sync="dialogVisible" :close-on-click-modal="false">
+            
+            <el-form label-width="100px" size="small" :model="editDataForm" :rules="rules" ref="editDataForm">
+                <el-form-item label="任务名称" prop="name">
+                    <el-input v-model="editDataForm.name"  placeholder="请输入任务名称"></el-input>
+                </el-form-item>
+                <el-form-item label="所属项目">
+                    <omSelect v-model="editDataForm.projectId" :data="selectProject"></omSelect>
+                </el-form-item>
+                <el-form-item label="任务状态">
+                    <el-radio-group v-model="editDataForm.status">
+                        <el-radio-button label="0">未开始</el-radio-button>
+                        <el-radio-button label="1">进行中</el-radio-button>
+                        <el-radio-button label="4">已暂停</el-radio-button>
+                        <el-radio-button label="2">已完成</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
 
-                    <el-form-item label="TTS语速">
-                        <el-slider size="mini" v-model="editDataForm.ttsSpeed"></el-slider>
-                    </el-form-item>
+                <el-form-item label="任务周期">
+                    <el-date-picker v-model="editDataForm.beginDate"
+                                    type="date" format="yyyy-MM-dd"
+                                    value-format="yyyy-MM-dd"
+                                    placeholder="开始日期"/>
+                    至
+                    <el-date-picker v-model="editDataForm.endDate"
+                                    type="date"
+                                    format="yyyy-MM-dd"
+                                    value-format="yyyy-MM-dd"
+                                    placeholder="截止日期"/>
+                </el-form-item>
+                
+                <el-form-item label="选择坐席">
+                    <el-select v-model="extAll">
+                        <el-option v-for="i in queryAllExt" 
+                            :key="i.extId"
+                            :label="i.extId"
+                            :value="i.extId"></el-option>
+                    </el-select>
+                    <!-- <el-input v-model="amTitle" readonly style="width: 462px"></el-input>
+                    <a class="button" size="mini">选择坐席</a> -->
+                </el-form-item>
 
-                    <el-form-item label="TTS语调">
-                        <el-slider size="mini" v-model="editDataForm.ttsPitch"></el-slider>
-                    </el-form-item>
+                <el-form-item label="任务描述">
+                    <el-input type="textarea" v-model="editDataForm.remark"></el-input>
+                </el-form-item>
 
-                </el-form>
-            </div>
-
-            <div class="col-two">
-                <el-form label-width="100px" size="small" :model="editDataForm" :rules="rules">
-
-                    <el-form-item label="拨打时段">
-                        <el-checkbox v-model="dayArray" :label="1">周一</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="2">周二</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="3">周三</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="4">周四</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="5">周五</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="6">周六</el-checkbox>
-                        <el-checkbox v-model="dayArray" :label="7">周日</el-checkbox>
-
-                    </el-form-item>
-
-                    <el-form-item>
-                        <el-time-select :picker-options="{start: '00:00',step: '00:15',end: '24:00',format:'HH:mm'}"
-                                        v-model="editDataForm.beginTime" placeholder="开始时间"
-                                        style="width: 50%;float:left;"/>
-                        <el-time-select :picker-options="{start: '00:00',step: '00:15',end: '24:00',format:'HH:mm'}"
-                                        v-model="editDataForm.endTime" placeholder="结束时间"
-                                        style="width: 50%;float:left;"/>
-                    </el-form-item>
-                    <el-form-item label="项目状态">
-                        <el-radio-group v-model="editDataForm.status">
-                            <el-radio-button label="0">未开始</el-radio-button>
-                            <el-radio-button label="1">进行中</el-radio-button>
-                            <el-radio-button label="2">已完成</el-radio-button>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="备注">
-                        <el-input type="textarea" v-model="editDataForm.remark"></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
+            </el-form>
 
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
@@ -154,11 +171,13 @@
 <script>
 import {pageTask} from "@/mock/modules/pageTask"
 import OmTable from "@/components/omTable"
+import omSelect from "@/components/omSelect"
 import util from "@/utils/util"
 import {mapActions, mapState} from 'vuex'
 export default {
     components: {
-        OmTable
+        OmTable,
+        omSelect
     },
     data(){
         return {
@@ -173,11 +192,7 @@ export default {
                     {required: true, message: '请输入', trigger: 'blur'},
                 ],
             },
-            dataResp:{
-                content: []
-            },
-            dataForm:{},
-
+            
             filterColumns: [],
             handleWidth: 400,
             columns: [],
@@ -194,7 +209,11 @@ export default {
             },
             
             // 新增编辑界面数据
-			editDataForm: {}
+            editDataForm: {
+                status: "0"
+            },
+            amTitle: '',
+            extAll: ''
         }
     },
     filters:{
@@ -209,16 +228,23 @@ export default {
     },
     mounted(){
         this.initColumns();
-        
+        this.projectAll();
     },
     computed:{
-        /* ...mapState('omBlacklist', {
+        ...mapState('task', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        }) */
+        }),
+        ...mapState({
+            selectProject: state=>state.taskProject.findAll,
+            queryAllExt: state => state.queryAllExt,
+        })
     },
     methods:{
-        //...mapActions('omBlacklist', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('task', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('taskProject', {
+            projectAll: 'findAll'
+        }),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -244,16 +270,16 @@ export default {
 
         // 获取分页数据
 		findPageFunc(data) {
-            this.dataResp = pageTask()
-            data.callback()
+            /* this.dataResp = pageTask()
+            data.callback() */
 
-			/* if(data !== null) {
+			if(data !== null) {
 				this.pageRequest = data.pageRequest
             }
 
 			this.findPage(this.pageRequest).then((res) => {
 
-			}).then(data!=null?data.callback:'') */
+			}).then(data!=null?data.callback:'')
         },
         // 显示新增界面
 		handleAdd: function () {
@@ -263,7 +289,7 @@ export default {
 				id: null,
 				title: null,
 				remark: null,
-				status: null
+				status: 0,
 			}
         },
         // 显示编辑界面

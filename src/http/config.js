@@ -1,5 +1,6 @@
 
-import { baseUrl } from '@/utils/global'
+//import { baseUrl } from '@/http/env'
+import { baseUrl } from '@/http/env'
 
 
 export default {

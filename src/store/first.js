@@ -23,9 +23,14 @@ for(let i in api){
             if(resp.success){
                 let mutationName = 'set' + firstUpper(i)
                 let data = resp.data
-                
                 store.commit(mutationName, data)
             }
+            // 更新
+            if(/^assign/.test(i) && !(/All/.test(i))){
+                let mothod = i.replace('assign', 'query')
+                store.dispatch(mothod + "Click")
+            }
+
             return resp
         }).catch((err)=>{
             util.error(err.message)

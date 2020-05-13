@@ -119,33 +119,31 @@
                     </el-radio-group>
                 </el-form-item>
                 
-                <el-form :inline="true" size="small" :model="idn" label-width="90px">
-                    <template v-for="(i,index) in configValueList">
-                        <el-form-item
-                            v-if="i.status"
-                            :key="index"
-                            :label="i.label"
-                            :rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }"
-                            :prop="i.id+''">
-                            <el-input v-if="i.type == 1"  
-                                :disabled="isEditable" 
-                                :placeholder="'请输入' + i.label" 
-                                v-model="idn[i.id]" 
-                                class="e-input"> </el-input>
-                            <el-select v-if="i.type == 4"
-                                :disabled="isEditable"
-                                v-model="idn[i.id]" 
-                                :placeholder="'请选择' + i.label" 
-                                class="e-input"
-                                style="width:200px;">
-                                <el-option v-for="k in JSON.parse(i.jsonData)" 
-                                    :label="k"
-                                    :value="k"
-                                    :key="k"></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </template>
-                </el-form>
+                <template v-for="(i,index) in customerDetail.configValueList">
+                    <el-form-item
+                        v-if="i.status"
+                        :key="index"
+                        :label="i.label"
+                        :rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }"
+                        :prop="'configValueList.' + index + '.jsonValue'">
+                        <el-input v-if="i.type == 1"  
+                            :disabled="isEditable" 
+                            :placeholder="'请输入' + i.label" 
+                            v-model="i.jsonValue" 
+                            class="e-input"> </el-input>
+                        <el-select v-if="i.type == 4"
+                            :disabled="isEditable"
+                            v-model="i.jsonValue" 
+                            :placeholder="'请选择' + i.label" 
+                            class="e-input"
+                            style="width:200px;">
+                            <el-option v-for="k in JSON.parse(i.jsonData)" 
+                                :label="k"
+                                :value="k"
+                                :key="k"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
 
                 <el-form-item label="备注" prop="remark" class="block">
                     <el-input :disabled="isEditable" type="textarea" placeholder="请输入备注" v-model="customerDetail.remark"></el-input>
@@ -157,34 +155,6 @@
                 </el-form-item>
 
             </el-form>
-
-            <!-- <el-form :inline="true" size="small" :model="idn">
-                <template v-for="(i,index) in customerDetail.configValueList">
-                    <el-form-item
-                        v-if="i.status"
-                        :key="index"
-                        :label="i.label"
-                        :rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }"
-                        :prop="i.id+''">
-                        <el-input v-if="i.type == 1"  
-                            :disabled="isEditable" 
-                            :placeholder="'请输入' + i.label" 
-                            v-model="idn[i.id]" 
-                            class="e-input"> </el-input>
-                        <el-select v-if="i.type == 4"
-                            :disabled="isEditable"
-                            v-model="idn[i.id]" 
-                            :placeholder="'请选择' + i.label" 
-                            class="e-input"
-                            style="width:200px;">
-                            <el-option v-for="k in JSON.parse(i.jsonData)" 
-                                :label="k"
-                                :value="k"
-                                :key="k"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </template>
-            </el-form> -->
 
         </div>
 
@@ -267,9 +237,7 @@ export default {
             timer: null,
             callTime: "0",
             rules:  {},
-            jsonValueMap: {},
-            configValueList: [],
-            idn: {}
+            jsonValueMap: {}
         }
     },
     components:{
@@ -288,10 +256,7 @@ export default {
         });
         this.$api.usrCustomerConfig.findAll().then(resp => {
             let data = resp.data
-            this.configValueList = data
-            data || data.forEach(i => {
-                    this.$set(this.idn, i.id, i.jsonValue)
-                })
+            this.$set(this.customerDetail, 'configValueList', data)
         });
     },
     methods :{
@@ -320,16 +285,29 @@ export default {
             console.log(`当前页: ${val}`);
         },
         findPage(data){
-        if(data !== null){
+            if(data !== null){
 
-        }
-        this.$api.user.findPage(this.pageRequest).then((res)=>{
-            this.pageResult = res.data
-        }).then(data!=null?data.callback:'')
+            }
+            this.$api.user.findPage(this.pageRequest).then((res)=>{
+                this.pageResult = res.data
+            }).then(data!=null?data.callback:'')
         },
         submitForm(formName) {
-            this.customerDetail.jsonValueMap = JSON.stringify(this.idn)
-            console.log('编辑客户-----》', this.customerDetail)
+            
+            let param = {}
+            let obj = {}
+            let form = this.customerDetail
+            for(let k in form){
+                let val = form[k];
+                if(Array.isArray(val)){
+                    val.forEach(i => {
+                        if(i.jsonValue) obj[i.id] = i.jsonValue
+                    })
+                    param.jsonValueMap = JSON.stringify(obj)
+                }
+                if(val && (typeof(val) != 'object')) param[k] = val
+            }
+            console.log('编辑客户-----》', param)
             
             /* this.$refs[formName].validate((valid) => {
                 if (valid) {

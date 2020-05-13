@@ -76,18 +76,10 @@
 						<el-button type="primary" size="small" @click="watchCall(curExt)">监听通话</el-button>
 					</p>
 					<p v-show="curExt.state == 'active'" style="padding-bottom:20px;">
-						<el-button type="primary" size="small" @click="onThreeway()">加入对话</el-button><br/>
-                        
-                        <el-select v-if="isJoin" size="mini" 
-                            @change="onJoin"
-                            v-model="joinExt" 
-                            placeholder="请选择加入的分机号" 
-                            style="width:160px; margin-top:10px;">
-                            <el-option v-for="(i, index) in queryAllExt" 
-                                :key="index"
-                                :label="i.extId"
-                                :value="i.extId"></el-option>
-                        </el-select>
+						<el-button type="primary" size="small" @click="onThreeway(curExt)">强插对话</el-button><br/>
+					</p>
+                    <p v-show="curExt.state == 'active'" style="padding-bottom:20px;">
+						<el-button type="primary" size="small" @click="closeCall(curExt)">关闭对话</el-button><br/>
 					</p>
                     <p>
                         <el-button  
@@ -183,7 +175,8 @@ export default {
             groupData: state=>state.dataResp
         }),
         ...mapState({
-            queryAllExt: state => state.queryAllExt
+            queryAllExt: state => state.queryAllExt,
+            queryExt: state => state.queryExt
         }),
         extGroup(){
             let data = this.$store.state.queryGroup
@@ -371,31 +364,20 @@ export default {
             }) */
         },
         // 监听通话
-        watchCall(int){
-            if(!(int && int.account)) return '分机参数有误';
-            const account = int.account
-            //api.editEavesdrop({account})
+        watchCall(ext){
+            let param = {cmd:'monitor', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            this.$api.controlCmd(param)
         },
-        onJoin(extId){
-            
-            //let num = extId || this.joinExtNum;
-            let param = {
-                ext_id: extId
-            }
-            this.$api.connectConference(param).then(resp => {
-                if(resp.success){
-                    util.message(resp.message)
-                }
-            }).catch(err => {
-                util.error(err.message)
-            })
+        // 强插对话
+        onThreeway(ext){
+            let param = {cmd:'bargein', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            this.$api.controlCmd(param)
         },
-        // 加入对话
-        onThreeway(int){
-            this.isJoin = true;
-            //if(!(int && int.account )) return '分机参数有误';
-            //const account = int.account
-            //api.editThreeway({account})
+        // 关闭通话
+        closeCall(ext){
+            //let param = {cmd:'clear', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            let param = {cmd:'clear', ext_id: ext.extId}
+            this.$api.controlCmd(param)
         }
     }
 }

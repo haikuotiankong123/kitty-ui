@@ -190,6 +190,7 @@ export default {
             
             for(let i=0; i<this.dataResp.content.length; i++){
                 let item = this.dataResp.content[i]
+                item.companyId = 1
                 this.save(item);
             }
             this.$api.usrCustomerRequired.save(this.dataForm)

@@ -153,6 +153,7 @@ export default {
     },
     methods:{
         ...mapActions('omGroup', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions(['assignGroupClick']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -222,7 +223,8 @@ export default {
                             form.group_id = form.groupId
 						let params = Object.assign({}, form)
                         
-                        this.$api.assignGroup(params).then(res => {
+                        //this.$api.assignGroup(params).then(res => {
+                        this.assignGroupClick(params).then(res => {
 							this.editLoading = false
 							if(res.success) {
 								this.$message({ message: '操作成功', type: 'success' })

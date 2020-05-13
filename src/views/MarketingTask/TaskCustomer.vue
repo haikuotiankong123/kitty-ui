@@ -21,13 +21,13 @@
             @handleEdit="handleEdit">
 			<template v-for="(i, index) in configList" v-slot:[i.prop]="{row}">
 				{{row.configValueList[index] && row.configValueList[index].jsonValue}}
-			</template>	
-			
-            <!-- <template v-slot:handle="{row}"></template> -->
+			</template>
+
+            <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
-        <!--新增编辑界面-->
-        <el-dialog class="column-three" :title="operation?'新增':'编辑'" :visible.sync="dialogVisible" :close-on-click-modal="false">
+		<!--新增编辑界面-->
+		<el-dialog class="column-three" :title="operation?'新增':'编辑'" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="rules" ref="editDataForm" :size="size"
                 label-position="right">
 
@@ -52,7 +52,8 @@
 				<el-form-item label="地址" prop="address" >
 					<el-input v-model="editDataForm.address" auto-complete="off" placeholder="请输入地址"></el-input>
 				</el-form-item>
-				
+
+				<!--  -->
 				<template v-for="(i,index) in configList">
                     <el-form-item
                         v-if="i.status"
@@ -77,19 +78,16 @@
                     </el-form-item>
                 </template>
 
-				<!-- <el-form-item label="客户类型" prop="type" >
-					<el-input v-model="editDataForm.type" auto-complete="off"></el-input>
-				</el-form-item> -->
 				<el-form-item label="备注" prop="remark" style="width:89%">
 					<el-input type="textarea" v-model="editDataForm.remark" auto-complete="off" placeholder="请输入备注"></el-input>
 				</el-form-item>
-				</el-form>
-				<span slot="footer" class="dialog-footer">
-					<el-button size="small" @click.native="dialogVisible = false">取消</el-button>
-					<el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
-				</span>
-			
-        </el-dialog>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+				<el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
+			</span>
+        </el-dialog>        
+        
     </div>
 </template>
 
@@ -103,22 +101,6 @@ export default {
     },
     data(){
         return {
-			lists: [
-				{label: "客户姓名", value: 0, key: "name"},
-				{label: "电话", value: 0, key: "phone"},
-				// {label: "策略", value: 0, key: "a6"},
-				// {label: "客户昵称", value: 0, key: "a1"},
-				{label: "邮箱", value: 0, key: "a3"},
-				// {label: "品牌", value: 0, key: "a7"},
-				// {label: "客户等级", value: 0, key: "a2"},
-				{label: "QQ", value: 0, key: "a4"},
-				// {label: "分公司", value: 0, key: "a8"},
-				{label: "性别", value: 0, key: "a9"},
-				{label: "微信", value: 0, key: "a5"},
-				{label: "地址", value: 1, key: "address"},
-				{label: "备注", value: 1, key: "remark"},
-
-			],
             filterColumns: [],
             columns: [],
             timeRange: [],
@@ -127,8 +109,13 @@ export default {
             operation: false, // true:新增, false:编辑
             dialogVisible: false, // 新增编辑界面是否显示
             editLoading: false,
-            
-            // 新增编辑界面数据
+            dataFormRules: {
+				name: [
+					{ required: true, message: '请输入用户名', trigger: 'blur' }
+				]
+			},
+
+			// 新增编辑界面数据
 			editDataForm: {
 				configValueList: [],
 				jsonValueMap: {}
@@ -138,19 +125,18 @@ export default {
         }
     },
     mounted(){
-		this.loadData();
+		this.loadData()
     },
     computed:{
-        ...mapState('usrCustomer', {
+        ...mapState('taskCustomer', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-		})
+        })
     },
     methods:{
-        ...mapActions('usrCustomer', ['findPage', 'findAll', 'save', 'delete']),
-
+		...mapActions('taskCustomer', ['findPage', 'findAll', 'save', 'delete']),
+		
 		async loadData(){
-			
 			await this.$api.usrCustomerConfig.findByCompanyId().then(resp => {
 				this.configList = resp.data
 			})
@@ -161,12 +147,13 @@ export default {
 				this.isRequiredRule(resp.data)
 			});
 		},
+
 		isRequiredRule(obj = {}){
             for(let k in obj){
                 let rule = {required: obj[k], message: '必填', trigger: 'blur'}
                 this.$set(this.rules, k, rule)
             }
-		},
+        },
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -182,14 +169,17 @@ export default {
 				})
 				return i;
 			})
-
 			this.columns = [
                 {prop:"name", label:"客户名称", minWidth:100},
-				{prop:"phone", label:"电话号码", minWidth:100},
+				{prop:"phone", label:"电话", minWidth:100},
 				...customerConfig,
-                {prop:"uuid", label:"", minWidth:100},
-				/* ，1：正式客户，2：任务客户 */
-                {prop:"type", label:"客户类型", minWidth:100},
+				{prop:"createTime", label:"创建时间", minWidth:100},
+				{prop:"createId", label:"创建人", minWidth:100},
+				{prop:"memberName", label:"话务员名称", minWidth:100},
+				// 0未发布 1进行中 2完成 3失败  9取消
+				{prop:"result", label:"完成状态", minWidth:100},
+				{prop:"lastTime", label:"最后一次拨打时间", minWidth:100},
+
             ]
             this.filterColumns = this.columns
       	},
@@ -222,7 +212,6 @@ export default {
 			this.dialogVisible = true
 			this.operation = true
 			this.$set(this.editDataForm, "jsonValueMap", {})
-			
         },
         // 显示编辑界面
 		handleEdit: function (params) {
@@ -231,15 +220,13 @@ export default {
 			let row = params.row;
 			let configValueList = row.configValueList;
 			this.$set(row, 'jsonValueMap', {})
-			
 			configValueList.forEach(i=>{
 				this.$set(row.jsonValueMap, i.configId+'', i.jsonValue)
 			})
 			this.editDataForm = Object.assign({}, row)
-		},
+        },
         // 编辑
 		submitForm: function () {
-			
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -261,7 +248,7 @@ export default {
 							}
 						}
 						form.jsonValueMap = JSON.stringify(form.jsonValueMap)
-						
+
 						this.save(form).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {
@@ -281,6 +268,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+
 
 </style>

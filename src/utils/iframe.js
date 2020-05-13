@@ -2,7 +2,7 @@
  * 嵌套页面IFrame模块
  */
 
-import { baseUrl } from '@/utils/global'
+import { baseUrl } from '@/http/env'
 
 /**
  * 嵌套页面URL地址

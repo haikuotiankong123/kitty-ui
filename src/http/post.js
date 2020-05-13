@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { baseUrl } from '@/utils/global'
+import { baseUrl } from '@/http/env'
 import Cookies from "js-cookie";
 import router from '@/router'
 

@@ -31,7 +31,7 @@ function getApiName(apiName){
         data
     })
 
-    if(apiName == 'usrCustomerRequired'){
+    if(apiName == 'usrCustomerRequired' || apiName == 'usrCustomerConfig'){
         obj.findByCompanyId = data => axios({
             url: '/'+apiName+'/findByCompanyId?id=1',
             method: 'get',
@@ -128,5 +128,36 @@ api.omVoicefile = getApiName('omVoicefile')
  */
 api.usrCustomerRequired = getApiName('usrCustomerRequired')
 
+
+
+
+
+
+
+/**
+ * 项目管理
+ */
+api.taskProject = getApiName('taskProject')
+
+/**
+ * 问卷管理
+ */
+api.taskQuestionGroup = getApiName('taskQuestionGroup')
+
+/**
+ * 任务管理
+ */
+api.task = getApiName('task')
+
+/**
+ * 话务小结模板
+ */
+api.messageGroup = getApiName('messageGroup')
+api.messageTemplate = getApiName('messageTemplate')
+
+/**
+ * 客户管理
+ */
+api.taskCustomer = getApiName('taskCustomer')
 
 export default api

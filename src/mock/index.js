@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import { baseUrl } from '@/utils/global'
+import { baseUrl } from '@/http/env'
 import * as login from './modules/login'
 import * as user from './modules/user'
 import * as role from './modules/role'

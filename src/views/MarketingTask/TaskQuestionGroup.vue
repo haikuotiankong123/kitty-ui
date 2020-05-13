@@ -25,51 +25,101 @@
                     {{row.status | status }}
                 </el-tag>
             </template>
+            <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
         <!--新增编辑界面-->
-        <el-dialog class="" :title="operation?'新增':'编辑'" width="600px"  :visible.sync="dialogVisible" :close-on-click-modal="false">
+        <el-dialog class="" :title="operation?'新增':'编辑'" width="50%"  :visible.sync="dialogVisible" :close-on-click-modal="false">
             
+
             <el-form :model="editDataForm" label-width="110px" v-if="dialogVisible" ref="editDataForm" :size="size"
                 label-position="right">
 
                 <el-form-item label="模板名称" prop="title" >
-                    <el-input v-model="editDataForm.title" ></el-input>
+                    <el-input v-model="editDataForm.title" placeholder="请输入模板名称"></el-input>
                 </el-form-item>
                 <el-form-item label="模板说明" prop="remark" >
-                    <el-input v-model="editDataForm.remark" ></el-input>
+                    <el-input v-model="editDataForm.remark" placeholder="请输入模板说明"></el-input>
                 </el-form-item>
                 
                 <el-form-item label="模板状态" prop="status" >
-                    <el-input v-model="editDataForm.status" ></el-input>
+                    <el-radio-group v-model="editDataForm.status">
+                        <el-radio-button label="0">未发布</el-radio-button>
+                        <el-radio-button label="1">使用中</el-radio-button>
+                        <el-radio-button label="2">已取消</el-radio-button>
+                    </el-radio-group>
                 </el-form-item>
             
             </el-form>
 
-            <div class="question-list" v-if="editDataForm.id >0">
-                <div v-for="(list,index) in editDataForm.msgTemplate" :key="index" class="question-item">
-                    <el-button title="删除沟通结果" 
-                        @click="removeFunc(list.id, index)"
-                        class="del icon-wrong icons"
-                        type="text"></el-button>
+            <div class="question-list">
+                <div class="question-item" v-for="(item,index) in editDataForm.questionList"
+                        :key="item.id"
+                        style="margin-top: 10px">
+                    <el-form label-width="100px" :size="size" :model="item" :rules="rules" ref="item">
+                        <div>
+                            <label style="font-weight: bold;">第 {{index+1}} 题</label>
+                            <el-button title="删除问题" 
+                                @click="removeQuestionFunc(item,index)"
+                                class="right del el-icon-delete" 
+                                style="font-size:16px; padding-top:5px;" 
+                                type="text"></el-button>
+                            <!-- <a class="right del" title="删除问题" @click="removeQuestionFunc(item,index)">- 删除问题</a> -->
+                        </div>
 
-                    <el-form label-width="100px" :size="size" class="msg">
-                        <el-form-item label="快捷方式">
-                        <el-radio-group v-model="list.flag" :size="size">
-                                <el-radio-button label="1">是</el-radio-button>
-                                <el-radio-button label="2">否</el-radio-button>
+                        <el-form-item label="题目描述" prop="title" required>
+                            <el-input v-model="item.title" style="width:80%;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="是否必填" prop="required" required>
+                            <el-radio-group v-model="item.required" prop="required">
+                                <el-radio-button label="0">是</el-radio-button>
+                                <el-radio-button label="1">否</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+
+                        <el-form-item label="问题类型" prop="questionType" required>
+                            <el-radio-group v-model="item.questionType">
+                                <el-radio-button :label="0">单选</el-radio-button>
+                                <el-radio-button :label="1">文本</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+
+                        <el-radio-group v-if="item.questionType === 0"
+                                        v-for="(itemAnswer,indexAnswer) in item.answerList"
+                                        :key="itemAnswer.id" v-model="item.answerId" style="display: block">
+
+                            <el-form-item>
+                                <template slot="label">
+                                    答案 {{indexAnswer + 1}}
+                                </template>
+                                <el-input style="width:50%;" v-model="itemAnswer.text" class="answer"/>
+                                <label class="">
+                                    <el-radio :label="itemAnswer.id">正确答案</el-radio>
+                                </label>
+                                <el-button :title="'删除答案'+ (indexAnswer + 1)" 
+                                    @click="removeAnswerFunc(itemAnswer,indexAnswer,item.answerList)"
+                                    class="right del el-icon-circle-close" 
+                                    style="font-size:16px; padding:5px 0 0 0;" 
+                                    type="text"></el-button>
+                                <!-- <a class="right del"
+                                    @click="removeAnswerFunc(itemAnswer,indexAnswer,item.answerList)">- 删除答案</a> -->
+                            </el-form-item>
                         </el-radio-group>
-                        </el-form-item>
-                        <el-form-item label="沟通结果">
-                            <el-input v-model="list.resultText" style="width:80%"> </el-input>
-                        </el-form-item>
-                        <el-form-item label="话务整理模版">
-                            <el-input v-model="list.content" style="width:80%" type="textarea"> </el-input>
-                        </el-form-item>
+
+                        <div v-if="item.questionType === 0">
+                            <el-button @click="addAnswerFunc(item)" size="mini" type="text">+ 添加答案</el-button>
+                        </div>
+
                     </el-form>
+
                 </div>
-                <el-button @click="addMsgTemplate()" size="small" type="text">+ 添加沟通结果</el-button>
             </div>
+
+            <div v-show="editDataForm.id > 0">
+                <a @click="addQuestFunc">+ 添加问题</a>
+            </div>
+            
+            
 
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
@@ -80,9 +130,7 @@
 </template>
 
 <script>
-import {pageMsg} from "@/mock/modules/pageMsg"
-import {pageTaskCustomer} from "@/mock/modules/pageTaskCustomer"
-
+import {pageQuestionGroup} from "@/mock/modules/pageQuestionGroup"
 import OmTable from "@/components/omTable"
 import util from "@/utils/util"
 import {mapActions, mapState} from 'vuex'
@@ -102,10 +150,10 @@ export default {
                     {required: true, message: '请输入', trigger: 'blur'},
                 ],
             },
-            dataResp:{
+            /* dataResp:{
                 content: []
             },
-            dataForm:{},
+            dataForm:{}, */
 
             filterColumns: [],
             columns: [],
@@ -129,7 +177,7 @@ export default {
         status(val, type){
             if(val == 0) return type ? '' : '未发布' ;
             if(val == 1) return type ? 'success' : '使用中'
-            if(val == 2) return type ? 'error' : '已停用'
+            if(val == 2) return type ? 'error' : '已取消'
         }
     },
     mounted(){
@@ -137,22 +185,21 @@ export default {
         
     },
     computed:{
-        /* ...mapState('omBlacklist', {
+        ...mapState('taskQuestionGroup', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        }) */
+        })
     },
     methods:{
-        //...mapActions('omBlacklist', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('taskQuestionGroup', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
                 {prop:"title", label:"模板名称", minWidth:100},
-                {prop:"createTime", label:"创建时间", minWidth:100},
                 {prop:"remark", label:"模板说明", minWidth:100},
-                {prop:"status", label:"状态", isSlot: true, minWidth:100}
+                {prop:"status", label:"模板状态", isSlot: true, minWidth:100}
             ]
             this.filterColumns = this.columns
       	},
@@ -164,19 +211,17 @@ export default {
 
         // 获取分页数据
 		findPageFunc(data) {
-            
-            this.dataResp = pageMsg()
-            data.callback()
+            /* this.dataResp = pageQuestionGroup()
+            data.callback() */
 
-            console.log('----->', pageTaskCustomer())
-
-			/* if(data !== null) {
+			if(data !== null) {
 				this.pageRequest = data.pageRequest
             }
 
 			this.findPage(this.pageRequest).then((res) => {
 
-			}).then(data!=null?data.callback:'') */
+            }).then(data!=null?data.callback:'')
+            
         },
         // 显示新增界面
 		handleAdd: function () {
@@ -309,25 +354,7 @@ export default {
                     that.$store.state.editQuestionGroupVisible = false
                 }).catch(util.error)
 
-        },
-        //删除结果
-        removeFunc: function (id, index) {
-
-            util.confirm('确定删除?', () => {
-                api.removeMsgTemplate({id})
-                    .then((res) => {
-                        this.$store.state.editMsgForm.msgTemplate.splice(index, 1);
-                    }).catch(util.error)
-            })
-        },
-        //添加结果
-        addMsgTemplate: function () {
-            let msgTemplate = {
-                groupId: this.$store.state.editMsgForm.id,
-                flag: 1
-            };
-            this.$store.state.editMsgForm.msgTemplate.push(msgTemplate);
-        },
+        }
     }
 }
 </script>
@@ -336,16 +363,7 @@ export default {
 .question-list{
     .question-item{
         background: #f5f5f5;
-        padding: 15px 10px 0 10px;
-        margin-bottom: 10px;
-        position: relative;
-        .del{
-            position: absolute;
-            top: 0;
-            right: 10px;
-            font-size: 16px;
-            z-index: 2;
-        }
+        padding: 10px;
     }
     .right{
         float: right;

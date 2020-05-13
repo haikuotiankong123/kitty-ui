@@ -34,14 +34,18 @@
                 label-position="right">
 
                 <el-form-item label="模板名称" prop="title" >
-                    <el-input v-model="editDataForm.title" ></el-input>
+                    <el-input v-model="editDataForm.title" placeholder="请输入模板名称"></el-input>
                 </el-form-item>
                 <el-form-item label="模板说明" prop="remark" >
-                    <el-input v-model="editDataForm.remark" ></el-input>
+                    <el-input v-model="editDataForm.remark" placeholder="请输入模板说明"></el-input>
                 </el-form-item>
                 
                 <el-form-item label="模板状态" prop="status" >
-                    <el-input v-model="editDataForm.status" ></el-input>
+                    <el-radio-group v-model="editDataForm.status">
+                        <el-radio-button label="1">未发布</el-radio-button>
+                        <el-radio-button label="2">使用中</el-radio-button>
+                        <el-radio-button label="3">无效</el-radio-button>
+                    </el-radio-group>
                 </el-form-item>
             
             </el-form>
@@ -68,7 +72,7 @@
                         </el-form-item>
                     </el-form>
                 </div>
-                <el-button @click="addMsgTemplate()" size="small" type="text">+ 添加沟通结果</el-button>
+                <el-button @click="addMsgTemplate(editDataForm.id)" size="small" type="text">+ 添加沟通结果</el-button>
             </div>
 
             <span slot="footer" class="dialog-footer">
@@ -102,10 +106,6 @@ export default {
                     {required: true, message: '请输入', trigger: 'blur'},
                 ],
             },
-            dataResp:{
-                content: []
-            },
-            dataForm:{},
 
             filterColumns: [],
             columns: [],
@@ -127,9 +127,9 @@ export default {
     },
     filters:{
         status(val, type){
-            if(val == 0) return type ? '' : '未发布' ;
-            if(val == 1) return type ? 'success' : '使用中'
-            if(val == 2) return type ? 'error' : '已停用'
+            if(val == 1) return type ? '' : '未发布' ;
+            if(val == 2) return type ? 'success' : '使用中'
+            if(val == 3) return type ? 'error' : '无效'
         }
     },
     mounted(){
@@ -137,13 +137,13 @@ export default {
         
     },
     computed:{
-        /* ...mapState('omBlacklist', {
+        ...mapState('messageGroup', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        }) */
+        })
     },
     methods:{
-        //...mapActions('omBlacklist', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('messageGroup', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -159,24 +159,19 @@ export default {
 
         // 批量删除
 		handleDelete(data) {
-            //this.delete(data.params).then(data!=null?data.callback:'')
+            this.delete(data.params).then(data!=null?data.callback:'')
         },
 
         // 获取分页数据
 		findPageFunc(data) {
             
-            this.dataResp = pageMsg()
-            data.callback()
-
-            console.log('----->', pageTaskCustomer())
-
-			/* if(data !== null) {
+			if(data !== null) {
 				this.pageRequest = data.pageRequest
             }
 
 			this.findPage(this.pageRequest).then((res) => {
 
-			}).then(data!=null?data.callback:'') */
+			}).then(data!=null?data.callback:'')
         },
         // 显示新增界面
 		handleAdd: function () {
@@ -201,7 +196,12 @@ export default {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
-						let params = Object.assign({}, this.editDataForm)
+                        let params = Object.assign({}, this.editDataForm)
+                        
+                        params.msgTemplate.forEach(i => {
+                            this.$api.messageTemplate.save(i)
+                        })
+                        params.msgTemplate = undefined;
 
 						this.save(params).then((res) => {
 							this.editLoading = false
@@ -314,19 +314,27 @@ export default {
         removeFunc: function (id, index) {
 
             util.confirm('确定删除?', () => {
-                api.removeMsgTemplate({id})
+                this.$api.messageTemplate.delete([{id}]).then(() => {
+                    this.editDataForm.msgTemplate.splice(index, 1);
+                })
+                /* api.removeMsgTemplate({id})
                     .then((res) => {
                         this.$store.state.editMsgForm.msgTemplate.splice(index, 1);
-                    }).catch(util.error)
+                    }).catch(util.error) */
             })
         },
         //添加结果
-        addMsgTemplate: function () {
+        addMsgTemplate: function (groupId) {
             let msgTemplate = {
+                groupId,
+                flag: 1
+            }
+            this.editDataForm.msgTemplate.push(msgTemplate)
+            /* let msgTemplate = {
                 groupId: this.$store.state.editMsgForm.id,
                 flag: 1
             };
-            this.$store.state.editMsgForm.msgTemplate.push(msgTemplate);
+            this.$store.state.editMsgForm.msgTemplate.push(msgTemplate); */
         },
     }
 }
