@@ -12,6 +12,7 @@ import { getIFramePath, getIFrameUrl } from '@/utils/iframe'
 
 const Home = () => import("@/views/Home");
 const Customer = () => import("@/views/Workbench/Customer");
+const InfoFlow = () => import("@/views/MarketingTask/InfoFlow");
 
 Vue.use(Router)
 
@@ -40,6 +41,17 @@ const router = new Router({
             index: 1
           }
         },
+        {
+          path: '/marketingTask/infoFlow',
+          name: '流程管理',
+          component: InfoFlow,
+          meta: {
+            icon: '',
+            index: 2,
+            parentId: 62
+          }
+        },
+
       ]
     },
     {
@@ -152,10 +164,10 @@ function handleIFrameUrl(path) {
 function changeMenu(arr){
   for(let i=0; i<arr.length; i++){
     if(arr[i].parentId == 0){
-      arr[i].children.one = arr[i].id;
+      arr[i].children.firstLevelId = arr[i].id;
     }else{
-      arr[i].one = arr.one
-      arr[i].children.one = arr.one
+      arr[i].firstLevelId = arr.firstLevelId
+      arr[i].children.firstLevelId = arr.firstLevelId
     }
     if(arr[i].children.length>0){
       changeMenu(arr[i].children);
@@ -186,7 +198,7 @@ function addDynamicRoutes (menuList = [], routes = []) {
           icon: menuList[i].icon,
           index: menuList[i].id,
           id: menuList[i].id,
-          parentId: menuList[i].one
+          parentId: menuList[i].firstLevelId
         }
       }
       let path = getIFramePath(menuList[i].url)

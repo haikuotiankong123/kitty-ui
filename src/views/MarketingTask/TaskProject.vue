@@ -34,7 +34,7 @@
             </template>
             <template v-slot:handle="{row}">
                 <el-button :size="size" type="text" @click="taskFunc(row)">任务管理</el-button>
-                <el-button :size="size" type="text" @click="setFunc(row)">流程设置</el-button>
+                <el-button :size="size" type="text" @click="pushFlow(row)">流程设置</el-button>
             </template>
         </om-table>
 
@@ -57,6 +57,23 @@
                     <el-form-item label="项目标题" prop="name">
                         <el-input v-model="editDataForm.name"></el-input>
                     </el-form-item>
+
+                    <el-form-item label="拨打设置">
+                        <el-select v-model="editDataForm.type" placeholder="请选择">
+                            <el-option key="1" label="人工" :value="1"></el-option>
+                            <el-option key="2" label="机器" :value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="语音菜单" v-if="editDataForm.type==2">
+                        <el-select v-model="editDataForm.menuId" placeholder="请选择语音菜单">
+                            <el-option v-for="i in omMenuAll"
+                                :key="i.id"
+                                :label="i.menuName"
+                                :value="i.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+
                     <el-form-item label="问卷模板">
                         <OmSelect v-model="editDataForm.questionGroupId" :data="questionGroup"></OmSelect>
                     </el-form-item>
@@ -64,21 +81,6 @@
                         <OmSelect v-model="editDataForm.messageGroupId" :data="messageGroup"></OmSelect>
                     </el-form-item>
 
-                    <el-form-item label="拨打设置">
-                        <el-select v-model="editDataForm.type" placeholder="请选择">
-                            <el-option key="1" label="人工" :value="1"></el-option>
-                            <el-option key="2" label="机器" :value="2"></el-option>
-                            <el-option key="0" label="未设置" :value="0"></el-option>
-                        </el-select>
-                    </el-form-item>
-
-                    <el-form-item label="TTS语速">
-                        <el-slider size="mini" v-model="editDataForm.ttsSpeed"></el-slider>
-                    </el-form-item>
-
-                    <el-form-item label="TTS语调">
-                        <el-slider size="mini" v-model="editDataForm.ttsPitch"></el-slider>
-                    </el-form-item>
                 </el-form>
             </div>
 
@@ -201,6 +203,9 @@ export default {
         ...mapState("taskProject", {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
+        }),
+        ...mapState({
+            omMenuAll: state => state.omMenu.findAll,
         })
     },
     methods: {
@@ -306,7 +311,13 @@ export default {
         },
 
         taskFunc() {},
-        setFunc() {},
+        pushFlow(row) {
+            this.$router.push({
+                path: '/marketingTask/infoFlow',
+                name: '流程管理',
+                params: {projectId: row.id, projectName: row.name, sign: 1}
+            })
+        },
 
         removeAnswerFunc(answer, index, answerList) {
             // 无

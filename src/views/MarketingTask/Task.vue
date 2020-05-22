@@ -14,7 +14,6 @@
                 </el-form-item>
             </el-form>
         </div>
-        
         <om-table :data="dataResp"
             :columns="filterColumns"
             :handleWidth="handleWidth"

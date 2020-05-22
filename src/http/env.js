@@ -20,6 +20,7 @@ export default {
 let baseUrl = ""
 let backupBaseUrl = ""
 let websocketUrl = ""
+let uploadUrl = ''
 let imgUrl = ""
 let host = ""
 if(process.env.NODE_ENV == 'development'){
@@ -31,6 +32,9 @@ if(process.env.NODE_ENV == 'development'){
     backupBaseUrl = 'http://localhost:8002'
 
     websocketUrl = `ws://${host}:8090/ws/`
+
+    uploadUrl = baseUrl + '/api?method=upload';
+
 }else{
     host = "192.168.1.102";
 
@@ -39,17 +43,22 @@ if(process.env.NODE_ENV == 'development'){
     backupBaseUrl = 'http://localhost:8002'
 
     websocketUrl = `ws://${host}:8090/ws/`
+
+    uploadUrl = baseUrl + '/api?method=upload';
 }
 
 
 export {
     baseUrl,
-    backupBaseUrl
+    backupBaseUrl,
+    websocketUrl,
+    uploadUrl
 }
 
 export default {
     baseUrl,
     backupBaseUrl,
-    websocketUrl
+    websocketUrl,
+    uploadUrl
 }
 

@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div class="button-container">
+        <!-- class="button-container" -->
+        <div>
             <audio src="@/assets/3161.mp3" type="audio/mpeg" controls id="audio" style="height:20px;"></audio>
         </div>
         

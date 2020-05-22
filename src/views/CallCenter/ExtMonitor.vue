@@ -1,6 +1,7 @@
 <template>
     <div style="padding:20px;">
-        <div class="button-container">
+        <!-- class="button-container" -->
+        <div>
 
             <el-form :inline="true" style="margin-left: 20px;border-bottom: 1px solid #ebedf0">
                 <el-form-item label="分机组：">

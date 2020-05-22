@@ -13,8 +13,8 @@
                 </el-tooltip>
             </el-form-item>
         </el-form>
-
-        <div class="button-container">
+        <!-- class="button-container" -->
+        <div>
             <div style="margin: 10px 20px;color: black;font-weight: bold;font-size: 16px">自定义字段</div>
 
             <el-table :data="dataResp.content" style="width: 100% " size="mini">

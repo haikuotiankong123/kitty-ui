@@ -5,6 +5,9 @@
                 <el-form-item label="电话号码">
                     <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
                 </el-form-item>
+				<el-form-item label="所属任务">
+					<OmSelect v-model="dataForm.taskId" :data="taskList"></OmSelect>
+                </el-form-item>
 
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
@@ -14,6 +17,10 @@
                 </el-form-item>
             </el-form>
         </div>
+		<div class="button-container">
+            <el-button size="mini" type="success" @click="importCustormer">导入客户</el-button>
+            <el-button size="mini" type="danger">分配</el-button>
+        </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
             @findPage="findPageFunc"
@@ -22,7 +29,6 @@
 			<template v-for="(i, index) in configList" v-slot:[i.prop]="{row}">
 				{{row.configValueList[index] && row.configValueList[index].jsonValue}}
 			</template>
-
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
 
@@ -88,16 +94,42 @@
 			</span>
         </el-dialog>        
         
+		<!-- 导入客户弹窗 -->
+		<el-dialog title="导入客户" :visible.sync="importVisible" :close-on-click-modal="false">
+			<el-form size="small">
+				<el-form-item label="数据文件：">
+					<el-upload
+						name="file"
+						:action="uploadUrl"
+						ref="upload"
+						:limit="1"
+						accept=".xls"
+						:on-success="uploadSuccess"
+						:before-upload="beforeUpload"
+						:auto-upload="true">
+						<el-button slot="trigger" size="small" type="primary">请选择文件</el-button>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+				<el-button size="small" type="primary" @click.native="submitImpot">提交</el-button>
+			</span>
+		</el-dialog>
+
     </div>
 </template>
 
 <script>
 import OmTable from "@/components/omTable"
+import OmSelect from "@/components/omSelect"
 import util from "@/utils/util"
+import {uploadUrl} from "@/http/env"
 import {mapActions, mapState} from 'vuex'
 export default {
     components: {
-        OmTable
+		OmTable,
+		OmSelect
     },
     data(){
         return {
@@ -107,7 +139,8 @@ export default {
             pageRequest: { pageNum: 1, pageSize: 15 },
             size: 'mini',
             operation: false, // true:新增, false:编辑
-            dialogVisible: false, // 新增编辑界面是否显示
+			dialogVisible: false, // 新增编辑界面是否显示
+			importVisible: false,
             editLoading: false,
             dataFormRules: {
 				name: [
@@ -121,11 +154,17 @@ export default {
 				jsonValueMap: {}
 			},
 			configList: [],
-			rules: {}
+			rules: {},
+			uploadUrl,
+			file:'',
+			taskList: []
         }
     },
     mounted(){
 		this.loadData()
+		this.$api.task.findAll().then(resp => {
+			this.taskList = resp.data;
+		})
     },
     computed:{
         ...mapState('taskCustomer', {
@@ -153,7 +192,18 @@ export default {
                 let rule = {required: obj[k], message: '必填', trigger: 'blur'}
                 this.$set(this.rules, k, rule)
             }
-        },
+		},
+		
+		uploadSuccess(resp){
+			this.file = resp.data;
+			console.log('上传成功返回-----》', this.file)
+		},
+		beforeUpload(){},
+
+		importCustormer(){
+			util.message("请选择所属任务！")
+			this.importVisible = true;
+		},
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
@@ -224,9 +274,22 @@ export default {
 				this.$set(row.jsonValueMap, i.configId+'', i.jsonValue)
 			})
 			this.editDataForm = Object.assign({}, row)
-        },
+		},
+		submitImpot(){
+			if(dataForm.taskId) {
+				util.message("请选择所属任务！")
+				return;
+			}
+			this.$api.importTaskCustomer({
+				size: 15,
+				taskId: dataForm.taskId,
+				file: this.file
+			})
+			
+		},
         // 编辑
 		submitForm: function () {
+		
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {

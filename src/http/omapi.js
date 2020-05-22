@@ -174,5 +174,9 @@ api.queryOuter = data => post('QueryOuter', data)
  */
 api.queryVisitor = data => post('QueryVisitor', data)
 
+/**
+ * 导入客户
+ */
+api.importTaskCustomer = data => post("ImportTaskCustomer", data)
 
 export default api
