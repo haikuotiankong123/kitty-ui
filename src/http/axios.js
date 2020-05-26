@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import router from '@/router'
 
 // 使用vuex做全局loading时使用
-// import store from '@/store'
+import store from '@/store'
 
 export default function $axios(options) {
   return new Promise((resolve, reject) => {

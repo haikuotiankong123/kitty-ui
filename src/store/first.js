@@ -57,6 +57,7 @@ aMutation.forEach(i => {
 export default {
     state: {
         ...state,
+        extId: '1009',
         // 呼叫状态
         callState: {},
         // 分机状态

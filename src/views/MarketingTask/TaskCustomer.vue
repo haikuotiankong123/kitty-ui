@@ -9,6 +9,11 @@
 					<OmSelect v-model="dataForm.taskId" :data="taskList"></OmSelect>
                 </el-form-item>
 
+				<el-form-item label="是否已分配话务员">
+                    <OmSelect v-model="dataForm.queryHasMember"
+                               :data="[{name:'未分配',id:'0',value:'0'},{name:'已分配',id:'1',value:'1'}]"></OmSelect>
+                </el-form-item>
+
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
                 </el-form-item>
@@ -108,7 +113,11 @@
 						:before-upload="beforeUpload"
 						:auto-upload="true">
 						<el-button slot="trigger" size="small" type="primary">请选择文件</el-button>
+						<!-- <el-checkbox style="margin-left:15px;" v-model="ownAssign">分配给自己</el-checkbox> -->
+                        <div slot="tip" class="el-upload__tip"> 请选择本地Excel文件，文件小于10m</div>
 					</el-upload>
+					<div>说明：导入数据将自动分配至所属话务组</div>
+                    <p @click="generateTemplate" style="cursor: pointer;color: #3a8ee6">生成并下载客户模板文件</p>
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
@@ -126,6 +135,7 @@ import OmSelect from "@/components/omSelect"
 import util from "@/utils/util"
 import {uploadUrl} from "@/http/env"
 import {mapActions, mapState} from 'vuex'
+import XLSX from 'xlsx'
 export default {
     components: {
 		OmTable,
@@ -157,14 +167,17 @@ export default {
 			rules: {},
 			uploadUrl,
 			file:'',
-			taskList: []
+			taskList: [],
+			ownAssign: false
         }
     },
     mounted(){
 		this.loadData()
+
 		this.$api.task.findAll().then(resp => {
 			this.taskList = resp.data;
 		})
+
     },
     computed:{
         ...mapState('taskCustomer', {
@@ -173,7 +186,7 @@ export default {
         })
     },
     methods:{
-		...mapActions('taskCustomer', ['findPage', 'findAll', 'save', 'delete']),
+		...mapActions('taskCustomer', ['findPage', 'findAll', 'save', 'delete', 'importCustomer']),
 		
 		async loadData(){
 			await this.$api.usrCustomerConfig.findByCompanyId().then(resp => {
@@ -196,12 +209,43 @@ export default {
 		
 		uploadSuccess(resp){
 			this.file = resp.data;
-			console.log('上传成功返回-----》', this.file)
 		},
+		generateTemplate: function () {
+			this.$api.usrCustomerConfig.findAll().then(resp => {
+				let data = resp.data
+				let con = []
+				let o = Object.assign({}, {
+					客户名称: undefined,
+					电话号码: undefined,
+					备注: undefined,
+					邮箱: undefined,
+					QQ: undefined,
+					微信: undefined,
+				})
+
+				data.forEach(function (item, index) {
+					if (item.status == 0) {
+						return
+					}
+					o[item.label] = undefined
+				})
+				con.push(o)
+				console.error(con)
+				let ws = XLSX.utils.json_to_sheet(con);
+				let wb = XLSX.utils.book_new()
+				XLSX.utils.book_append_sheet(wb, ws, "");
+				XLSX.writeFile(wb, "客户模板.xls");
+
+			})
+		},
+
 		beforeUpload(){},
 
 		importCustormer(){
-			util.message("请选择所属任务！")
+			if(!this.dataForm.taskId){
+				util.message("请选择所属任务！")
+			}
+			
 			this.importVisible = true;
 		},
 
@@ -256,6 +300,10 @@ export default {
         },
         // 显示新增界面
 		handleAdd: function () {
+			if(!this.dataForm.taskId) {
+				util.message("请选择所属任务！")
+				return;
+			}
 			this.editDataForm = {
 				configValueList: []
 			}
@@ -276,14 +324,17 @@ export default {
 			this.editDataForm = Object.assign({}, row)
 		},
 		submitImpot(){
-			if(dataForm.taskId) {
+			if(!this.dataForm.taskId) {
 				util.message("请选择所属任务！")
 				return;
 			}
-			this.$api.importTaskCustomer({
-				size: 15,
-				taskId: dataForm.taskId,
+			this.importCustomer({
+				taskId: this.dataForm.taskId,
 				file: this.file
+			}).then(resp => {
+				this.importVisible = false;
+				util.success("导入客户成功");
+				this.findPageFunc(null)
 			})
 			
 		},
@@ -310,6 +361,7 @@ export default {
 								})	
 							}
 						}
+						form.taskId = this.dataForm.taskId
 						form.jsonValueMap = JSON.stringify(form.jsonValueMap)
 
 						this.save(form).then((res) => {

@@ -86,6 +86,12 @@ export default {
                 }else{
                     isVisitor = false
                 }
+                let data  = json.data;
+                
+                if(toString.call(data) == "[object Object]"){
+                    !data.id &&  data.recId &&  (data.id = data.recId);
+                }
+                
                 this.$store.commit('setCallState', {...json, isVisitor})
                 console.log('呼叫状态------>', this.callState)
                 return
@@ -144,8 +150,22 @@ export default {
             }
 
             /* this.acountInfo.extId */
+            // 获取分机id
+            let params = {
+                columnFilters:{},
+                pageNum:1,
+                pageSize:10
+            }
+            await this.$api.user.findPage(params).then((res) => {
+                    let content = res.data && res.data.content;
+                    if(content){
+                        content = content.find(i => i.name == "admin")
+                        this.$store.state.extId = content.extId
+                    }
+                }).catch(h)
+
             // 当前分机
-            let param = {ext_id: '1004'}
+            let param = {ext_id: this.$store.state.extId}
             await this.$api.queryExt(param).then((resp) => {
                         if(resp.success){
                             this.$store.commit('setQueryExt', resp.data)

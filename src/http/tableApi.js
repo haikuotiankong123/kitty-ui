@@ -38,6 +38,14 @@ function getApiName(apiName){
         })
     }
 
+    if(apiName == 'taskCustomer'){
+        obj.importCustomer = data => axios({
+            url: '/'+apiName+'/importCustomer',
+            method: 'post',
+            data
+        })
+    }
+
     return obj;
 }
 
@@ -159,5 +167,7 @@ api.messageTemplate = getApiName('messageTemplate')
  * 客户管理
  */
 api.taskCustomer = getApiName('taskCustomer')
+
+
 
 export default api

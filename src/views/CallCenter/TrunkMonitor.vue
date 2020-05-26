@@ -108,54 +108,7 @@ import {mapState, mapActions} from 'vuex'
 export default {
     data(){
         return {
-            /* {
-                "callId": 61,
-                "from": "13602714551",
-                "omExt": {
-                    "id": 1004
-                },
-                "omType": "ext",
-                "state": "progress",
-                "to": "31603676"
-            }  */
-
-            /* {
-                "callId": 66,
-                "from": "1004",
-                "omExt": {
-                    "id": 1004
-                },
-                "omType": "ext",
-                "state": "talk",
-                "to": "13602714551",
-                "trunk": "31604149"
-            } */
-
             size: 'small',
-            /* tableData: {
-                id: '',
-                lineId: 'Line 3',
-                outer: [
-                    {
-                        callIn: '20513',
-                        from: '1005',
-                        id: 33,
-                        state: 'talk',
-                        to: '13602714551',
-                        trunk: '31604149'
-                    }
-                ],
-                visitor: [
-                    {
-                        callIn: '20516',
-                        from: '13602714551',
-                        id: 36,
-                        state: 'talk',
-                        to: '31604149',
-                        trunk: '31604149'
-                    }
-                ]
-            }, */
             line: [],
             lineVal: '1',
             radio1: '当天'

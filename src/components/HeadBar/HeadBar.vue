@@ -37,7 +37,7 @@
         <div>
             <p class="num">
                 <span class="call-num">
-                    <i class="el-icon-phone-outline" @click="onJoin('1006')"></i> 
+                    <i class="el-icon-phone-outline"></i> 
                     <template v-if="callState.isVisitor">
                         <i>{{callState.data && callState.data.from}}</i>
                     </template>
@@ -115,8 +115,8 @@
                         <template v-if="transParam.trans == 'menu'">
                             <el-select style="width:120px;" value-key="menuId" size="mini" v-model="menuVal" @change="ivrFunc($event)">
                                 <el-option 
-                                    v-for="(i, index) in queryMenu" 
-                                    :label="i.voiceFile"
+                                    v-for="(i, index) in allMenu" 
+                                    :label="i.menuName"
                                     :value="i"
                                     :key="index"></el-option>
                             </el-select>
@@ -158,7 +158,8 @@
                     </div>
                 </div>
                 <div v-show="curIndex == 3">{{cmd2 == 'Mute' ? '静音中...' : '已取消静音'}}</div>
-                <div v-show="curIndex == null">从哪里来的</div>
+                <!-- 从哪里来的 -->
+                <div v-show="curIndex == null"></div>
             </div>
         </div>
     </div>
@@ -332,7 +333,8 @@ export default {
             acountInfo: state=>state.app.acountInfo,
             uuid: state=>state.app.uuid,
             routeInfo: state => state.app.routeInfo,
-            isCallout: state => state.app.isCallout
+            isCallout: state => state.app.isCallout,
+            allMenu: state => state.omMenu.findAll
         }),
         activeIndex(){
             console.log('索引------>', this.$route.path.split("/")[1])
@@ -353,7 +355,12 @@ export default {
     methods: {
         ...mapActions(['queryExtClick']),
         loadData(){
-            this.newNavTree = JSON.parse(JSON.stringify(this.navTree));
+            let tempTree = JSON.parse(JSON.stringify(this.navTree));
+            tempTree = tempTree.filter(i => {
+                return !(i.name == "工单管理" || i.name == "知识库" || i.name == "报表管理");
+            })
+            console.log("新 菜单------》",tempTree)
+            this.newNavTree = tempTree;
         },
         toWork(){
             this.$router.push("/workbench/customer");

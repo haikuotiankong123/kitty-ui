@@ -86,8 +86,10 @@
 			<el-form-item label="角色" prop="userRoles" v-if="!operation">
 				<el-select v-model="dataForm.userRoles" multiple placeholder="请选择"
 					 style="width: 100%;">
-					<el-option v-for="item in roles" :key="item.id"
-						:label="item.remark" :value="item.id">
+					<el-option v-for="(item, i) in roles" 
+						:key="i"
+						:label="item.remark" 
+						:value="item.id">
 					</el-option>
 				</el-select>
 			</el-form-item>
@@ -199,6 +201,8 @@ export default {
 		},
 		// 显示编辑界面
 		handleEdit: function (params) {
+			console.log('编辑内容----->》', params.row);
+			//return ;
 			this.dialogVisible = true
 			this.operation = false
 			this.dataForm = Object.assign({}, params.row)
@@ -210,6 +214,8 @@ export default {
 		},
 		// 编辑
 		submitForm: function () {
+			//console.log("请求参数---->>>", this.dataForm)
+			//return;
 			this.$refs.dataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {

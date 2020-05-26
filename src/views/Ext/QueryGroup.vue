@@ -72,7 +72,7 @@ export default {
             setTimeout(()=> {
                 let param = {
                     group_id: i,
-                    exts: '1004,1005,1010',
+                    exts: '1005,1010',
                     voicefile: 'welcome',
                     distribution: 'circular'
                 }

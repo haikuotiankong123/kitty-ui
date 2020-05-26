@@ -118,10 +118,6 @@ export default {
     },
     mounted() {
         this.findPage();
-        setTimeout(() => {
-            console.log('分机--->', this.queryAllExt)
-        },3000)
-        //this.$api.assignGroup({group_id: '1', exts: '1004, 1010, 1005, 1006',voicefile: 'welcome',distribution: 'circular'})
     },
     filters: {
         filterState(o, type){

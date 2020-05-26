@@ -34,7 +34,7 @@
             </template>
             <template v-slot:handle="{row}">
                 <el-button :size="size" type="text" @click="taskFunc(row)">任务管理</el-button>
-                <el-button :size="size" type="text" @click="pushFlow(row)">流程设置</el-button>
+                <!-- <el-button :size="size" type="text" @click="pushFlow(row)">流程设置</el-button> -->
             </template>
         </om-table>
 
