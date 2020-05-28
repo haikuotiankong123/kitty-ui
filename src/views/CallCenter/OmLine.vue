@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="中继编号">
-                    <el-input v-model="dataForm.trunkId" placeholder="请输入中继编号"></el-input>
+                <el-form-item label="线路号码">
+                    <el-input v-model="dataForm.trunkId" placeholder="请输入线路号码"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -38,22 +38,40 @@
             <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-                <el-form-item label="中继编号" prop="trunkId" >
+                <el-form-item label="线路号码" prop="trunkId" >
                     <el-input v-model="editDataForm.trunkId" auto-complete="off" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="线路ID" prop="lineId" >
+                <el-form-item label="线路编号" prop="lineId" >
                     <el-input v-model="editDataForm.lineId" auto-complete="off" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="转接类型" prop="transferType" >
+                <el-form-item label="接入方式" prop="transferType" >
                     <el-select v-model="editDataForm.transferType" @change="changeType">
                         <el-option v-for="(i, index) in transferType" 
                             :key="index"
                             :label="i.label"
                             :value="i.value"></el-option>
                     </el-select>
+                    <el-select class="tempClass" v-model="editDataForm.transferValue" placeholder="请选择分机号" v-if="editDataForm.transferType == 'queue'">
+                        <el-option v-for="i in omExtAll" 
+                            :label="i.extId"
+                            :value="i.extId"
+                            :key="i.extId"></el-option>
+                    </el-select>
+                    <el-select class="tempClass" v-model="editDataForm.transferValue" placeholder="请选择语音菜单" v-if="editDataForm.transferType == 'menu'">
+                        <el-option v-for="i in omMenuAll" 
+                            :label="i.menuName"
+                            :value="i.menuId"
+                            :key="i.menuId">
+                        </el-option>
+                    </el-select>
+                    <el-select class="tempClass" v-model="editDataForm.transferValue" placeholder="请选择分机组" v-if="editDataForm.transferType == 'group'">
+                        <el-option v-for="i in omGroupAll"
+                            :key="i.groupId"
+                            :label="i.groupId"
+                            :value="i.groupId"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="转接值" prop="transferValue"  v-if="editDataForm.transferType">
-                    
+                <!-- <el-form-item label="接入值" prop="transferValue"  v-if="editDataForm.transferType">
                     <template v-if="editDataForm.transferType == 'ext' || editDataForm.transferType == 'queue'">
                         <el-select filterable v-model="editDataForm.transferValue" placeholder="请选择">
                             <el-option v-for="i in omExtAll" 
@@ -62,10 +80,6 @@
                                 :key="i.extId"></el-option>
                         </el-select>
                     </template>
-                    <template v-if="editDataForm.transferType == 'outer'">
-                        <el-input v-model="editDataForm.transferValue" auto-complete="off" placeholder="请输入外部电话"></el-input>
-                    </template>
-
                     <template v-if="editDataForm.transferType == 'menu'">
                         <el-select v-model="editDataForm.transferValue" placeholder="请选择">
                             <el-option v-for="i in omMenuAll" 
@@ -83,8 +97,7 @@
                                 :value="i.groupId"></el-option>
                         </el-select>
                     </template>
-                    <!-- <template v-if="editDataForm.transferType == 'queue'"></template> -->
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="状态" prop="flag" >
                     <el-radio-group v-model="editDataForm.flag">
                         <el-radio-button :label="1">启用</el-radio-button>
@@ -150,21 +163,22 @@ export default {
             ],
             transferType: [
                 {
-                    value:'ext',
-                    label: '分机'
-                },{
                     value:'menu',
                     label: '语音菜单'
-                },{
-                    value:'outer',
-                    label: '外部电话'
                 },{
                     value:'group',
                     label: '分机组'
                 },{
                     value:'queue',
                     label: '分机队列'
-                }
+                },
+                /* {
+                    value:'ext',
+                    label: '分机'
+                },{
+                    value:'outer',
+                    label: '外部电话'
+                } */
             ]
         }
     },
@@ -218,10 +232,10 @@ export default {
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"trunkId", label:"中继编号", minWidth:100},
-                {prop:"lineId", label:"线路ID", minWidth:100},
-                {prop:"transferType", label:"转接类型", isSlot: true, minWidth:100},
-                {prop:"transferValue", label:"转接值", isSlot: true, minWidth:100},
+                {prop:"trunkId", label:"线路号码", minWidth:100},
+                {prop:"lineId", label:"线路编号", minWidth:100},
+                {prop:"transferType", label:"接入方式", isSlot: true, minWidth:100},
+                {prop:"transferValue", label:"接入值", isSlot: true, minWidth:100},
                 {prop:"flag", label:"状态", isSlot: true, minWidth:100},
             ]
             this.filterColumns = this.columns
@@ -295,6 +309,10 @@ export default {
 			})
         },
         changeType(item){
+            this.editDataForm.transferValue = ''
+            this.$nextTick(()=>{
+                document.querySelector('.tempClass').click()
+            })
             console.log('------>', item)
         },
         pullOm(){

@@ -4,7 +4,7 @@
         <!-- <i class="icons icon-baobiao7"></i> -->
         <el-form :inline="true" :model="formInline" class="select-task" size="small">
             <el-form-item label="请选择任务">
-                <el-select v-model="taskName" placeholder="请选择任务" @change="changeTask($event)" style="width:380px;">
+                <el-select v-model="taskName" value-key="name" placeholder="请选择任务" @change="changeTask($event)" style="width:380px;">
                     <el-option
                     v-for="item in listTasks"
                     :key="item.name"
@@ -119,7 +119,7 @@
                     </el-radio-group>
                 </el-form-item>
                 
-                <template v-for="(i,index) in customerDetail.configValueList">
+                <!-- <template v-for="(i,index) in customerDetail.configValueList">
                     <el-form-item
                         v-if="i.status"
                         :key="index"
@@ -143,7 +143,7 @@
                                 :key="k"></el-option>
                         </el-select>
                     </el-form-item>
-                </template>
+                </template> -->
 
                 <el-form-item label="备注" prop="remark" class="block">
                     <el-input :disabled="isEditable" type="textarea" placeholder="请输入备注" v-model="customerDetail.remark"></el-input>
@@ -165,6 +165,35 @@
                         <p class="p">您好，老师，这是我们刚到的最新款，我来给您介绍……（正确）老师，您好，这款是今年最流行的欧式风格，装在家里显得您家中非常大气，这边请！我为您详细介绍。（正确）先生，您眼光真好，这款板材是我们公司最新研发的新款，非常适合您这样的高级人士，您不防感受一下；（正确）</p>
                     </div>
                 </el-tab-pane>
+
+                <el-tab-pane label="话务小结" name="three">
+                    <el-form size="small" status-icon label-width="100px" style="padding-right: 20px;margin-bottom: 10px" v-if="listMessageGroup.length>0">
+                        <!--v-if="msgTemplate.flag===1"-->
+                        <el-form-item label="模板">
+                            <el-radio-group v-model="customerDetail.resultText" size="mini">
+                                <el-radio :key="msgTemplate.id"
+                                            v-for="msgTemplate in listMessageGroup[0].msgTemplate"
+                                            :label="msgTemplate.resultText" border/>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="发送信息">
+                            <el-input type="textarea" 
+                                :row="1" 
+                                v-model="customerDetail.resultMsg" 
+                                readonly></el-input>
+                        </el-form-item>
+                        <el-form-item label="备注信息">
+                            <el-input type="textarea" 
+                                :row="2" 
+                                v-model="customerDetail.resultRemark"
+                                placeholder="请输入备注信息"></el-input>
+                        </el-form-item>
+                        <el-form-item label="">
+                            <el-button type="primary" @click="submitMemo">提交</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-tab-pane>
+
                 <el-tab-pane label="问卷调查" name="second">
                     <div class="question" v-for="(item,index) in listQuestion" :key="index" style="margin: 0 20px">
                             <p class="title">{{index+1}}. {{item.title}}</p>
@@ -190,6 +219,7 @@ import {mapState, mapGetters} from "vuex"
 import KtTable from "@/views/Core/KtTable"
 import {listTask,listTaskCustomer} from "@/mock/modules/task.js"
 import {listQuestion} from "@/mock/modules/listQuestion.js"
+import util from "@/utils/util.js"
 export default {
     data(){
         return {
@@ -198,28 +228,12 @@ export default {
             taskName: '',
             currentTask: {},
             listTaskCustomer:[],
-            tabArr: [{value:'通话记录', type:1},{value:'待回拨',type:2} ],
+            tabArr: [{value:'待回拨',type:1} , {value:'通话记录', type:2}],
             currentCusType: {value:'通话记录', type:1},
             listQuestion: [],
 
             activeName: 'first',
-            /* customerDetail: {
-                id: '',
-                phone: '',
-                remark: '',
-                address: '',
-                taskId: '',
-                result: '',
-                a1: '',
-                a2: '',
-                a3: '',
-                a4: '', 
-                a5: '',
-                a6: '', 
-                a7: '',
-                a8: '',
-                a9: ''
-            }, */
+            customerDetail: {resultMsg: '', jsonValueMap: {}},
             isEditable: true,
             isBtn: false,
             
@@ -237,27 +251,34 @@ export default {
             timer: null,
             callTime: "0",
             rules:  {},
-            jsonValueMap: {}
+            jsonValueMap: {},
+            listMessageGroup:[]
         }
     },
     components:{
         KtTable
     },
     computed:{
-        ...mapState({
+        /* ...mapState({
             customerDetail: state=>state.app.customerDetail
-        })
+        }) */
+    },
+    watch:{
+        'customerDetail.resultText': function (to, from) {
+            this.selectResFunc(to)
+        },
     },
     mounted(){
-
+        
         this.loadData();
         this.$api.usrCustomerRequired.findByCompanyId().then(resp => {
             this.isRequiredRule(resp.data)
         });
-        this.$api.usrCustomerConfig.findAll().then(resp => {
+        /* this.$api.usrCustomerConfig.findAll().then(resp => {
             let data = resp.data
             this.$set(this.customerDetail, 'configValueList', data)
-        });
+        }); */
+
     },
     methods :{
         isRequiredRule(obj = {}){
@@ -266,6 +287,37 @@ export default {
                 this.$set(this.rules, k, rule)
             }
         },
+
+        submitMemo(){
+            let data = {
+                'id': this.customerDetail.id,
+                'customerId': this.customerDetail.customerId,
+                'taskId': this.taskid,
+                'resultRemark': this.customerDetail.resultRemark,
+                resultText: this.customerDetail.resultText,
+                'projectName': this.projectName,
+                resultMsg: this.customerDetail.resultMsg,
+                //nextDatetime,
+            };
+            console.log("小结数据----》", data)
+            this.$api.taskCustomer.save(data)
+        },
+
+        selectResFunc: function (val) {
+            if (this.listMessageGroup.length > 0) {
+                var temp = this.listMessageGroup[0].msgTemplate;
+                if (temp.length > 0) {
+                    for (var i = 0; i < temp.length; i++) {
+                        if (temp[i].resultText === val) {
+                            this.customerDetail.resultMsg = temp[i].content;
+                            console.error("wwwww", this.customerDetail)
+                            break;
+                        }
+                    }
+                }
+            }
+        },
+
         handleQuestionChange(inx, id) {
             this.listQuestion[inx].answerId = id == this.listQuestion[inx].answerId ? 0 : id
         },
@@ -293,37 +345,30 @@ export default {
             }).then(data!=null?data.callback:'')
         },
         submitForm(formName) {
-            
-            let param = {}
-            let obj = {}
-            let form = this.customerDetail
-            for(let k in form){
-                let val = form[k];
-                if(Array.isArray(val)){
-                    val.forEach(i => {
-                        if(i.jsonValue) obj[i.id] = i.jsonValue
-                    })
-                    param.jsonValueMap = JSON.stringify(obj)
-                }
-                if(val && (typeof(val) != 'object')) param[k] = val
-            }
-            console.log('编辑客户-----》', param)
-            
-            /* this.$refs[formName].validate((valid) => {
+        
+            this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    alert('submit!');
-                    this.isEditable = true
-                } else {
-                    console.log('error submit!!');
-                    return false;
-                }
-            }); */
+                    this.$confirm('确认提交吗？', '提示', {}).then(()=>{
+                        let form = Object.assign({}, this.customerDetail)
+                        this.$api.taskCustomer.save(form).then((res)=>{
+                            if(res.code == 200){
+                                util.success('操作成功')
+                                this.$refs[formName].resetFields()
+                                this.isEditable = true
+                            }else{
+                                util.error("操作失败")
+                            }
+                        });
+                    })
+                } 
+            });
         },
         
         editCommandCallFunc(row){
-            
-            
+            this.customerDetail = Object.assign({}, row)
+            console.log("8888row------>", this.customerDetail)
         },
+
         countTime() {
             this.callTime = "00:00:00"
             let hour, minute, second;//时 分 秒
@@ -375,9 +420,18 @@ export default {
         },
         listTaskCustomerFunc(){
             let taskId = this.currentTask.id;
-            if(!taskId) return '无任务id'
-            
-            let type = this.currentCusType.type
+            let param = {
+                columnFilterMap: {taskId:taskId},
+                pageNum: 1,
+                pageSize: 15,
+            }
+            this.$api.taskCustomer.findPage(param).then(res => {
+                this.listTaskCustomer = res.data.content
+                console.log("任务客户----》", res.data)
+            })
+
+            //if(!taskId) return '无任务id'
+            /* let type = this.currentCusType.type
             let isFinished = (type==1 || type==2) ? type : undefined;
             let hasNextDatetime = type ===3 ? 1 : undefined;
             let params = {
@@ -388,34 +442,33 @@ export default {
                 hasNextDatetime,
                 ...this.formSearch
             }
-
-            console.log('参数---》', params)
             let resp = listTaskCustomer(params);
-            this.listTaskCustomer = resp.data.length ? resp.data : [];
+            this.listTaskCustomer = resp.data.length ? resp.data : []; */
         },
         loadData(){
+            
+            this.$api.messageGroup.findAll().then(res => {
+                if(res.data[0] && res.data[0].msgTemplate){
+                    this.listMessageGroup = res.data
+                }
+            })
+            this.taskFunc();
+
             setTimeout(()=>{
-                this.listTasks = listTask().data.map(i=> {
-                    i.value = i.name
-                    return i
-                });
-                this.currentTask = this.listTasks[2]
-                this.taskName = this.currentTask.name
                 this.listTaskCustomerFunc()
                 this.listQuestion = listQuestion().data
                 console.log("问卷调查----->", this.listQuestion)
             }, 3000*Math.random())
             
-            
-            // 无
-            // this.$api.listTask().then((resp) => {})
-            /* api.listTask().then((resp) => {
-                if (!resp.data) {
-                    util.error('查无任务')
-                    return
+        },
+        taskFunc(){
+            this.$api.task.findAll().then(res => {
+                this.listTasks = res.data
+                if(res.data[0] ){
+                    this.currentTask = res.data[0]
+                    this.taskName = this.currentTask.name
                 }
-                this.$store.state.listTask = resp.data
-            }); */
+            })
         }
     }
   

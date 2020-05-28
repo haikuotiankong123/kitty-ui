@@ -249,13 +249,13 @@ export default {
 						let valList = form.configValueList
 						let len = valList.length;
 						let id = form.id
-						for(let k in form.jsonValueMap){
-							let val = form.jsonValueMap[k]
+						for(let confId in form.jsonValueMap){
+							let val = form.jsonValueMap[confId]
 							if(len == 0){
-								valList.push({configId:k, jsonValue:val, customerId:id})
+								valList.push({configId:confId, jsonValue:val, customerId:id})
 							}else{
 								valList = valList.map(i=> {
-									if(k==i.configId) i.jsonValue = val;
+									if(confId==i.configId) i.jsonValue = val;
 									return i;
 								})	
 							}

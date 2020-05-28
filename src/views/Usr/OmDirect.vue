@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="名称">
-                    <el-input v-model="dataForm.name" placeholder="请输入名称"></el-input>
+                <el-form-item label="电话号码">
+                    <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -19,19 +19,29 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
+            <template v-slot:state="{row}">
+                {{row.state | filterState}}
+            </template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
-
+        
         <!--新增编辑界面-->
         <el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <el-form :model="editDataForm" label-width="80px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
+            <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="名称" prop="name" >
-				<el-input v-model="editDataForm.name" auto-complete="off"></el-input>
+			<el-form-item label="电话号码" prop="phone" >
+				<el-input v-model="editDataForm.phone" auto-complete="off"></el-input>
 			</el-form-item>
-			<el-form-item label="备注" prop="remark" >
+			<el-form-item label="说明信息" prop="remark" >
 				<el-input v-model="editDataForm.remark" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="直通分机号" prop="extId" >
+				<el-input v-model="editDataForm.extId" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="状态" prop="state" >
+                <el-radio v-model="editDataForm.state" :label="1">生效</el-radio>
+                <el-radio v-model="editDataForm.state" :label="0">失效</el-radio>
 			</el-form-item>
 
             </el-form>
@@ -68,32 +78,46 @@ export default {
 			},
             // 新增编辑界面数据
 			editDataForm: {
-				id: null,
-				name: null,
+				phone: null,
 				remark: null,
+				extId: null,
+				state: null
 			},
         }
     },
     mounted(){
         this.initColumns();
     },
+    filters:{
+        filterState(val){
+            let result = val == 1 ? '生效' : '失效' ;
+            return result;
+        }   
+    },
     computed:{
-        ...mapState('usrBookmark', {
+        ...mapState('omDirect', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
         })
     },
     methods:{
-        ...mapActions('usrBookmark', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('omDirect', ['findPage', 'findAll', 'save', 'delete']),
 
         // 处理表格列过滤显示
         // isSlot: Boolean  是否使用插槽
       	initColumns() {
 			this.columns = [
-                {prop:"name", label:"名称", minWidth:100},
-                {prop:"remark", label:"备注", minWidth:100},
+                {prop:"phone", label:"电话号码", minWidth:100},
+                {prop:"remark", label:"说明信息", minWidth:100},
+                {prop:"extId", label:"直通分机号", minWidth:100},
+                /* ，1：生效，0：失效 */
+                {prop:"state", label:"状态", isSlot: true, minWidth:100}
             ]
             this.filterColumns = this.columns
+            /* let showColumn = ['id', 'phone'] // 自定义显示表头
+            this.filterColumns = showColumn.map(i => {
+                    return this.columns.find(obj => obj.prop == i)
+                }) */
       	},
 
         // 批量删除
@@ -121,9 +145,10 @@ export default {
 			this.dialogVisible = true
 			this.operation = true
 			this.editDataForm = {
-				id: null,
-				name: null,
+				phone: null,
 				remark: null,
+				extId: null,
+				state: null
 			}
         },
         // 显示编辑界面

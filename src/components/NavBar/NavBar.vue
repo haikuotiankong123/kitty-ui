@@ -182,6 +182,9 @@ export default {
                 return;
             }
             this.leftNavTree = this.navTree.find((i) => i.id == parentId).children;
+            /* this.leftNavTree = this.leftNavTree.filter(i => {
+                return !(i.name == "项目管理" || i.name == "菜单管理" )
+            }) */
         },
         handleopen() {
 

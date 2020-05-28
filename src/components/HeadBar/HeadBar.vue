@@ -329,7 +329,6 @@ export default {
             queryGroup: state=>state.queryGroup,
             queryMenu: state=>state.queryMenu,
             
-            customerDetail: state=>state.app.customerDetail,
             acountInfo: state=>state.app.acountInfo,
             uuid: state=>state.app.uuid,
             routeInfo: state => state.app.routeInfo,

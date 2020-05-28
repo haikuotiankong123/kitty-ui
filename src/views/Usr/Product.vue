@@ -2,8 +2,8 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="电话号码">
-                    <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
+                <el-form-item label="名称">
+                    <el-input v-model="dataForm.name" placeholder="请输入名称"></el-input>
                 </el-form-item>
 
                 <el-form-item>

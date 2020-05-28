@@ -51,10 +51,10 @@ for( let name in api){
                 if(k == "findPage" || k == "save" ){
                     let filter = {}
                     let filterP = {}
-                    for(let k in form){
-                        let val = form[k]
-                        if(val == undefined || val == null) continue;
-                        filter[k] = val
+                    for(let j in form){
+                        let val = form[j]
+                        if(val == undefined || val == null || (k=='findPage' && val=="")) continue;
+                        filter[j] = val
                     }
                     for(let i in p){
                         let val = p[i]

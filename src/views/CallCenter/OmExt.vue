@@ -214,9 +214,9 @@ export default {
 			this.columns = [
 				/* {prop:"id", label:"编号", minWidth:100}, 
 				{prop:"state", label:"线路状态", minWidth:100, isSlot: true},*/
+				{prop:"lineid", label:"线路编号", minWidth:100},
 				{prop:"extId", label:"分机号", minWidth:100},
 				
-                {prop:"lineid", label:"线路编号", minWidth:100},
                 {prop:"groups", label:"分机组", minWidth:100},
                 {prop:"voicefile", label:"排队语音文件", minWidth:100},
                 {prop:"noDisturb", label:"状态", isSlot: true, minWidth:100},

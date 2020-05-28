@@ -2,9 +2,9 @@
     <div class="table-container">
         <div class="query-container">
             <el-form :inline="true" size="mini">
-                <el-form-item label="电话号码">
+                <!-- <el-form-item label="电话号码">
                     <el-input v-model="dataForm.phone" placeholder="请输入电话号码"></el-input>
-                </el-form-item>
+                </el-form-item> -->
 
                 <el-form-item>
                     <el-button type="primary" @click="findPageFunc(null)">查询</el-button>
@@ -120,9 +120,6 @@
                 <el-form-item label="任务名称" prop="name">
                     <el-input v-model="editDataForm.name"  placeholder="请输入任务名称"></el-input>
                 </el-form-item>
-                <el-form-item label="所属项目">
-                    <omSelect v-model="editDataForm.projectId" :data="selectProject"></omSelect>
-                </el-form-item>
                 <el-form-item label="任务状态">
                     <el-radio-group v-model="editDataForm.status">
                         <el-radio-button label="0">未开始</el-radio-button>
@@ -132,6 +129,12 @@
                     </el-radio-group>
                 </el-form-item>
 
+                <el-form-item label="拨打设置">
+                    <el-select v-model="editDataForm.type" placeholder="请选择">
+                        <el-option key="1" label="人工" :value="1"></el-option>
+                        <el-option key="2" label="机器" :value="2"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="任务周期">
                     <el-date-picker v-model="editDataForm.beginDate"
                                     type="date" format="yyyy-MM-dd"
@@ -144,9 +147,59 @@
                                     value-format="yyyy-MM-dd"
                                     placeholder="截止日期"/>
                 </el-form-item>
+
+                 <el-form-item label="拨打时段">
+                        <el-checkbox v-model="weekday" :label="1">周一</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="2">周二</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="3">周三</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="4">周四</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="5">周五</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="6">周六</el-checkbox>
+                        <el-checkbox v-model="weekday" :label="7">周日</el-checkbox>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-time-select
+                            :picker-options="{start: '00:00',step: '00:15',end: '24:00',format:'HH:mm'}"
+                            v-model="editDataForm.beginTime"
+                            placeholder="开始时间"
+                            style="width: 50%;float:left;"
+                        />
+                        <el-time-select
+                            :picker-options="{start: '00:00',step: '00:15',end: '24:00',format:'HH:mm'}"
+                            v-model="editDataForm.endTime"
+                            placeholder="结束时间"
+                            style="width: 50%;float:left;"
+                        />
+                    </el-form-item>
+                <!-- <el-form-item label="所属项目">
+                    <omSelect v-model="editDataForm.projectId" :data="selectProject"></omSelect>
+                </el-form-item> -->
                 
-                <el-form-item label="选择坐席">
-                    <el-select v-model="extAll">
+                
+
+
+                
+                <!-- <el-form-item label="问卷调查" >
+                    <el-select v-model="extAll" style="width:100%">
+                        <el-option v-for="i in queryAllExt" 
+                            :key="i.extId"
+                            :label="i.extId"
+                            :value="i.extId"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="沟通结果模板">
+                    <el-select v-model="extAll" style="width:100%">
+                        <el-option v-for="i in queryAllExt" 
+                            :key="i.extId"
+                            :label="i.extId"
+                            :value="i.extId"></el-option>
+                    </el-select>
+                </el-form-item> -->
+
+
+                <el-form-item label="选择分机">
+                    <el-select v-model="extAll" style="width:100%">
                         <el-option v-for="i in queryAllExt" 
                             :key="i.extId"
                             :label="i.extId"
@@ -156,7 +209,7 @@
                     <a class="button" size="mini">选择坐席</a> -->
                 </el-form-item>
 
-                <el-form-item label="任务描述">
+                <el-form-item label="备注">
                     <el-input type="textarea" v-model="editDataForm.remark"></el-input>
                 </el-form-item>
 
@@ -183,6 +236,7 @@ export default {
     },
     data(){
         return {
+            weekday: [1, 2, 3, 4, 5],
             param: 1,
             dayArray: [],
             rules: {
@@ -267,7 +321,7 @@ export default {
 
         // 批量删除
 		handleDelete(data) {
-            //this.delete(data.params).then(data!=null?data.callback:'')
+            this.delete(data.params).then(data!=null?data.callback:'')
         },
 
         // 获取分页数据
@@ -324,7 +378,9 @@ export default {
 			})
         },
         
-        customerFunc(){},
+        customerFunc(){
+            this.$router.push("/marketingTask/taskCustomer")
+        },
         assignFunc(){},
         historyFunc(){},
         editStatus(row, status) {
