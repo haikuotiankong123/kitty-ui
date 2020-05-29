@@ -14,6 +14,15 @@
                 </el-form-item>
             </el-form>
         </div>
+		<div>
+			<el-checkbox-group v-model="selectedCheckbox" class="checkbox">
+				<el-checkbox v-for="(i, index) in columns" 
+					:key="index"
+					@change="changeCheckbox(i, $event)"
+					:label="i.label"
+					:disabled="i.isShow"></el-checkbox>
+			</el-checkbox-group>
+		</div>
         <om-table :data="dataResp"
             :columns="filterColumns"
             @findPage="findPageFunc"
@@ -103,22 +112,23 @@ export default {
     },
     data(){
         return {
-			lists: [
+			/* lists: [
 				{label: "客户姓名", value: 0, key: "name"},
 				{label: "电话", value: 0, key: "phone"},
-				// {label: "策略", value: 0, key: "a6"},
-				// {label: "客户昵称", value: 0, key: "a1"},
+				{label: "策略", value: 0, key: "a6"},
+				{label: "客户昵称", value: 0, key: "a1"},
 				{label: "邮箱", value: 0, key: "a3"},
-				// {label: "品牌", value: 0, key: "a7"},
-				// {label: "客户等级", value: 0, key: "a2"},
+				{label: "品牌", value: 0, key: "a7"},
+				{label: "客户等级", value: 0, key: "a2"},
 				{label: "QQ", value: 0, key: "a4"},
-				// {label: "分公司", value: 0, key: "a8"},
+				{label: "分公司", value: 0, key: "a8"},
 				{label: "性别", value: 0, key: "a9"},
 				{label: "微信", value: 0, key: "a5"},
 				{label: "地址", value: 1, key: "address"},
 				{label: "备注", value: 1, key: "remark"},
 
-			],
+			], */
+			selectedCheckbox:['客户名称', '电话号码'],
             filterColumns: [],
             columns: [],
             timeRange: [],
@@ -184,14 +194,21 @@ export default {
 			})
 
 			this.columns = [
-                {prop:"name", label:"客户名称", minWidth:100},
-				{prop:"phone", label:"电话号码", minWidth:100},
+				{prop:"name", label:"客户名称", minWidth:100, isShow:true},
+				{prop:"phone", label:"电话号码", minWidth:100,isShow:true},
 				...customerConfig,
-                {prop:"uuid", label:"", minWidth:100},
-				/* ，1：正式客户，2：任务客户 */
-                {prop:"type", label:"客户类型", minWidth:100},
-            ]
-            this.filterColumns = this.columns
+				{prop:"a3", label:"邮箱", minWidth:100},
+				{prop:"a4", label:"QQ", minWidth:100},
+				{prop:"a9", label:"性别", minWidth:100},
+				{prop:"address", label:"地址", minWidth:100}
+			].map((i, index)=>{
+				i.selfIndex = index
+				return i;
+			})
+			
+            this.filterColumns = this.columns.filter(i => {
+				return ['客户名称','电话号码'].findIndex(j => j == i.label) > -1
+			})
       	},
 
         // 批量删除
@@ -261,7 +278,6 @@ export default {
 							}
 						}
 						form.jsonValueMap = JSON.stringify(form.jsonValueMap)
-						
 						this.save(form).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {
@@ -276,11 +292,34 @@ export default {
 					})
 				}
 			})
+		},
+		changeCheckbox(item,bShow){
+			let label = item.label
+			let selfIndex = item.selfIndex
+			if(bShow){
+				let index = this.filterColumns.findIndex(i => i.selfIndex > selfIndex);
+				let len = this.filterColumns.length;
+				index = index == -1 ? len : index;
+				this.filterColumns.splice(index,0, item)
+			}else{
+				let index = this.filterColumns.findIndex(i=>i.label == label)
+				if(index>-1) this.filterColumns.splice(index, 1);
+			}
 		}
     }
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.checkbox{
+	text-align: right;
+	padding-right: 20px;
+	padding-bottom: 5px;
+	.el-checkbox{
+		margin-right: 20px;
+	}
+	.el-checkbox__label{
+		padding-left: 6px;
+	}
+}
 </style>

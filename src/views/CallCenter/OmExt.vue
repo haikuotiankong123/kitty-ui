@@ -31,79 +31,87 @@
             <!-- <template v-slot:handle="{row}"></template> -->
         </om-table>
 
-        <!--新增编辑界面-->
-        <el-dialog class="column-two" :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="dialogClose">
+        <!--新增编辑界面 class="column-two"-->
+        <el-dialog  :title="operation?'新增':'编辑'" width="60%" :visible.sync="dialogVisible" :close-on-click-modal="false" @close="dialogClose">
             <el-form :model="editDataForm" label-width="120px" v-if="dialogVisible" :rules="dataFormRules" ref="editDataForm" :size="size"
                 label-position="right">
 
-			<el-form-item label="分机号" prop="extId" >
-				<el-input v-model="editDataForm.extId" auto-complete="off" disabled></el-input>
-			</el-form-item>
-			<el-form-item label="线路编号" prop="lineid" >
-				<el-input v-model="editDataForm.lineid" auto-complete="off" disabled></el-input>
-			</el-form-item>
-			<el-form-item label="工号" prop="staffid" >
-				<el-input v-model="editDataForm.staffid" auto-complete="off" placeholder="请输入工号"></el-input>
-			</el-form-item>
-			<el-form-item label="分机组" prop="groups" >
-				<el-select multiple v-model="tempGroup" @change="changeGroup"  style="width:100%;" placeholder="请选择">
-					<el-option v-for="i in omGroupAll" 
-						:key="i.groupId"
-						:label="i.groupId"
-						:value="i.groupId">
-					</el-option>
-				</el-select>
-			</el-form-item>
-			<el-form-item label="排队语音文件" prop="voicefile" >
-				<el-select v-model="editDataForm.voicefile" style="width:100%;" placeholder="请选择">
-					<el-option v-for="(i, index) in queryVoicefile" 
-						:key="index"
-						:label="i"
-						:value="i">
-					</el-option>
-				</el-select>
-			</el-form-item>
-			<el-form-item label="邮箱地址" prop="email">
-				<el-input v-model="editDataForm.email" auto-complete="off" placeholder="请输入邮箱地址"></el-input>
-			</el-form-item>
-			
-			<el-form-item label="呼叫转移方式" prop="fwdType" >
-				<el-select v-model="editDataForm.fwdType" @change="changeType($event, editDataForm)" style="width:100%;" placeholder="请选择">
-					<el-option v-for="(i) in fwdType"
-						:key="i.value"
-						:label="i.label"
-						:value="i.value"></el-option>
-				</el-select>
-			</el-form-item>
+				<div style="float:left; width:45%;">
+					<p class="subtitle">基本信息</p>
+					<el-form-item label="线路编号" prop="lineid" >
+						<el-input v-model="editDataForm.lineid" auto-complete="off" disabled></el-input>
+					</el-form-item>
+					<el-form-item label="分机号" prop="extId" >
+						<el-input v-model="editDataForm.extId" auto-complete="off" disabled></el-input>
+					</el-form-item>
+					<el-form-item label="分机组" prop="groups" >
+						<el-select multiple v-model="tempGroup" @change="changeGroup"  style="width:100%;" placeholder="请选择">
+							<el-option v-for="i in omGroupAll" 
+								:key="i.groupId"
+								:label="i.groupId"
+								:value="i.groupId">
+							</el-option>
+						</el-select>
+					</el-form-item>
+					<el-form-item label="工号" prop="staffid" >
+						<el-input v-model="editDataForm.staffid" auto-complete="off" placeholder="请输入工号"></el-input>
+					</el-form-item>
+					<el-form-item label="手机号码" prop="mobile" >
+						<el-input v-model="editDataForm.mobile" auto-complete="off" placeholder="请输入手机号码"></el-input>
+					</el-form-item>
+					<el-form-item label="邮箱地址" prop="email">
+						<el-input v-model="editDataForm.email" auto-complete="off" placeholder="请输入邮箱地址"></el-input>
+					</el-form-item>
+				</div>
+				
+				<div style="float:left; width:45%; border-left: 1px dashed #0066cc; padding-left:2%; margin-left:4%;">
+					<p class="subtitle">属性设置</p>
+					<el-form-item label="同振号码" prop="fork" >
+						<el-input v-model="editDataForm.fork" auto-complete="off" placeholder="请输入同振号码"></el-input>
+					</el-form-item>
+					
+					<el-form-item label="呼叫转移方式" prop="fwdType" >
+						<el-select v-model="editDataForm.fwdType" @change="changeType($event, editDataForm)" style="width:100%;" placeholder="请选择">
+							<el-option v-for="(i) in fwdType"
+								:key="i.value"
+								:label="i.label"
+								:value="i.value"></el-option>
+						</el-select>
+					</el-form-item>
+					<el-form-item label="呼叫转移号码" prop="fwdNumber" v-if="isNumber">
+						<el-input v-model="editDataForm.fwdNumber" auto-complete="off" placeholder="请输入呼叫转移号码"></el-input>
+					</el-form-item>
 
-			<el-form-item label="代接权限" prop="callPickup" >
-				<el-radio-group v-model="editDataForm.callPickup">
-					<el-radio-button label="yes">允许</el-radio-button>
-					<el-radio-button label="no">不允许</el-radio-button>
-				</el-radio-group>
-			</el-form-item>
+					<el-form-item label="排队语音文件" prop="voicefile" >
+						<el-select v-model="editDataForm.voicefile" style="width:100%;" placeholder="请选择">
+							<el-option v-for="(i, index) in queryVoicefile" 
+								:key="index"
+								:label="i"
+								:value="i">
+							</el-option>
+						</el-select>
+					</el-form-item>
 
-			<el-form-item label="呼叫转移号码" prop="fwdNumber" v-if="isNumber">
-				<el-input v-model="editDataForm.fwdNumber" auto-complete="off" placeholder="请输入呼叫转移号码"></el-input>
-			</el-form-item>
-			<el-form-item label="同振号码" prop="fork" >
-				<el-input v-model="editDataForm.fork" auto-complete="off" placeholder="请输入同振号码"></el-input>
-			</el-form-item>
-			<el-form-item label="手机号码" prop="mobile" >
-				<el-input v-model="editDataForm.mobile" auto-complete="off" placeholder="请输入手机号码"></el-input>
-			</el-form-item>
-			<el-form-item label="录音开关" prop="record" >
-				<el-radio-group v-model="editDataForm.record">
-					<el-radio-button label="on">开</el-radio-button>
-					<el-radio-button label="off">关</el-radio-button>
-				</el-radio-group>
-			</el-form-item>
-			<el-form-item label="状态" prop="noDisturb" >
-				<el-radio-group v-model="editDataForm.noDisturb">
-					<el-radio-button label="no">启用</el-radio-button>
-					<el-radio-button label="yes">禁用</el-radio-button>
-				</el-radio-group>
-			</el-form-item>
+					<el-form-item label="代接权限" prop="callPickup" >
+						<el-radio-group v-model="editDataForm.callPickup">
+							<el-radio label="yes">允许</el-radio>
+							<el-radio label="no">不允许</el-radio>
+						</el-radio-group>
+					</el-form-item>
+
+					<el-form-item label="录音开关" prop="record" >
+						<el-radio-group v-model="editDataForm.record">
+							<el-radio label="on">开</el-radio>
+							<el-radio label="off">关</el-radio>
+						</el-radio-group>
+					</el-form-item>
+					<el-form-item label="状态" prop="noDisturb" >
+						<el-radio-group v-model="editDataForm.noDisturb">
+							<el-radio label="no">启用</el-radio>
+							<el-radio label="yes">禁用</el-radio>
+						</el-radio-group>
+					</el-form-item>
+				</div>
 			
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -349,5 +357,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.subtitle{
+	font-weight: bold; 
+	margin-top:-10px;
+	padding-bottom: 10px;
+}
 </style>

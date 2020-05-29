@@ -40,7 +40,7 @@
 			<el-form-item label="分机组编号" prop="groupId" >
 				<el-input v-model="editDataForm.groupId" auto-complete="off"></el-input>
 			</el-form-item>
-            <el-form-item label="分机">
+            <el-form-item label="分机号">
                 <el-select multiple v-model="exts" placeholder="请选择" style="width:100%;">
                     <el-option v-for="i in omExtAll" 
                         :label="i.extId"
@@ -48,7 +48,7 @@
                         :key="i.extId"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="语音文件" prop="voicefile" >
+            <el-form-item label="排队语音" prop="voicefile" >
 				<el-select v-model="editDataForm.voicefile" style="width:100%;" placeholder="请选择">
 					<el-option v-for="(i, index) in queryVoicefile" 
 						:key="index"
@@ -58,7 +58,7 @@
 				</el-select>
 			</el-form-item>
 
-			<el-form-item label="有效值" prop="distribution" >
+			<el-form-item label="分配策略	" prop="distribution" >
                 <el-select v-model="editDataForm.distribution" placeholder="请选择" style="width:100%;">
                     <el-option v-for="(i, index) in distribution"
                         :label="i.label"
@@ -160,9 +160,9 @@ export default {
       	initColumns() {
 			this.columns = [
                 {prop:"groupId", label:"分机组编号", minWidth:100},
-                {prop:"exts", label:"分机", isSlot: true, minWidth:100},
-                {prop:"voicefile", label:"语音文件", minWidth:100},
-                {prop:"distribution", label:"有效值", isSlot: true, minWidth:100}
+                {prop:"exts", label:"分机号", isSlot: true, minWidth:100},
+                {prop:"voicefile", label:"排队语音", minWidth:100},
+                {prop:"distribution", label:"分配策略	", isSlot: true, minWidth:100}
             ]
             this.filterColumns = this.columns
       	},

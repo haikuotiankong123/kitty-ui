@@ -52,8 +52,8 @@
 				<el-form-item label="重复次数" prop="repeat" >
 					<el-input v-model="editDataForm.repeat" placeholder="请输入重复次数" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="拨号检测长度" prop="infoLength" >
-					<el-input v-model="editDataForm.infoLength" placeholder="请输入长度" auto-complete="off"></el-input>
+				<el-form-item label="按键位数" prop="infoLength" >
+					<el-input v-model="editDataForm.infoLength" placeholder="请输入位数" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="按键结束符" prop="exit" >
 					<el-input v-model="editDataForm.exit" placeholder="请输入结束符" auto-complete="off"></el-input>
@@ -62,14 +62,14 @@
 
 			<div class="h" v-if="isKey">
 				<span class="text">按键事件</span>&emsp;
-				<!-- v-if="!eventList.length" -->
-				<el-button size="mini" @click="addKey(editDataForm.menuId)" type="success" icon="el-icon-plus">增加事件</el-button>
+				<!-- v-if="!keyList.length" -->
+				<!-- <el-button size="mini" @click="addKey(editDataForm.menuId)" type="success" icon="el-icon-plus">增加事件</el-button> -->
 			</div>
 
 			<div class="key-event" v-if="isKey">
 				<el-form :size="size" class="key-one">
-					<template v-for="(item, index) in eventList">
-						<el-form-item :label="item.dtmfKey | lastStr" :key="index" class="event-list" :class="{'show-child': showChild && index==childIndex}">
+					<template v-for="(item, index) in keyList">
+						<el-form-item :label="'按键 '+ item.dtmfKey" :key="index" class="event-list" :class="{'show-child': showChild && index==childIndex}">
 							<el-select style="width:120px;" v-model="item.dtmfType" placeholder="请选择" @change="changeTtype($event, item)">
 								<el-option
 									v-for="i in event"
@@ -121,13 +121,13 @@
 				<el-form :inline="true" size="mini" class="key-two" v-if="showChild">
 					<p :key="i.id" v-for="i in childKeys">
 						<el-form-item>
-							<el-input v-if="i.dtmfKey" v-model="i.dtmfKey" style="width:40px;" readonly></el-input>
+							<p>{{'按键 '+i.dtmfKey}}&nbsp;</p>
 						</el-form-item>
 						<el-form-item>
-							<el-input v-if="i.dtmfType" v-model="i.dtmfType" style="width:100px;" readonly></el-input>
+							<el-input v-if="i.dtmfType" :value="i.dtmfType | showLable" style="width:100px;" readonly />
 						</el-form-item>
 						<el-form-item>
-							<el-input v-if="i.dtmfValue" v-model="i.dtmfValue" style="width:100px;" readonly></el-input>
+							<el-input v-if="i.dtmfValue" v-model="i.dtmfValue" style="width:100px;" readonly />
 						</el-form-item>
 					</p>
 				</el-form>
@@ -183,16 +183,17 @@ export default {
 				lastUpdateTime: null,
 			},
 			event: [
-				{label:'总机', value:'default'},
+				{label:'未分配', value:''},
 				{label:'挂断', value:'clear'},
-				{label:'分机', value:'ext'},
-				{label:'分机队列', value:'queue'},
+				{label:'分机', value:'queue'},
 				{label:'分机组', value:'group'},
 				{label:'语音菜单', value:'menu'},
+				/* {label:'分机', value:'ext'},
 				{label:'播放语音', value:'voicefile'},
-				{label:'转外部电话', value:'outer'}
+				{label:'转外部电话', value:'outer'},
+				{label:'总机', value:'default'}, */
 			],
-			eventList: [],
+			keyList: [],
 			selectedEventList: [],
 			omMenuAll: [],
 			
@@ -208,15 +209,21 @@ export default {
 			isKey: false
         }
 	},
-	filters:{
-		lastStr(val){
-            return '按键 ' + val
-        }
-	},
 	watch:{
 		
 	},
-
+	filters: {
+		showLable(val){
+			let event = [{label:'未分配', value:''},
+					{label:'挂断', value:'clear'},
+					{label:'分机', value:'queue'},
+					{label:'分机组', value:'group'},
+					{label:'语音菜单', value:'menu'}
+				].find(i=> val == i.value)
+			if(event) return event.label;
+			return '';
+		}
+	},
     mounted(){
 		this.initColumns();
 		this.findAll().then(resp => {
@@ -243,7 +250,7 @@ export default {
                 {prop:"menuDesp", label:"语音菜单描述", minWidth:100},
                 {prop:"voiceFile", label:"语音文件", minWidth:100},
                 {prop:"repeat", label:"重复次数", minWidth:100},
-                {prop:"infoLength", label:"拨号检测长度", minWidth:100},
+                {prop:"infoLength", label:"按键位数", minWidth:100},
                 {prop:"exit", label:"按键结束符", minWidth:100}
             ]
             this.filterColumns = this.columns
@@ -302,15 +309,15 @@ export default {
 			this.isKey = true;
 			this.dialogVisible = true
 			this.operation = false
+			this.keyList = [];
 			this.editDataForm = Object.assign({}, params.row)
 			
 			let menuId = params.row.menuId
-			this.getKey(menuId).then(resp => {
-				this.eventList = resp
-			});
-			
+
+			this.getKey(menuId).then(res => {
+				this.keyList = res
+			})
 		},
-		
 		async getKey(menuId){
 			if(!menuId) return;
 			let param = {
@@ -318,7 +325,21 @@ export default {
 				pageSize:20
 			}
 			let resp = await this.$api.omMenuDtmf.findPage(param);
-			return this.keySort(resp.data.content)
+			let keys = []
+			for(let i=0; i<10; i++){
+				let dtmf = resp.data.content.find(item => item.dtmfKey == i)
+				if(dtmf){
+					keys.push(dtmf)
+				}else{
+					keys.push({
+						dtmfKey: i+'',
+						dtmfType: '',
+						dtmfValue: '',
+						menuId,
+					})
+				}
+			}
+			return keys;
 		},
 		keySort(arr){
 			if(!arr) return;
@@ -334,8 +355,8 @@ export default {
 			if(!menuId) return;
 			this.showChild = true;
 			this.childIndex = index;
-			this.getKey(menuId).then(resp => {
-				this.childKeys = resp
+			this.getKey(menuId).then(res => {
+				this.childKeys = res
 				console.log('索引---》',index)
 				console.log('menuId---》',menuId)
 			})
@@ -344,15 +365,13 @@ export default {
 		closeChildFunc(index){
 			this.showChild = false
 		},
-		addKey(menuId){
+		/* addKey(menuId){
 			if(!menuId) return;
 			for(let i=0; i<10; i++){
-				if(this.eventList.find(item => item.dtmfKey ==i)) continue;
-				this.eventList.splice(i,0,{menuId, dtmfKey: i, dtmfValue: ''})
-				//this.eventList.push({menuId, dtmfKey: i, dtmfValue: ''})
+				if(this.keyList.find(item => item.dtmfKey ==i)) continue;
+				this.keyList.splice(i,0,{menuId, dtmfKey: i, dtmfValue: ''})
 			}
-			console.log('按键---->', this.eventList)
-		},
+		}, */
         // 编辑
 		submitForm: function () {
 			this.$refs.editDataForm.validate((valid) => {
@@ -380,11 +399,10 @@ export default {
 							util.error(err.message)
 						})
 
-						this.eventList.forEach(i => {
-							if((i.dtmfType != 'clear' || i.dtmfType != 'defalut') && !i.dtmfValue) return;
+						this.keyList.forEach(i => {
 							this.$api.omMenuDtmf.save(i)
 						})
-						this.eventList = []
+						this.keyList = []
 					})
 				}
 			})
