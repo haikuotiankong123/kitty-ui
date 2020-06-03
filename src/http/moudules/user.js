@@ -28,6 +28,14 @@ export const findPage = (data) => {
         data
     })
 }
+// 查找所有用户
+export const findAll = (params) => {
+    return axios({
+        url: '/'+modulePath+'/findAll',
+        method: 'get',
+        params
+    })
+}
 // 查找用户的菜单权限标识集合
 export const findPermissions = (params) => {
     return axios({
@@ -36,6 +44,7 @@ export const findPermissions = (params) => {
         params
     })
 }
+
 
 
 // 临时分页查询

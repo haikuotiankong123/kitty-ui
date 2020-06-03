@@ -45,6 +45,12 @@ function getApiName(apiName){
             data
         })
     }
+    if(apiName == 'usrCustomer'){
+        obj.importCustomer = data => axios({
+            url: '/'+apiName+'/importCustomer?file='+ data.file,
+            method: 'post'
+        })
+    }
 
     return obj;
 }

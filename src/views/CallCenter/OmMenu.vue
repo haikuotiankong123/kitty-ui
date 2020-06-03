@@ -68,8 +68,12 @@
 
 			<div class="key-event" v-if="isKey">
 				<el-form :size="size" class="key-one">
-					<template v-for="(item, index) in keyList">
-						<el-form-item :label="'按键 '+ item.dtmfKey" :key="index" class="event-list" :class="{'show-child': showChild && index==childIndex}">
+					<div :class="{'key-content':true, 'show': showKey}">
+						<el-form-item 
+							v-for="(item, index) in keyList"
+							:label="'按键 '+ item.dtmfKey" :key="index" 
+							class="event-list" 
+							:class="{'show-child': showChild && index==childIndex}">
 							<el-select style="width:120px;" v-model="item.dtmfType" placeholder="请选择" @change="changeTtype($event, item)">
 								<el-option
 									v-for="i in event"
@@ -115,9 +119,11 @@
 								<span v-else @click="showChildFunc(index, item.dtmfValue)" style="cursor: pointer">》</span>
 							</template>
 						</el-form-item>
-					</template>
-				</el-form>
 
+					</div>
+					<p class="key-more" v-if="isMore" @click="onMore">更多按键</p>
+				</el-form>
+				
 				<el-form :inline="true" size="mini" class="key-two" v-if="showChild">
 					<p :key="i.id" v-for="i in childKeys">
 						<el-form-item>
@@ -160,7 +166,7 @@ export default {
             size: 'mini',
             operation: false, // true:新增, false:编辑
             dialogVisible: false, // 新增编辑界面是否显示
-            editLoading: false,
+			editLoading: false,
             dataFormRules: {
 				name: [
 					{ required: true, message: '请输入用户名', trigger: 'blur' }
@@ -201,12 +207,13 @@ export default {
 			showChild: false,
 			childIndex: null, 
 
-
             VIRList: [],
             filters: {
                 name:''
 			},
-			isKey: false
+			isKey: false,
+			showKey: false,
+			isMore: true
         }
 	},
 	watch:{
@@ -374,6 +381,7 @@ export default {
 		}, */
         // 编辑
 		submitForm: function () {
+			
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -400,6 +408,10 @@ export default {
 						})
 
 						this.keyList.forEach(i => {
+							if(i.dtmfType == ""){
+								i.dtmfType = '0'
+								i.dtmfValue = '' 
+							}
 							this.$api.omMenuDtmf.save(i)
 						})
 						this.keyList = []
@@ -425,6 +437,10 @@ export default {
 			}).catch(err => {
 				util.error(err.message)
 			})
+		},
+		onMore(){
+			this.showKey=true;
+			this.isMore=false;
 		}
     }
 }
@@ -454,6 +470,17 @@ export default {
 .key-event{
 	display: flex;
 	position: relative;
+	.key-content{
+		overflow: hidden;
+		height: 90px;
+		&.show{
+			height: auto;
+		}
+	}
+	.key-more{
+		cursor: pointer;
+		color: #36c1fe;
+	}
 	&>.key-one{
 		width: 360px;
 		padding-left: 68px;

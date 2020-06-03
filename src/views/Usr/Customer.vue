@@ -11,6 +11,8 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleAdd">增加</el-button>
+					<el-button type="primary" @click="importFunc">导入客户</el-button>
+					<el-button type="primary" @click="exportFunc">导出客户</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -97,15 +99,43 @@
 					<el-button size="small" @click.native="dialogVisible = false">取消</el-button>
 					<el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
 				</span>
-			
         </el-dialog>
+
+		<!-- 导入客户弹窗 -->
+		<el-dialog title="导入客户" :visible.sync="importVisible" :close-on-click-modal="false">
+			<el-form size="small">
+				<el-form-item label="数据文件：">
+					<el-upload
+						name="file"
+						:action="uploadUrl"
+						ref="upload"
+						:limit="1"
+						accept=".xls"
+						:on-success="uploadSuccess"
+						:before-upload="beforeUpload"
+						:auto-upload="true">
+						<el-button slot="trigger" size="small" type="primary">请选择文件</el-button>
+						<!-- <el-checkbox style="margin-left:15px;" v-model="ownAssign">分配给自己</el-checkbox> -->
+                        <div slot="tip" class="el-upload__tip"> 请选择本地Excel文件，文件小于10m</div>
+					</el-upload>
+					<div>说明：导入数据将自动分配至所属话务组</div>
+                    <p @click="generateTemplate" style="cursor: pointer;color: #3a8ee6">生成并下载客户模板文件</p>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button size="small" @click.native="dialogVisible = false">取消</el-button>
+				<el-button size="small" type="primary" @click.native="submitImpot">提交</el-button>
+			</span>
+		</el-dialog>
     </div>
 </template>
 
 <script>
 import OmTable from "@/components/omTable"
 import util from "@/utils/util"
+import {uploadUrl} from "@/http/env"
 import {mapActions, mapState} from 'vuex'
+import XLSX from 'xlsx'
 export default {
     components: {
         OmTable
@@ -144,7 +174,10 @@ export default {
 				jsonValueMap: {}
 			},
 			configList: [],
-			rules: {}
+			rules: {},
+			importVisible: false,
+			uploadUrl,
+			file:'',
         }
     },
     mounted(){
@@ -157,7 +190,7 @@ export default {
 		})
     },
     methods:{
-        ...mapActions('usrCustomer', ['findPage', 'findAll', 'save', 'delete']),
+        ...mapActions('usrCustomer', ['findPage', 'findAll', 'save', 'delete', 'importCustomer']),
 
 		async loadData(){
 			
@@ -305,6 +338,80 @@ export default {
 				let index = this.filterColumns.findIndex(i=>i.label == label)
 				if(index>-1) this.filterColumns.splice(index, 1);
 			}
+		},
+		importFunc(){
+			this.importVisible = true;
+		},
+		uploadSuccess(resp){
+			this.file = resp.data;
+		},
+		beforeUpload(){},
+		generateTemplate: function () {
+			this.$api.usrCustomerConfig.findAll().then(resp => {
+				let data = resp.data
+				let con = []
+				let o = Object.assign({}, {
+					客户名称: undefined,
+					电话号码: undefined,
+					备注: undefined,
+					邮箱: undefined,
+					QQ: undefined,
+					微信: undefined,
+				})
+
+				data.forEach(function (item, index) {
+					if (item.status == 0) {
+						return
+					}
+					o[item.label] = undefined
+				})
+				con.push(o)
+				console.error(con)
+				let ws = XLSX.utils.json_to_sheet(con);
+				let wb = XLSX.utils.book_new()
+				XLSX.utils.book_append_sheet(wb, ws, "");
+				XLSX.writeFile(wb, "客户模板.xls");
+
+			})
+		},
+		submitImpot(){
+			this.importCustomer({
+				file: this.file
+			}).then(resp => {
+				this.importVisible = false;
+				util.success("导入客户成功");
+				this.findPageFunc(null)
+			})
+		},
+		exportFunc(){
+			
+			let param = { pageNum: 1, pageSize: 99999 }
+			util.message("如果导出数据过多，时间可能比较长，请勿重复点击")
+			//this.loading = true
+			this.findPage(param).then((res) => {
+				let data = res.data.content;
+				let o = data.map(i =>{
+					let conf = {}
+					i.hasOwnProperty("configValueList") && i.configValueList.forEach(val => {
+						if (val.configCustomer.status !== 0) {
+							conf[val.configCustomer.label] = val.jsonValue
+						}
+					})
+
+					return Object.assign({
+						姓名: i.name,
+						电话: i.phone,
+						创建人: i.creator != undefined ? i.creator.name : "",
+						QQ: i.a4,
+						创建时间: i.createTime,
+						备注: i.remark,
+					}, conf)
+				})
+				let ws = XLSX.utils.json_to_sheet(o);
+				let wb = XLSX.utils.book_new()
+				XLSX.utils.book_append_sheet(wb, ws, "");
+				XLSX.writeFile(wb, "客户数据.xls");
+			})
 		}
     }
 }

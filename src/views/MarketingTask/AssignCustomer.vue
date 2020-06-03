@@ -22,11 +22,10 @@
                 </el-form-item>
             </el-form>
         </div>
-		<div class="button-container">
-            <el-button size="mini" type="success" @click="importFunc">导入客户</el-button>
+		<!-- <div class="button-container">
+            <el-button size="mini" type="success" @click="importCustormer">导入客户</el-button>
             <el-button size="mini" type="danger">分配</el-button>
-			<el-button size="mini" type="primary" @click="exportFunc">导出客户</el-button>
-        </div>
+        </div> -->
         <om-table :data="dataResp"
             :columns="filterColumns"
             @findPage="findPageFunc"
@@ -242,7 +241,7 @@ export default {
 
 		beforeUpload(){},
 
-		importFunc(){
+		importCustormer(){
 			if(!this.dataForm.taskId){
 				util.message("请选择所属任务！")
 			}
@@ -259,23 +258,20 @@ export default {
 				customerConfig.push({
 					prop: 'config'+index,
 					label: i.label,
-					//isSlot: i.isRequired,
+					isSlot: i.isRequired,
 					minWidth:100,
 				})
 				return i;
 			})
-			console.log("配置------>>", customerConfig);
 			this.columns = [
                 {prop:"name", label:"客户名称", minWidth:100},
 				{prop:"phone", label:"电话", minWidth:100},
-				...customerConfig,
-				{prop:"createTime", label:"创建时间", minWidth:100},
-				{prop:"createId", label:"创建人", minWidth:100},
-				{prop:"memberName", label:"话务员名称", minWidth:100},
+				
+                {prop:"memberName", label:"话务员名称", minWidth:100},
+                
 				// 0未发布 1进行中 2完成 3失败  9取消
-				{prop:"result", label:"完成状态", minWidth:100},
-				{prop:"lastTime", label:"最后一次拨打时间", minWidth:100},
-
+				/* {prop:"result", label:"完成状态", minWidth:100},
+				{prop:"lastTime", label:"最后一次拨打时间", minWidth:100}, */
             ]
             this.filterColumns = this.columns
       	},
@@ -379,39 +375,6 @@ export default {
 						})
 					})
 				}
-			})
-		},
-		exportFunc(){
-			
-			let param = { pageNum: 1, pageSize: 99999 }
-			util.message("如果导出数据过多，时间可能比较长，请勿重复点击")
-			//this.loading = true
-			this.findPage(param).then((res) => {
-				let data = res.data.content;
-				let o = data.map(i =>{
-					let conf = {}
-					if(toString.call(i.configValueList) == '[object Array]' ){
-
-						i.configValueList.forEach(val => {
-							if (val.configCustomer.status !== 0) {
-								conf[val.configCustomer.label] = val.jsonValue
-							}
-						})
-					}
-					
-					return Object.assign({
-						姓名: i.name,
-						电话: i.phone,
-						创建人: i.creator != undefined ? i.creator.name : "",
-						QQ: i.a4,
-						创建时间: i.createTime,
-						备注: i.remark,
-					}, conf)
-				})
-				let ws = XLSX.utils.json_to_sheet(o);
-				let wb = XLSX.utils.book_new()
-				XLSX.utils.book_append_sheet(wb, ws, "");
-				XLSX.writeFile(wb, "客户数据.xls");
 			})
 		}
     }

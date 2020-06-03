@@ -13,6 +13,7 @@ import { getIFramePath, getIFrameUrl } from '@/utils/iframe'
 const Home = () => import("@/views/Home");
 const Customer = () => import("@/views/Workbench/Customer");
 const InfoFlow = () => import("@/views/MarketingTask/InfoFlow");
+const AssignCustomer = () => import("@/views/MarketingTask/AssignCustomer");
 
 Vue.use(Router)
 
@@ -51,7 +52,16 @@ const router = new Router({
             parentId: 62
           }
         },
-
+        {
+          path: '/marketingTask/assignCustomer',
+          name: '分配任务',
+          component: AssignCustomer,
+          meta: {
+            icon: '',
+            index: 3,
+            parentId: 62
+          }
+        },
       ]
     },
     {
