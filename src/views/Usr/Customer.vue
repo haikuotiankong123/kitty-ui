@@ -13,6 +13,8 @@
                     <el-button type="primary" @click="handleAdd">增加</el-button>
 					<el-button type="primary" @click="importFunc">导入客户</el-button>
 					<el-button type="primary" @click="exportFunc">导出客户</el-button>
+					<el-button type="primary" @click="importVioceFunc">导入语音</el-button>
+					<audio controls style size="mini" src="http://119.23.106.216:7777/u/file/2020/0430/031846127918.mp3">66</audio>
                 </el-form-item>
             </el-form>
         </div>
@@ -127,6 +129,25 @@
 				<el-button size="small" type="primary" @click.native="submitImpot">提交</el-button>
 			</span>
 		</el-dialog>
+
+		<el-dialog title="导入语音" :visible.sync="importVoiceVisible" :close-on-click-modal="false">
+			<el-form size="small">
+				<el-form-item label="请上传语音文件">
+					<el-upload 
+						name="file"
+						:action="uploadUrl"
+						accept="audio/*"
+						ref="upload"
+						:limit="1"
+						:on-success="voiceSuccess"
+						:before-upload="voiceBeforeUpload"
+						:auto-upload="true">
+						<el-button slot="trigger" size="small" type="primary">请选择音频</el-button>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+		</el-dialog>
+
     </div>
 </template>
 
@@ -178,6 +199,7 @@ export default {
 			importVisible: false,
 			uploadUrl,
 			file:'',
+			importVoiceVisible: false
         }
     },
     mounted(){
@@ -412,6 +434,15 @@ export default {
 				XLSX.utils.book_append_sheet(wb, ws, "");
 				XLSX.writeFile(wb, "客户数据.xls");
 			})
+		},
+		importVioceFunc(){
+			this.importVoiceVisible=true;
+		},
+		voiceSuccess(){
+			util.message("上传语音成功")
+		},
+		voiceBeforeUpload(){
+			util.message("上传之后")	
 		}
     }
 }

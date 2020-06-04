@@ -101,7 +101,7 @@ api.queryGroup = data => post('queryGroup', data)
  * <ext_id>: 主叫
  * <ext_id_2>: 被叫
  */
-api.connectExt = (data) => post('ConnectExt', {...data, sender: store.state.extId})      // 无  临时
+api.connectExt = (data) => post('ConnectExt', {...data, sender: store.state.acountInfo.extId})
 
 
 /**
@@ -111,12 +111,12 @@ api.connectExt = (data) => post('ConnectExt', {...data, sender: store.state.extI
 /**
  * 处理来电转接功能，支持转分机，转语音菜单，外部电话
  */
-api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: store.state.extId})    // 临时
+api.connectVisitor = (data) => post('ConnectVisitor', {...data, sender: store.state.acountInfo.extId})
 
 /**
  * 去电转接
  */
-api.connectOuter = (data) => post('ConnectOuter', {...data, sender: store.state.extId})        // 临时
+api.connectOuter = (data) => post('ConnectOuter', {...data, sender: store.state.acountInfo.extId})
 
 /**
  * 保存呼叫和静音
@@ -126,7 +126,7 @@ api.controlCmd = data => post('ControlCmd', data)
 /**
  * 三方通话（只能邀请分机加入）
  */
-api.connectConference = data => post('ConnectConference', {...data, sender: store.state.extId})
+api.connectConference = data => post('ConnectConference', {...data, sender: store.state.acountInfo.extId})
 
 /**
  * 语音菜单

@@ -79,9 +79,15 @@ export default {
             data: [],
             total: 0
         },
+        // 当前账号信息
+        acountInfo:{},       
     },
     mutations:{
-        ...mutations
+        ...mutations,
+        setAcountInfo(state, data){
+            if(!data.extId) data.extId = "当前账号未绑定分机"
+            state.acountInfo = data
+        }
     },
     getters: {},
     actions: {

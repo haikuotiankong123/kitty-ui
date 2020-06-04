@@ -362,17 +362,17 @@ export default {
         },
         // 监听通话
         watchCall(ext){
-            let param = {cmd:'monitor', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            let param = {cmd:'monitor', ext_id: this.acountInfo.extId, other_ext_id:ext.extId}
             this.$api.controlCmd(param)
         },
         // 强插对话
         onThreeway(ext){
-            let param = {cmd:'bargein', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            let param = {cmd:'bargein', ext_id: this.acountInfo.extId, other_ext_id:ext.extId}
             this.$api.controlCmd(param)
         },
         // 关闭通话
         closeCall(ext){
-            //let param = {cmd:'clear', ext_id: this.queryExt.extId, other_ext_id:ext.extId}
+            //let param = {cmd:'clear', ext_id: this.acountInfo.extId, other_ext_id:ext.extId}
             let param = {cmd:'clear', ext_id: ext.extId}
             this.$api.controlCmd(param)
         }

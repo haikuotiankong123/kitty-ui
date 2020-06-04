@@ -87,9 +87,15 @@ export default {
           } else {
             Cookies.set('token', res.data.token) // 放置token到Cookie
             sessionStorage.setItem('user', userInfo.account) // 保存用户到本地会话
-            localStorage.setItem("acountInfo",'暂时无信息') // 账号信息保存到本地
+            //localStorage.setItem("acountInfo",'暂时无信息') // 账号信息保存到本地
             this.$store.commit('menuRouteLoaded', false) // 要求重新加载导航菜单
             this.$router.push('/workbench/customer')  // 登录成功，跳转到主页
+            // 获取账号信息
+            this.$api.user.findByName({name:this.loginForm.account}).then(res => {
+              let data = res.data
+              this.$store.commit("setAcountInfo", data)
+              console.log("账号信息----》", this.$store.state.acountInfo)
+            })
           }
           this.loading = false
         }).catch((res) => {

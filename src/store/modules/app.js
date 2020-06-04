@@ -9,7 +9,7 @@ export default {
 
         callStatus: false,  // 是否在通话中
         customerDetail: {},    // 当前客户对象
-        acountInfo:{},       // 当前账号信息
+        
         uuid: null,
         routeInfo: {},       // 当前路由信息
         isCallout: false,       // 是否是外呼页面
@@ -37,9 +37,6 @@ export default {
         setCallStatus(state, bCall){
             // bCall是Boolean值
             state.callStatus = bCall;
-        },
-        setAcountInfo(state, obj){
-            state.acountInfo = obj
         },
         setUuid(state, uuid){
             state.uuid = uuid

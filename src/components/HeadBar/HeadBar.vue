@@ -328,8 +328,8 @@ export default {
             queryAllExt: state => state.queryAllExt,
             queryGroup: state=>state.queryGroup,
             queryMenu: state=>state.queryMenu,
-            
-            acountInfo: state=>state.app.acountInfo,
+            acountInof: state=>state.acountInof,
+
             uuid: state=>state.app.uuid,
             routeInfo: state => state.app.routeInfo,
             isCallout: state => state.app.isCallout,
@@ -370,7 +370,7 @@ export default {
         },
         cmdFunc(obj){
             let param = {
-                ext_id: this.queryExt.extId,
+                ext_id: this.acountInof.extId,
                 ...obj
             }
             this.$api.controlCmd(param).then(resp => {
@@ -434,7 +434,7 @@ export default {
         },
         // 挂断
         onHangup(){
-            let ext_id = this.queryExt.extId
+            let ext_id = this.acountInfo.extId
             this.showIndex(4)
             this.transParam = {trans: 'clear'}
             this.onTransferFunc(ext_id)
@@ -518,9 +518,9 @@ export default {
         },
         
         assignExtFunc(){
-            let param =  {extId: this.queryExt.extId, lineid: this.queryExt.lineid}
+            let param =  {extId: this.acountInfo.extId, lineid: this.queryExt.lineid}
             let val = this.queryExt.noDisturb
-            let ext_id = this.queryExt.extId
+            let ext_id = this.acountInfo.extId
             param.noDisturb = val == 'yes' ? 'no' : 'yes';
             
             this.$api.assignExt(param).then((resp)=>{
@@ -577,7 +577,7 @@ export default {
         // 直接拨打
         directCall(){
             
-            let ext_id = this.queryExt.extId
+            let ext_id = this.acountInfo.extId
             let num = this.searchPhone
             let prop = {}
             /* /^1[3456789]\d{9}$/.test(num) */

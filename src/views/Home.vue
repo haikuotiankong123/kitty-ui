@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import {acountInfo} from '@/mock/modules/acountInfo'
 import {mapState, mapActions} from 'vuex'
 import util from '@/utils/util'
 import HeadBar from "@/components/HeadBar/HeadBar"
@@ -29,7 +28,7 @@ export default {
     },
     computed: {
         ...mapState({
-            acountInfo: state => state.app.acountInfo,
+            acountInfo: state => state.acountInfo,
             extState: state => state.extState,
             callState: state => state.callState
         })
@@ -45,9 +44,7 @@ export default {
         //console.log('开始路由---->', this.$route)
         this.$store.commit('setRouteInfo', this.$route)
         
-        // 无
-        let acount = acountInfo().data
-        this.$store.commit("setAcountInfo", acount)
+        
         
         let websocketUrl = this.global.websocketUrl;
         let token = Cookies.get("token")
@@ -149,30 +146,14 @@ export default {
                 util.error(err.message)
             }
 
-            /* this.acountInfo.extId */
-            // 获取分机id
-            let params = {
-                columnFilters:{},
-                pageNum:1,
-                pageSize:10
-            }
-            await this.$api.user.findPage(params).then((res) => {
-                    let content = res.data && res.data.content;
-                    if(content){
-                        content = content.find(i => i.name == "admin")
-                        this.$store.state.extId = content.extId
-                    }
-                }).catch(h)
-
             // 当前分机
-            let param = {ext_id: this.$store.state.extId}
+            let param = {ext_id: this.acountInfo.extId}
             await this.$api.queryExt(param).then((resp) => {
                         if(resp.success){
                             this.$store.commit('setQueryExt', resp.data)
                         } 
                     }).catch(h);
 
-            
             // 所有分机
             await this.queryAllExtClick().catch(h)
 

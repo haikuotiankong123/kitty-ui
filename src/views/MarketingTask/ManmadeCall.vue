@@ -20,13 +20,6 @@
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
-            <template v-slot:project="{row}">
-                <span>{{row.project.name}}</span>
-            </template>
-            <template v-slot:time="{row}">
-                {{/00:00:00$/.test(row.beginDate) ? row.beginDate.slice(0, 10) : row.beginDate}} 到
-                {{/00:00:00$/.test(row.endDate) ? row.endDate.slice(0, 10) : row.endDate}} 
-            </template>
             <template v-slot:status="{row}">
                 <el-tag size="mini" :type="row.status | filterStatus('type')">
                     {{row.status | filterStatus }}
@@ -44,7 +37,7 @@
                     type="text"
                     @click="customerFunc(row.id)">客户管理</el-button>
                 <el-button 
-                    v-if="row.project.type == 1"
+                    v-if="row.project && row.project.type == 1"
                     :size="size" 
                     type="text"
                     @click="assignFunc(row.id)">分配</el-button>
@@ -257,7 +250,7 @@ export default {
             }
             this.dataForm.type = 1  // type：1 为人工外呼
 			this.findPage(this.pageRequest).then((res) => {
-
+                console.log("获取分页数据---->", res.data)
 			}).then(data!=null?data.callback:'')
         },
         // 显示新增界面

@@ -27,7 +27,7 @@
                 </div><br/>
                 <p class="name">{{acountInfo.name}}</p><br/>
                 <!-- <p @click="dialogFormVisible=true" style="cursor:pointer;"><i class="el-icon-setting"></i> </p><br/> -->
-                <p class="internal">坐席号:{{queryExt.extId}}</p>&ensp;
+                <p class="internal">坐席号:{{acountInfo.extId}}</p>&ensp;
                 <p class="internal">状态:
                     <template v-if="extState.type">{{extState.name}}</template>
                     <template v-else>
@@ -141,7 +141,7 @@ export default {
             navTree: state=>state.menu.navTree,
             isCallout: state=>state.app.isCallout,
             routeInfo: state => state.app.routeInfo,
-            acountInfo: state => state.app.acountInfo,
+            acountInfo: state => state.acountInfo,
 
             assignExt: state => state.assignExt,
             queryExt: state => state.queryExt,

@@ -44,14 +44,26 @@ export const findPermissions = (params) => {
         params
     })
 }
+// 查找用户的菜单权限标识集合
+export const findByName = (params) => {
+    if(!params.name){
+        window.vm.$message('缺少用户名')
+        return;
+    }
+    return axios({
+        url: '/'+modulePath+'/findByName?name='+params.name,
+        method: 'get'
+    })
+}
+
 
 
 
 // 临时分页查询
-export const findPage1 = (data) => {
+/* export const findPage1 = (data) => {
     return axios({
         url: '/omBlacklist/findPage',
         method: 'post',
         data
     })
-}
+} */

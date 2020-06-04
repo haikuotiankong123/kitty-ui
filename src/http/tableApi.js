@@ -174,6 +174,10 @@ api.messageTemplate = getApiName('messageTemplate')
  */
 api.taskCustomer = getApiName('taskCustomer')
 
+/**
+ * 质检模板
+ */
+api.configQc = getApiName('configQc')
 
 
 export default api
