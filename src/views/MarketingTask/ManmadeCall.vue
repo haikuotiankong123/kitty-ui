@@ -37,7 +37,7 @@
                     type="text"
                     @click="customerFunc(row.id)">客户管理</el-button>
                 <el-button 
-                    v-if="row.project && row.project.type == 1"
+                    v-if="row.type == 1"
                     :size="size" 
                     type="text"
                     @click="assignFunc(row.id)">分配</el-button>
@@ -294,10 +294,12 @@ export default {
 			})
         },
         
-        customerFunc(){
-            this.$router.push("/marketingTask/taskCustomer")
+        customerFunc(taskId){
+            this.$router.push({path:'/marketingTask/taskCustomer', query:{taskId}})
         },
-        assignFunc(){},
+        assignFunc(taskId){
+            this.$router.push({path: '/marketingTask/assignCustomer', query: {taskId}})
+        },
         historyFunc(){},
         editStatus(row, status) {
             api.editTask(Object.assign(row, {status}))

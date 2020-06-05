@@ -4,10 +4,10 @@
         <!-- <i class="icons icon-baobiao7"></i> -->
         <el-form :inline="true" :model="formInline" class="select-task" size="small">
             <el-form-item label="请选择任务">
-                <el-select v-model="taskName" value-key="name" placeholder="请选择任务" @change="changeTask($event)" style="width:380px;">
+                <el-select v-model="taskName" value-key="id" placeholder="请选择任务" @change="changeTask($event)" style="width:380px;">
                     <el-option
                     v-for="item in listTasks"
-                    :key="item.name"
+                    :key="item.id"
                     :label="item.name"
                     :value="item">
                     </el-option>
@@ -217,7 +217,6 @@
 <script>
 import {mapState, mapGetters} from "vuex"
 import KtTable from "@/views/Core/KtTable"
-import {listTask,listTaskCustomer} from "@/mock/modules/task.js"
 import {listQuestion} from "@/mock/modules/listQuestion.js"
 import util from "@/utils/util.js"
 export default {
@@ -259,14 +258,18 @@ export default {
         KtTable
     },
     computed:{
-        /* ...mapState({
-            customerDetail: state=>state.app.customerDetail
-        }) */
+        ...mapState({
+            //customerDetail: state=>state.app.customerDetail
+            acountInfo: state => state.acountInfo,
+        })
     },
     watch:{
         'customerDetail.resultText': function (to, from) {
             this.selectResFunc(to)
         },
+        acountInfo(){
+            this.taskFunc()
+        }
     },
     mounted(){
         
@@ -324,7 +327,7 @@ export default {
         handleClick(){},
         onSwitchTab(item){
             this.currentCusType = item;
-            this.listTaskCustomerFunc()
+            //this.listTaskCustomerFunc()
         },
         changeTask(item){
             this.currentTask = item
@@ -427,23 +430,7 @@ export default {
             }
             this.$api.taskCustomer.findPage(param).then(res => {
                 this.listTaskCustomer = res.data.content
-                console.log("任务客户----》", res.data)
             })
-
-            //if(!taskId) return '无任务id'
-            /* let type = this.currentCusType.type
-            let isFinished = (type==1 || type==2) ? type : undefined;
-            let hasNextDatetime = type ===3 ? 1 : undefined;
-            let params = {
-                page: 1,
-                size: 15,
-                taskId,
-                isFinished,
-                hasNextDatetime,
-                ...this.formSearch
-            }
-            let resp = listTaskCustomer(params);
-            this.listTaskCustomer = resp.data.length ? resp.data : []; */
         },
         loadData(){
             
@@ -452,26 +439,25 @@ export default {
                     this.listMessageGroup = res.data
                 }
             })
-            this.taskFunc();
-
+            this.taskFunc()
             setTimeout(()=>{
-                this.listTaskCustomerFunc()
                 this.listQuestion = listQuestion().data
                 console.log("问卷调查----->", this.listQuestion)
             }, 3000*Math.random())
-            
         },
         taskFunc(){
-            this.$api.task.findAll().then(res => {
-                this.listTasks = res.data
-                if(res.data[0] ){
+            let memberId = this.acountInfo.id;
+            if(!memberId) return "无账号id"
+            this.$api.task.getTaskByMemberId({memberId}).then(res => {
+                this.listTasks = res.data    
+                if(res.data[0]){
                     this.currentTask = res.data[0]
-                    this.taskName = this.currentTask.name
+                    this.taskName = this.currentTask.name;
+                    this.listTaskCustomerFunc()
                 }
             })
         }
     }
-  
 }
 </script>
 

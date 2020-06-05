@@ -7,10 +7,16 @@
                 </el-form-item>
 				<el-form-item label="所属任务">
 					<OmSelect v-model="dataForm.taskId" :data="taskList"></OmSelect>
+					<!-- <el-select v-model="dataForm.taskId" value-key="id" @change="changeTask">
+						<el-option v-for="i in taskList"
+							:key="i.id"
+							:label="i.name"
+							:value="i"></el-option>
+					</el-select> -->
                 </el-form-item>
 
 				<el-form-item label="是否已分配话务员">
-                    <OmSelect v-model="dataForm.queryHasMember"
+                    <OmSelect v-model="dataForm.memberId"
                                :data="[{name:'未分配',id:'0',value:'0'},{name:'已分配',id:'1',value:'1'}]"></OmSelect>
                 </el-form-item>
 
@@ -169,12 +175,20 @@ export default {
 			uploadUrl,
 			file:'',
 			taskList: [],
-			ownAssign: false
+			ownAssign: false,
+			currentTask: {}
         }
-    },
+	},
+	created(){
+		let taskId = this.$route.query.taskId
+		if(taskId){
+			this.dataForm.taskId = taskId;
+			this.dataForm.memberId = null;
+		}
+	},
     mounted(){
+		
 		this.loadData()
-
 		this.$api.task.findAll().then(resp => {
 			this.taskList = resp.data;
 		})
@@ -246,7 +260,6 @@ export default {
 			if(!this.dataForm.taskId){
 				util.message("请选择所属任务！")
 			}
-			
 			this.importVisible = true;
 		},
 
@@ -294,8 +307,8 @@ export default {
             }
 
             //this.$store.state.omBlacklist.dataForm.createTimeStart = util.dateFormat(this.timeRange[0], "yyyy-MM-dd HH:mm:ss")
-            //this.$store.state.omBlacklist.dataForm.createTimeEnd = util.dateFormat(this.timeRange[1], "yyyy-MM-dd HH:mm:ss")
-
+			//this.$store.state.omBlacklist.dataForm.createTimeEnd = util.dateFormat(this.timeRange[1], "yyyy-MM-dd HH:mm:ss")
+			
 			this.findPage(this.pageRequest).then((res) => {
 
 			}).then(data!=null?data.callback:'')
@@ -320,7 +333,7 @@ export default {
 			let row = params.row;
 			let configValueList = row.configValueList;
 			this.$set(row, 'jsonValueMap', {})
-			configValueList.forEach(i=>{
+			configValueList && configValueList.forEach(i=>{
 				this.$set(row.jsonValueMap, i.configId+'', i.jsonValue)
 			})
 			this.editDataForm = Object.assign({}, row)
@@ -337,8 +350,45 @@ export default {
 				this.importVisible = false;
 				util.success("导入客户成功");
 				this.findPageFunc(null)
+
+				
+				this.autoAssignFunc()
 			})
-			
+		},
+		/* 自动分配 */
+		async autoAssignFunc(){
+			let taskId = this.dataForm.taskId
+			if(!taskId) return;
+			let task = this.taskList.find(i=>i.id ==taskId)
+			if(task.type == 2){
+				
+				let tc = await this.findPage({
+					pageSize: 999,
+					pageNum: 1,
+					columnsFilterMap:{
+						memberId: '0',
+						taskId: task.id
+					}
+				}).catch(e =>{})
+				let customerIds = null;
+				let memberIds = null;
+				let customers = tc.data && tc.data.content;
+				if(customers.length==0) return '无客户';
+				customers && (customerIds = customers.map(i=>i.id))
+				task.memberArray && (memberIds = JSON.parse(task.memberArray))
+
+				let param = {
+					memberIds,
+					customerIds,
+					taskId: task.id
+				} 
+				this.$api.taskCustomer.assignCustomers(param).then(res => {
+					if(res.code == 200){
+						util.success(res.msg);
+						this.findPageFunc(null)
+					}
+				})
+			}
 		},
         // 编辑
 		submitForm: function () {
@@ -349,6 +399,7 @@ export default {
 						this.editLoading = true
 
 						let form = Object.assign({}, this.editDataForm)
+						console.log('参数----》', form)
 						let valList = form.configValueList
 						let len = valList.length;
 						let id = form.id
@@ -372,6 +423,10 @@ export default {
 								this.$message({ message: '操作成功', type: 'success' })
 								this.dialogVisible = false
 								this.$refs['editDataForm'].resetFields()
+
+								// 自动分配
+								this.autoAssignFunc()
+
 							} else {
 								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
 							}
@@ -382,7 +437,6 @@ export default {
 			})
 		},
 		exportFunc(){
-			
 			let param = { pageNum: 1, pageSize: 99999 }
 			util.message("如果导出数据过多，时间可能比较长，请勿重复点击")
 			//this.loading = true
@@ -413,6 +467,9 @@ export default {
 				XLSX.utils.book_append_sheet(wb, ws, "");
 				XLSX.writeFile(wb, "客户数据.xls");
 			})
+		},
+		changeTask(item){
+			this.currentTask = item
 		}
     }
 }

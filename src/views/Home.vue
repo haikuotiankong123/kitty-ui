@@ -137,6 +137,7 @@ export default {
         ...mapActions(['queryAllExtClick', 'queryGroupClick', 'queryAllTrunkClick', 'queryOuterClick','queryVisitorClick', 'queryVoicefileClick','queryMenuClick']),
 
         loadData(){
+            this.acountInfoFunc()
             this.queueRequest()
         },  
         
@@ -175,14 +176,19 @@ export default {
             // 语音文件
             await this.queryVoicefileClick().catch(h);
 
-
-
             this.$store.dispatch('omGroup/findAll')
             this.$store.dispatch('omExt/findAll')
             this.$store.dispatch('omMenu/findAll')
             this.$store.dispatch('omLine/findAll')
-            
-            
+        },
+        // 获取账号信息
+        acountInfoFunc(){
+            let account = sessionStorage.getItem('user')
+            this.$api.user.findByName({name: account}).then(res => {
+              let data = res.data
+              this.$store.commit("setAcountInfo", data)
+              console.log("账号信息----》", this.$store.state.acountInfo)
+            })
         }
     }
 };

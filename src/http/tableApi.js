@@ -44,11 +44,22 @@ function getApiName(apiName){
             method: 'post',
             data
         })
+        obj.assignCustomers = data => axios({
+            url: '/'+apiName+ '/assignCustomers',
+            method: 'post',
+            data
+        })
     }
     if(apiName == 'usrCustomer'){
         obj.importCustomer = data => axios({
             url: '/'+apiName+'/importCustomer?file='+ data.file,
             method: 'post'
+        })
+    }
+    if(apiName == 'task'){
+        obj.getTaskByMemberId = data => axios({
+            url: '/'+apiName+'/getTaskByMemberId/'+ data.memberId,
+            method: 'get'
         })
     }
 

@@ -124,13 +124,19 @@
                     />
                 </el-form-item>
 
-                <el-form-item label="选择分机">
-                    <el-select v-model="extAll" style="width:100%">
+                <el-form-item label="选择账号">
+                    <el-select multiple v-model="editDataForm.memberArray">
+                        <el-option v-for="i in acountList"
+                            :key="i.id"
+                            :label="i.name"
+                            :value="i.id"></el-option>
+                    </el-select>
+                    <!-- <el-select v-model="extAll" style="width:100%">
                         <el-option v-for="i in queryAllExt" 
                             :key="i.extId"
                             :label="i.extId"
                             :value="i.extId"></el-option>
-                    </el-select>
+                    </el-select> -->
                 </el-form-item>
 
                 <el-form-item label="备注">
@@ -193,7 +199,8 @@ export default {
                 status: "0"
             },
             amTitle: '',
-            extAll: ''
+            extAll: '',
+            acountList: []
         }
     },
     filters:{
@@ -209,6 +216,10 @@ export default {
     mounted(){
         this.initColumns();
         this.projectAll();
+
+        this.$api.user.findAll().then(res => {
+			this.acountList = res.data;
+		})
     },
     computed:{
         ...mapState('task', {
@@ -275,7 +286,9 @@ export default {
         // 显示编辑界面
 		handleEdit: function (params) {
 			this.dialogVisible = true
-			this.operation = false
+            this.operation = false
+            let member = params.row.memberArray
+            member && (params.row.memberArray = JSON.parse(member))
 			this.editDataForm = Object.assign({}, params.row)
         },
         // 编辑
@@ -286,6 +299,7 @@ export default {
 						this.editLoading = true
 						let params = Object.assign({}, this.editDataForm)
                         params.type = 2 // 2为自动外呼
+                        params.memberArray = JSON.stringify(params.memberArray)
 						this.save(params).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {
@@ -302,8 +316,8 @@ export default {
 			})
         },
         
-        customerFunc(){
-            this.$router.push("/marketingTask/taskCustomer")
+        customerFunc(taskId){
+            this.$router.push({path:'/marketingTask/taskCustomer', query:{taskId}})
         },
         assignFunc(){},
         historyFunc(){},

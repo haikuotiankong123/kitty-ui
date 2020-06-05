@@ -167,13 +167,6 @@ export default {
             this.dataResp = pageMsg()
             data.callback()
 
-			/* if(data !== null) {
-				this.pageRequest = data.pageRequest
-            }
-
-			this.findPage(this.pageRequest).then((res) => {
-
-			}).then(data!=null?data.callback:'') */
         },
         // 显示新增界面
 		handleAdd: function () {

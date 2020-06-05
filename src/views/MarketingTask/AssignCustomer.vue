@@ -30,12 +30,47 @@
             :columns="filterColumns"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
-            @handleEdit="handleEdit">
+            @handleEdit="handleEdit"
+			@selectionChange="handleSelection">
 			<template v-for="(i, index) in configList" v-slot:[i.prop]="{row}">
 				{{row.configValueList[index] && row.configValueList[index].jsonValue}}
 			</template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
+
+		<el-form style="margin-top: 10px;padding-bottom: 10px;" class="query-container" size="mini" :inline="true">
+			<el-form-item label="选择分配账号">
+				<el-select v-model="assignForm.memberIds" multiple @change="memberChange()">					
+					<el-option v-for="i in acountList" 
+						:key="i.id"
+						:label="i.name"
+						:value="i.id"></el-option>
+				</el-select>
+			</el-form-item>
+			<el-form-item label="分配数量">
+				<el-input v-model="assignForm.assignNumber" :placeholder="assignForm.memberIds.length>0?'已选择'+assignForm.memberIds.length+'个客户':'共'+ dataResp.total+'个客户'"/>
+			</el-form-item>
+			<el-form-item>
+				<el-button type="primary" @click="assignFunc">立即分配</el-button>
+			</el-form-item>
+
+			<!-- <el-form-item label="选择坐席">
+				<el-input v-model="amTitle" readonly style="width: 500px"></el-input>
+			</el-form-item>
+			<el-form-item label="">
+				<a class="button" size="mini" @click="show=true">选择坐席</a>
+			</el-form-item>
+			<el-form-item label="分配数量">
+				<el-input v-model="$store.state.editCustomerMemberForm.amount"
+							:placeholder="multipleSelection.length>0?'已选择'+multipleSelection.length+'个客户':'共'+$store.state.pageTaskCustomer.total+'个客户'"/>
+
+			</el-form-item>
+			<el-form-item label="">
+				<a class="button" STYLE="background-color: #3a8ee6" size="mini"
+					@click="editCustomerMenberFunc">立即分配</a>
+			</el-form-item> -->
+
+		</el-form>
 
 		<!--新增编辑界面-->
 		<el-dialog class="column-three" :title="operation?'新增':'编辑'" :visible.sync="dialogVisible" :close-on-click-modal="false">
@@ -168,22 +203,38 @@ export default {
 			uploadUrl,
 			file:'',
 			taskList: [],
-			ownAssign: false
+			ownAssign: false,
+
+			
+			acountList: [],
+			assignForm: {
+				memberIds: [],
+				customerIds: [],
+				assignNumber: 0
+			}
         }
-    },
+	},
+	created(){
+		this.dataForm.taskId = this.$route.query.taskId
+		//this.dataForm.queryHasMember = '0';
+	},
     mounted(){
 		this.loadData()
-
 		this.$api.task.findAll().then(resp => {
 			this.taskList = resp.data;
 		})
-
+		this.$api.user.findAll().then(res => {
+			this.acountList = res.data;
+		})
     },
     computed:{
         ...mapState('taskCustomer', {
             dataResp: state => state.dataResp,
             dataForm: state => state.dataForm
-        })
+		}),
+		...mapState({
+			queryAllExt: state => state.queryAllExt,
+		})
     },
     methods:{
 		...mapActions('taskCustomer', ['findPage', 'findAll', 'save', 'delete', 'importCustomer']),
@@ -245,7 +296,6 @@ export default {
 			if(!this.dataForm.taskId){
 				util.message("请选择所属任务！")
 			}
-			
 			this.importVisible = true;
 		},
 
@@ -374,6 +424,28 @@ export default {
 							this.findPageFunc(null)
 						})
 					})
+				}
+			})
+		},
+		memberChange(){
+			console.log('---->', this.assignForm.memberIds)
+		},
+		handleSelection(val){
+			let arr = val.selections;
+			arr = arr.map(i=>i.id)
+			this.assignForm.customerIds = arr;
+			console.log("表格多选----》", arr)
+		},
+		assignFunc(){
+			if(!this.dataForm.taskId) {
+				util.message("请选择所属任务")
+				return;
+			}
+			this.assignForm.taskId = this.dataForm.taskId 
+			this.$api.taskCustomer.assignCustomers(this.assignForm).then(res => {
+				if(res.code == 200){
+					util.success("操作成功!");
+					this.findPageFunc(null)
 				}
 			})
 		}
