@@ -8,7 +8,7 @@
                     <el-option
                     v-for="item in listTasks"
                     :key="item.id"
-                    :label="item.name"
+                    :label="item.name"  
                     :value="item">
                     </el-option>
                 </el-select>
@@ -423,8 +423,9 @@ export default {
         },
         listTaskCustomerFunc(){
             let taskId = this.currentTask.id;
+            let memberId = this.acountInfo.id;
             let param = {
-                columnFilterMap: {taskId:taskId},
+                columnFilterMap: {taskId, memberId},
                 pageNum: 1,
                 pageSize: 15,
             }

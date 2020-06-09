@@ -16,7 +16,7 @@
                 </el-form-item>
 
 				<el-form-item label="是否已分配话务员">
-                    <OmSelect v-model="dataForm.memberId"
+                    <OmSelect v-model="dataForm.isAssign"
                                :data="[{name:'未分配',id:'0',value:'0'},{name:'已分配',id:'1',value:'1'}]"></OmSelect>
                 </el-form-item>
 
@@ -30,7 +30,7 @@
         </div>
 		<div class="button-container">
             <el-button size="mini" type="success" @click="importFunc">导入客户</el-button>
-            <el-button size="mini" type="danger">分配</el-button>
+            <!-- <el-button size="mini" type="danger">分配</el-button> -->
 			<el-button size="mini" type="primary" @click="exportFunc">导出客户</el-button>
         </div>
         <om-table :data="dataResp"
@@ -39,7 +39,11 @@
             @handleDelete="handleDelete"
             @handleEdit="handleEdit">
 			<template v-for="(i, index) in configList" v-slot:[i.prop]="{row}">
-				{{row.configValueList[index] && row.configValueList[index].jsonValue}}
+				{{row.configValueList | filterConf(i.id)}}
+			</template>
+			<template v-slot:result="{row}">
+				<el-tag size="mini" v-if="row.result==1">未开始</el-tag>
+                <el-tag size="mini" v-if="row.result==2" type="warning">已完成</el-tag>
 			</template>
             <!-- <template v-slot:handle="{scope}"></template> -->
         </om-table>
@@ -186,6 +190,16 @@ export default {
 			this.dataForm.memberId = null;
 		}
 	},
+	filters:{
+		filterConf(confList, confId){
+			let val = ''
+			if(confList){
+				val = confList.find(i => i.configId==confId)
+				val = val ? val.jsonValue : '';
+			} 
+			return val;
+		}
+	},
     mounted(){
 		
 		this.loadData()
@@ -273,6 +287,7 @@ export default {
 					prop: 'config'+index,
 					label: i.label,
 					//isSlot: i.isRequired,
+					isSlot: true,
 					minWidth:100,
 				})
 				return i;
@@ -284,9 +299,9 @@ export default {
 				...customerConfig,
 				{prop:"createTime", label:"创建时间", minWidth:100},
 				{prop:"createId", label:"创建人", minWidth:100},
-				{prop:"memberName", label:"话务员名称", minWidth:100},
+				{prop:"nickName", label:"话务员名称", minWidth:100},
 				// 0未发布 1进行中 2完成 3失败  9取消
-				{prop:"result", label:"完成状态", minWidth:100},
+				{prop:"result", label:"完成状态", minWidth:100, isSlot: true},
 				{prop:"lastTime", label:"最后一次拨打时间", minWidth:100},
 
             ]
@@ -366,7 +381,7 @@ export default {
 					pageSize: 999,
 					pageNum: 1,
 					columnsFilterMap:{
-						memberId: '0',
+						isAssign: '0',
 						taskId: task.id
 					}
 				}).catch(e =>{})
@@ -444,15 +459,12 @@ export default {
 				let data = res.data.content;
 				let o = data.map(i =>{
 					let conf = {}
-					if(toString.call(i.configValueList) == '[object Array]' ){
 
-						i.configValueList.forEach(val => {
-							if (val.configCustomer.status !== 0) {
-								conf[val.configCustomer.label] = val.jsonValue
-							}
-						})
-					}
-					
+					this.configList.forEach(j=>{
+						let confVal = i.configValueList.find(k => j.id == k.configId)
+						conf[j.label] = confVal ? confVal.jsonValue : '';
+					})
+
 					return Object.assign({
 						姓名: i.name,
 						电话: i.phone,

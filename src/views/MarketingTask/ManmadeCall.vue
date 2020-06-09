@@ -49,17 +49,17 @@
                     v-if="row.status==1 || row.status==4"
                     :size="size" 
                     type="text"
-                    @click="editStatus(row.id, 2)">结束</el-button>
+                    @click="editStatus(row, 2)">结束</el-button>
                 <el-button 
                     v-if="row.status==2 || row.status==4"
                     :size="size" 
                     type="text"
-                    @click="editStatus(row.id, 1)">开始</el-button>
+                    @click="editStatus(row, 1)">开始</el-button>
                 <el-button 
                     v-if="row.status==1"
                     :size="size" 
                     type="text"
-                    @click="editStatus(row.id, 4)">暂停</el-button>
+                    @click="editStatus(row, 4)">暂停</el-button>
             </template>
         </om-table>
 
@@ -301,9 +301,13 @@ export default {
             this.$router.push({path: '/marketingTask/assignCustomer', query: {taskId}})
         },
         historyFunc(){},
-        editStatus(row, status) {
-            api.editTask(Object.assign(row, {status}))
-                .then(this.pageTaskClick).catch(util.error)
+        async editStatus(row, status) {
+            let obj = Object.assign({}, row)
+            obj.status = status
+            await this.save(obj).then(()=>{
+                util.success("修改成功")
+            }).catch(()=>{})
+            this.findPageFunc(null)
         },
 
         removeAnswerFunc(answer, index, answerList) {

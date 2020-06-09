@@ -3,7 +3,7 @@ import axios from './axios'
 
 let api = {}
 
-function getApiName(apiName){
+function getApiName(apiName, option){
     let obj = {}
     obj.save = data => axios({
         url: '/'+apiName+'/save',
@@ -62,6 +62,15 @@ function getApiName(apiName){
             method: 'get'
         })
     }
+    if(apiName == 'taskQuestion'){
+        obj.findQuestionAnswer = data => axios({
+            url: '/'+apiName+'/findQuestionAnswer/'+ data.groupId,
+            method: 'get'
+        })
+    }
+    if(typeof option == 'object'){
+        obj = Object.assign(obj, option)
+    } 
 
     return obj;
 }
@@ -167,7 +176,24 @@ api.taskProject = getApiName('taskProject')
 /**
  * 问卷管理
  */
-api.taskQuestionGroup = getApiName('taskQuestionGroup')
+api.taskQuestionGroup = getApiName('taskQuestionGroup',{
+    saveQuestionGroup: data => axios({
+        url: '/taskQuestionGroup/saveQuestionGroup',
+        method: 'post',
+        data
+    }),
+})
+
+/**
+ * 问题
+ */
+api.taskQuestion =  getApiName('taskQuestion')
+
+/**
+ * 答案
+ */
+api.taskQuestionAnswer =  getApiName('taskQuestionAnswer')
+
 
 /**
  * 任务管理

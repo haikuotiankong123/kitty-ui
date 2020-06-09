@@ -10,14 +10,21 @@ util.notify = (title, message) => {
 }
 
 util.confirm = (title, func, callback) => {
-	window.vm.$alert(title, {
+	window.vm.$confirm(title, '提示', {
+		confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+	})
+	.then(func)
+	.catch(()=>{})
+	/* window.vm.$alert(title, {
 		confirmButtonText: '确定',
 		callback: function (action) {
 			if (action === 'confirm') {
 				(typeof callback === 'function') ? func().then(callback) : func()
 			}
 		}
-	});
+	}); */
 };
 
 

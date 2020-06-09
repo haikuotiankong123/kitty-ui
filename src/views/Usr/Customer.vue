@@ -14,7 +14,7 @@
 					<el-button type="primary" @click="importFunc">导入客户</el-button>
 					<el-button type="primary" @click="exportFunc">导出客户</el-button>
 					<el-button type="primary" @click="importVioceFunc">导入语音</el-button>
-					<audio controls style size="mini" src="http://119.23.106.216:7777/u/file/2020/0430/031846127918.mp3">66</audio>
+					<!-- <audio controls style size="mini" src="http://119.23.106.216:7777/u/file/2020/0430/031846127918.mp3">66</audio> -->
                 </el-form-item>
             </el-form>
         </div>
@@ -242,7 +242,8 @@ export default {
 				customerConfig.push({
 					prop: 'config'+index,
 					label: i.label,
-					isSlot: i.isRequired,
+					//isSlot: i.isRequired,
+					isSlot: true,
 					minWidth:100,
 				})
 				return i;

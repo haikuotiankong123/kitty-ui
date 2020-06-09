@@ -10,7 +10,7 @@
                 </el-form-item>
 
 				<el-form-item label="是否已分配话务员">
-                    <OmSelect v-model="dataForm.queryHasMember"
+                    <OmSelect v-model="dataForm.memberId"
                                :data="[{name:'未分配',id:'0',value:'0'},{name:'已分配',id:'1',value:'1'}]"></OmSelect>
                 </el-form-item>
 
@@ -216,7 +216,7 @@ export default {
 	},
 	created(){
 		this.dataForm.taskId = this.$route.query.taskId
-		//this.dataForm.queryHasMember = '0';
+		//this.dataForm.memberId = '0';
 	},
     mounted(){
 		this.loadData()

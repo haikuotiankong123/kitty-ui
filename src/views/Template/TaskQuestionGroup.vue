@@ -116,7 +116,7 @@
             </div>
 
             <div v-show="editDataForm.id > 0">
-                <a @click="addQuestFunc">+ 添加问题</a>
+                <a @click="addQuestFunc(editDataForm.id)">+ 添加问题</a>
             </div>
             
             
@@ -134,6 +134,8 @@ import {pageQuestionGroup} from "@/mock/modules/pageQuestionGroup"
 import OmTable from "@/components/omTable"
 import util from "@/utils/util"
 import {mapActions, mapState} from 'vuex'
+import Vue from 'vue'
+
 export default {
     components: {
         OmTable
@@ -170,7 +172,7 @@ export default {
             },
             
             // 新增编辑界面数据
-			editDataForm: {}
+            editDataForm: {}
         }
     },
     filters:{
@@ -238,10 +240,20 @@ export default {
 		handleEdit: function (params) {
 			this.dialogVisible = true
 			this.operation = false
-			this.editDataForm = Object.assign({}, params.row)
+            this.editDataForm = Object.assign({}, params.row)
+            let groupId = params.row.id;
+            
+            if(groupId) this.questionFunc(groupId)
+        },
+        async questionFunc(groupId){
+            let res = await this.$api.taskQuestion.findQuestionAnswer({groupId}).catch(()=>{});
+            Vue.set(this.editDataForm, 'questionList', res.data)
         },
         // 编辑
 		submitForm: function () {
+            console.log('>>>', this.$api.taskQuestionGroup.saveQuestionGroup(this.editDataForm))
+            
+            return;
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -267,6 +279,7 @@ export default {
 
 
         removeAnswerFunc(answer, index, answerList) {
+            //answerList.splice(index, 1)
             // 无
             return;
             api.removeAnswer(answer).then(() => {
@@ -274,8 +287,11 @@ export default {
             })
 
         },
-        addQuestFunc: function () {
-            let that = this
+        addQuestFunc: function (groupId) {
+            return;
+            if(!groupId) return '缺少groupid'
+
+            /* let that = this
             api.editQuestion({
                 'groupId': that.$store.state.editQuestionGroupForm.id
             }).then(function (resp) {
@@ -292,12 +308,9 @@ export default {
                 Vue.set(data, 'required', 0)
                 list.push(data)
                 that.$store.state.editQuestionForm = data
-
-            })
+            }) */
         },
         addAnswerFunc: function (l) {
-            console.log('addAnswerFunc', l)
-            // 无
             return;
             api.editAnswer({
                 questionId: l.id
@@ -313,12 +326,14 @@ export default {
             })
         },
         removeQuestionFunc: function (listQuestion, index) {
+            // util.confirm("确定删除？", ()=>{})
             let that = this
             api.removeQuestion({
                 'id': listQuestion.id
             }).then(function (resp) {
                 that.$store.state.editQuestionGroupForm.questionList.splice(index, 1);
             })
+            
         },
         removeQuestionGroupFunc: function (q) {
             var that = this;
@@ -331,6 +346,7 @@ export default {
                 }).catch(util.error)
             }
         },
+
         editQuestionGroupFunc: function (questionGroup, questionList) {
             let that = this;
             //提交问题
