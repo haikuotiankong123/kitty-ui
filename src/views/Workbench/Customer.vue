@@ -59,10 +59,10 @@
                     prop="phone"
                     label="电话">
                     <template slot-scope="scope">
-                        <span @click="editCommandCallFunc(scope.row)" class="icon">
+                        <span @click="directCall(scope.row)" class="icon">
                         <i class="el-icon-phone"></i>
                         </span>
-                        {{scope.row.phone}}
+                        <span @click="changeCustomerFunc(scope.row)">{{scope.row.phone}}</span>
                     </template>
                     </el-table-column>
                     <el-table-column
@@ -167,26 +167,34 @@
                 </el-tab-pane>
 
                 <el-tab-pane label="话务小结" name="three">
-                    <el-form size="small" status-icon label-width="100px" style="padding-right: 20px;margin-bottom: 10px" v-if="listMessageGroup.length>0">
+                    <el-form size="small" status-icon label-width="100px" style="padding-right: 20px;margin-bottom: 10px">
                         <!--v-if="msgTemplate.flag===1"-->
                         <el-form-item label="模板">
                             <el-radio-group v-model="customerDetail.resultText" size="mini">
                                 <el-radio :key="msgTemplate.id"
-                                            v-for="msgTemplate in listMessageGroup[0].msgTemplate"
+                                            v-for="msgTemplate in messageGroup.msgTemplate"
                                             :label="msgTemplate.resultText" border/>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="发送信息">
                             <el-input type="textarea" 
                                 :row="1" 
-                                v-model="customerDetail.resultMsg" 
-                                readonly></el-input>
+                                v-model="customerDetail.resultMsg"></el-input>
                         </el-form-item>
                         <el-form-item label="备注信息">
                             <el-input type="textarea" 
                                 :row="2" 
                                 v-model="customerDetail.resultRemark"
                                 placeholder="请输入备注信息"></el-input>
+                        </el-form-item>
+                        <el-form-item label="是否预约">
+                            <el-checkbox v-model="isNext"></el-checkbox>
+                            <el-date-picker
+                                v-if="isNext"
+                                v-model="customerDetail.nextDatetime"
+                                type="datetime"
+                                placeholder="选择日期时间">
+                            </el-date-picker>
                         </el-form-item>
                         <el-form-item label="">
                             <el-button type="primary" @click="submitMemo">提交</el-button>
@@ -196,16 +204,17 @@
 
                 <el-tab-pane label="问卷调查" name="second">
                     <div class="question" v-for="(item,index) in listQuestion" :key="index" style="margin: 0 20px">
-                            <p class="title">{{index+1}}. {{item.title}}</p>
-                            <el-radio-group v-model="item.answerId" v-show="item.questionType === 0" size="mini">
-                                <el-radio v-for="(answerItem) in item.answerList" :key="answerItem.id"
-                                          @click.native.prevent="handleQuestionChange(index,answerItem.id) "
-                                          :label="answerItem.id" border>
-                                    {{answerItem.text}}
-                                </el-radio>
-                            </el-radio-group>
-                            <el-input v-show="item.questionType===1" v-model="item.answerText" placeholder="请输入文本"/>
-                        </div>
+                        <p class="title">{{index+1}}. {{item.title}}</p>
+                        <el-radio-group v-model="item.answerId" v-show="item.questionType === 0" size="mini">
+                            <el-radio v-for="(answerItem) in item.answerList" :key="answerItem.id"
+                                        @click.native.prevent="handleQuestionChange(index,answerItem.id) "
+                                        :label="answerItem.id" border>
+                                {{answerItem.text}}
+                            </el-radio>
+                        </el-radio-group>
+                        <el-input size="mini" v-show="item.questionType===1" v-model="item.answerText" placeholder="请输入文本"/>
+                    </div>
+                    <el-button v-if="listQuestion.length > 0" type="primary" style="margin:30px 0 0 20px;" @click="saveAnswerFunc" size="mini">保存</el-button>
                 </el-tab-pane>
             </el-tabs>
 
@@ -217,8 +226,8 @@
 <script>
 import {mapState, mapGetters} from "vuex"
 import KtTable from "@/views/Core/KtTable"
-import {listQuestion} from "@/mock/modules/listQuestion.js"
 import util from "@/utils/util.js"
+import Vue from 'vue'
 export default {
     data(){
         return {
@@ -251,7 +260,10 @@ export default {
             callTime: "0",
             rules:  {},
             jsonValueMap: {},
-            listMessageGroup:[]
+            messageGroup:{
+                msgTemplate: []
+            },
+            isNext: false
         }
     },
     components:{
@@ -259,7 +271,6 @@ export default {
     },
     computed:{
         ...mapState({
-            //customerDetail: state=>state.app.customerDetail
             acountInfo: state => state.acountInfo,
         })
     },
@@ -292,32 +303,27 @@ export default {
         },
 
         submitMemo(){
+            let cd = this.customerDetail;
+            if(!cd.id){
+                util.message('请选择客户！')
+                return;
+            }
             let data = {
-                'id': this.customerDetail.id,
-                'customerId': this.customerDetail.customerId,
-                'taskId': this.taskid,
-                'resultRemark': this.customerDetail.resultRemark,
-                resultText: this.customerDetail.resultText,
-                'projectName': this.projectName,
-                resultMsg: this.customerDetail.resultMsg,
-                //nextDatetime,
+                id: cd.id,
+                taskId: this.taskid,
+                resultRemark: cd.resultRemark,
+                resultText: cd.resultText,
+                projectName: this.projectName,
+                resultMsg: cd.resultMsg
             };
-            console.log("小结数据----》", data)
+            data.nextDatetime = this.isNext ? cd.nextDatetime : null,
             this.$api.taskCustomer.save(data)
         },
 
         selectResFunc: function (val) {
-            if (this.listMessageGroup.length > 0) {
-                var temp = this.listMessageGroup[0].msgTemplate;
-                if (temp.length > 0) {
-                    for (var i = 0; i < temp.length; i++) {
-                        if (temp[i].resultText === val) {
-                            this.customerDetail.resultMsg = temp[i].content;
-                            console.error("wwwww", this.customerDetail)
-                            break;
-                        }
-                    }
-                }
+            let item = this.messageGroup.msgTemplate.find(i=>i.resultText==val)
+            if(item){
+                this.customerDetail.resultMsg = item.content;
             }
         },
 
@@ -327,11 +333,13 @@ export default {
         handleClick(){},
         onSwitchTab(item){
             this.currentCusType = item;
-            //this.listTaskCustomerFunc()
         },
         changeTask(item){
             this.currentTask = item
-            this.listTaskCustomerFunc()
+            console.log('当前任务----》', this.currentTask)
+            this.taskCustomerFunc()
+            this.questionFunc()
+            this.messageFunc()
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
@@ -356,7 +364,7 @@ export default {
                         this.$api.taskCustomer.save(form).then((res)=>{
                             if(res.code == 200){
                                 util.success('操作成功')
-                                this.$refs[formName].resetFields()
+                                //this.$refs[formName].resetFields()
                                 this.isEditable = true
                             }else{
                                 util.error("操作失败")
@@ -369,9 +377,10 @@ export default {
         
         editCommandCallFunc(row){
             this.customerDetail = Object.assign({}, row)
-            console.log("8888row------>", this.customerDetail)
         },
-
+        changeCustomerFunc(row){
+            this.customerDetail = Object.assign({}, row)
+        },
         countTime() {
             this.callTime = "00:00:00"
             let hour, minute, second;//时 分 秒
@@ -398,30 +407,9 @@ export default {
         },
 
         onSubmit() {
-        console.log('submit!');
+            console.log('submit!');
         },
-        async addAndCall(){
-            // 
-            let param = {
-                phone: '',
-                name: ''
-            }
-            // 无
-            let data = await this.$api.editCustomer(param)
-            let customerId = data.id 
-            // 无
-            this.$api.editCommandCall({customerId})
-        },
-        // 问卷调查请求
-        listQuestionFunc(){
-            let questionGroupId = this.currentTask.project && this.currentTask.project.questionGroupId;
-            if(!questionGroupId) return '没有调查问卷模板'
-            // 无
-            this.$api.listQuestion({questionGroupId}).then((resp) => {
-                this.listQuestion = resp.data
-            })
-        },
-        listTaskCustomerFunc(){
+        taskCustomerFunc(){
             let taskId = this.currentTask.id;
             let memberId = this.acountInfo.id;
             let param = {
@@ -430,33 +418,99 @@ export default {
                 pageSize: 15,
             }
             this.$api.taskCustomer.findPage(param).then(res => {
-                this.listTaskCustomer = res.data.content
+                this.listTaskCustomer = res.data.content;
+                let curCustomer = this.listTaskCustomer[0]
+                if(curCustomer){
+                    this.changeCustomerFunc(curCustomer)
+                    
+                }
+            });
+        },
+
+        // 直接拨打
+        directCall(row){
+            
+            let ext_id = this.acountInfo.extId
+            let outer_to = row.phone
+            if(!ext_id){
+                util.message("该账号无绑定分机");
+                return;
+            }
+            if(!outer_to){
+                util.message('请输入要拨打的号码');
+                return;
+            }
+            /* let prop = {}
+            if(num.length <= 4){
+                prop = {ext_id_2:num}
+            }else{  
+                prop = {outer_to: num}
+            } */
+            this.$api.connectExt({ext_id,outer_to}).then((resp) => {
+
+            }).catch((err) => {
+                this.$message.error(err.message)
             })
         },
         loadData(){
-            
-            this.$api.messageGroup.findAll().then(res => {
-                if(res.data[0] && res.data[0].msgTemplate){
-                    this.listMessageGroup = res.data
-                }
-            })
             this.taskFunc()
-            setTimeout(()=>{
-                this.listQuestion = listQuestion().data
-                console.log("问卷调查----->", this.listQuestion)
-            }, 3000*Math.random())
         },
-        taskFunc(){
+        async taskFunc(){
             let memberId = this.acountInfo.id;
             if(!memberId) return "无账号id"
-            this.$api.task.getTaskByMemberId({memberId}).then(res => {
-                this.listTasks = res.data    
-                if(res.data[0]){
-                    this.currentTask = res.data[0]
-                    this.taskName = this.currentTask.name;
-                    this.listTaskCustomerFunc()
-                }
+            await this.$api.task.getTaskByMemberId({memberId}).then(res => {
+                    this.listTasks = res.data    
+                    if(res.data[0]){
+                        this.currentTask = res.data[0]
+                        this.taskName = this.currentTask.name;
+                        this.taskCustomerFunc()
+                        this.questionFunc()
+                        this.messageFunc()
+                    }
+                }).catch(e=>{})
+        },
+        async questionFunc(){
+            let groupId = this.currentTask.questionGroupId;
+            if(!groupId){
+                this.listQuestion = []
+                return '无问卷id'
+            } 
+            let res = await this.$api.taskQuestion.findQuestion({groupId}).catch(()=>{});
+            res.data && (this.listQuestion = res.data)
+        },
+        async messageFunc(){
+            let msgGroupId = this.currentTask.messageGroupId;
+            if(!msgGroupId){
+                Vue.set(this.messageGroup, 'msgTemplate', [])
+                return '无话务小结id'
+            }
+            let res = await this.$api.messageGroup.findById({id:msgGroupId}).catch(e=>{})
+            this.messageGroup = res.data
+        },
+
+        saveAnswerFunc(){
+            
+            let customer = this.customerDetail;
+            if(!customer.id) {
+                util.message('请选择客户');
+                return;
+            }
+            let param = {
+                phone: customer.phone,
+                taskId: customer.taskId,
+                taskCustomerId: customer.id,
+                answerList: []
+            }
+            this.listQuestion.forEach(i=>{
+                param.answerList.push({
+                    questionGroupId: i.groupId,
+                    questionId: i.id,
+                    questionTitle: i.title,
+                    answerId: i.answerId,
+                    answerText: i.answerText
+                })
             })
+            this.$api.taskCustomerAnswer.add(param);
         }
     }
 }

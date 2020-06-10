@@ -317,7 +317,7 @@ export default {
                 {prop:"name", label:"客户名称", minWidth:100},
 				{prop:"phone", label:"电话", minWidth:100},
 				
-                {prop:"memberName", label:"话务员名称", minWidth:100},
+                {prop:"nickName", label:"话务员名称", minWidth:100},
                 
 				// 0未发布 1进行中 2完成 3失败  9取消
 				/* {prop:"result", label:"完成状态", minWidth:100},

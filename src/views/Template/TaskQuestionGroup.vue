@@ -97,7 +97,7 @@
                                     <el-radio :label="itemAnswer.id">正确答案</el-radio>
                                 </label>
                                 <el-button :title="'删除答案'+ (indexAnswer + 1)" 
-                                    @click="removeAnswerFunc(itemAnswer,indexAnswer,item.answerList)"
+                                    @click="removeAnswerFunc(itemAnswer.id, indexAnswer, item.answerList)"
                                     class="right del el-icon-circle-close" 
                                     style="font-size:16px; padding:5px 0 0 0;" 
                                     type="text"></el-button>
@@ -116,11 +116,9 @@
             </div>
 
             <div v-show="editDataForm.id > 0">
-                <a @click="addQuestFunc(editDataForm.id)">+ 添加问题</a>
+                <el-button @click="addQuestFunc(editDataForm.id)" size="mini" type="text">+ 添加问题</el-button>
             </div>
             
-            
-
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
                 <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">确 定</el-button>
@@ -208,7 +206,7 @@ export default {
 
         // 批量删除
 		handleDelete(data) {
-            //this.delete(data.params).then(data!=null?data.callback:'')
+            this.delete(data.params).then(data!=null?data.callback:'')
         },
 
         // 获取分页数据
@@ -251,16 +249,15 @@ export default {
         },
         // 编辑
 		submitForm: function () {
-            console.log('>>>', this.$api.taskQuestionGroup.saveQuestionGroup(this.editDataForm))
             
-            return;
 			this.$refs.editDataForm.validate((valid) => {
 				if (valid) {
 					this.$confirm('确认提交吗？', '提示', {}).then(() => {
 						this.editLoading = true
 						let params = Object.assign({}, this.editDataForm)
 
-						this.save(params).then((res) => {
+                        this.$api.taskQuestionGroup.saveQuestionGroup(params).then((res) => {
+						//this.save(params).then((res) => {
 							this.editLoading = false
 							if(res.code == 200) {
 								this.$message({ message: '操作成功', type: 'success' })
@@ -278,16 +275,27 @@ export default {
         
 
 
-        removeAnswerFunc(answer, index, answerList) {
-            //answerList.splice(index, 1)
-            // 无
-            return;
-            api.removeAnswer(answer).then(() => {
-                answerList.splice(index, 1)
-            })
-
+        removeAnswerFunc(id, index, answerList) {
+            if(id) {
+                this.$api.taskQuestionAnswer.delete({id}).then(res => {
+                    answerList.splice(index, 1)    
+                })
+            } 
         },
         addQuestFunc: function (groupId) {
+
+            if(groupId) {
+                this.$api.taskQuestion.addQuestion({groupId}).then(res => {
+                    let id = res.data;
+                    this.editDataForm.questionList.push({
+                        id,
+                        questionType: 0,
+                        required: 0,
+                        answerList: []
+                    })
+                })
+            } 
+
             return;
             if(!groupId) return '缺少groupid'
 
@@ -310,30 +318,22 @@ export default {
                 that.$store.state.editQuestionForm = data
             }) */
         },
-        addAnswerFunc: function (l) {
-            return;
-            api.editAnswer({
-                questionId: l.id
-            }).then(function (resp) {
-                let list = l.answerList;
-
-                if (!list) {
-                    list = []
-                    Vue.set(l, 'answerList', list)
-                }
-                console.log('list = ', list, resp.data)
-                list.push(resp.data)
-            })
+        addAnswerFunc: function (item) {
+            console.log("项目------》", item)
+            if(item) {
+                this.$api.taskQuestionAnswer.addNewAnswer({questionId: item.id}).then(res => {
+                    let id = res.data;
+                    item.answerList.push({id})
+                })
+            }
         },
-        removeQuestionFunc: function (listQuestion, index) {
-            // util.confirm("确定删除？", ()=>{})
-            let that = this
-            api.removeQuestion({
-                'id': listQuestion.id
-            }).then(function (resp) {
-                that.$store.state.editQuestionGroupForm.questionList.splice(index, 1);
-            })
-            
+        removeQuestionFunc: function (question, index) {
+            let id = question.id;
+            if(id) {
+                this.$api.taskQuestion.deleteQuestionById({id}).then(res =>{
+                    this.editDataForm.questionList.splice(index, 1)
+                })
+            }
         },
         removeQuestionGroupFunc: function (q) {
             var that = this;

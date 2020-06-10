@@ -92,7 +92,7 @@
                 </el-form-item>
                 
                 <el-form-item label="问卷调查" >
-                    <OmSelect style="width:100%" :data="quesctionList" v-model="editDataForm.quesctionGroupId"></OmSelect>
+                    <OmSelect style="width:100%" :data="quesctionList" v-model="editDataForm.questionGroupId"></OmSelect>
                 </el-form-item>
                 <el-form-item label="沟通结果模板">
                     <OmSelect style="width:100%" :data="messageList" v-model="editDataForm.messageGroupId"></OmSelect>

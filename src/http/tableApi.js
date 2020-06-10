@@ -4,6 +4,7 @@ import axios from './axios'
 let api = {}
 
 function getApiName(apiName, option){
+//function getApiName(apiName, func){
     let obj = {}
     obj.save = data => axios({
         url: '/'+apiName+'/save',
@@ -30,6 +31,11 @@ function getApiName(apiName, option){
         method: 'get',
         data
     })
+    obj.findById = data => axios({
+        url: '/'+apiName+'/findById?id='+ data.id,
+        method: 'get'
+    })
+
 
     if(apiName == 'usrCustomerRequired' || apiName == 'usrCustomerConfig'){
         obj.findByCompanyId = data => axios({
@@ -59,12 +65,6 @@ function getApiName(apiName, option){
     if(apiName == 'task'){
         obj.getTaskByMemberId = data => axios({
             url: '/'+apiName+'/getTaskByMemberId/'+ data.memberId,
-            method: 'get'
-        })
-    }
-    if(apiName == 'taskQuestion'){
-        obj.findQuestionAnswer = data => axios({
-            url: '/'+apiName+'/findQuestionAnswer/'+ data.groupId,
             method: 'get'
         })
     }
@@ -187,13 +187,54 @@ api.taskQuestionGroup = getApiName('taskQuestionGroup',{
 /**
  * 问题
  */
-api.taskQuestion =  getApiName('taskQuestion')
+api.taskQuestion =  getApiName('taskQuestion', {
+    addQuestion: data => axios({
+        url: '/taskQuestion/addQuestion/'+ data.groupId,
+        method: 'post',
+    }),
+    deleteQuestionById: data => axios({
+        url: '/taskQuestion/deleteQuestionById/' + data.id,
+        method: 'post'
+    }),
+    findQuestionAnswer: data => axios({
+        url: '/taskQuestion/findQuestionAnswer/' + data.groupId,
+        method: 'get'
+    }),
+    findQuestion: data => axios({
+        url: '/taskQuestion/findQuestion/' + data.groupId,
+        method: 'get'
+    })
+})
 
 /**
  * 答案
  */
-api.taskQuestionAnswer =  getApiName('taskQuestionAnswer')
+api.taskQuestionAnswer = getApiName('taskQuestionAnswer', {
+    addNewAnswer: data => axios({
+        url: '/taskQuestionAnswer/addNewAnswer/' + data.questionId,
+        method: 'post'
+    }),
+    delete: data => axios({
+        url: '/taskQuestionAnswer/delete/' + data.id,
+        method: 'post'
+    })
+})
 
+/**
+ * 客户答案
+ */
+/* add: data => axios({
+    url: '/taskCustomerAnswer/add',
+    method: 'post',
+    data
+}) */
+api.taskCustomerAnswer = getApiName('taskCustomerAnswer', {
+    add: data => axios({
+        url: '/taskCustomerAnswer/add',
+        method: 'post',
+        data
+    })
+})
 
 /**
  * 任务管理
