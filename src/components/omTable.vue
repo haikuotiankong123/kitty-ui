@@ -5,6 +5,7 @@
     
     <!--   -->
     <el-table :data="data.content || data.list" 
+        ref="multipleTable"
         v-loading="loading"
         :highlight-current-row="highlightCurrentRow" 
         @selection-change="selectionChange" 
@@ -158,6 +159,14 @@ export default {
             },
             loading: false,  // 加载标识
             selections: []  // 列表选中列
+        }
+    },
+    watch: {
+        columns(){
+            this.$nextTick(()=> {
+                // 控制列的显示隐藏,表头闪动问题
+                this.$refs.multipleTable.doLayout()
+            })
         }
     },
     methods: {

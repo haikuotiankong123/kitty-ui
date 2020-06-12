@@ -7,12 +7,6 @@
                 </el-form-item>
 				<el-form-item label="所属任务">
 					<OmSelect v-model="dataForm.taskId" :data="taskList"></OmSelect>
-					<!-- <el-select v-model="dataForm.taskId" value-key="id" @change="changeTask">
-						<el-option v-for="i in taskList"
-							:key="i.id"
-							:label="i.name"
-							:value="i"></el-option>
-					</el-select> -->
                 </el-form-item>
 
 				<el-form-item label="是否已分配话务员">
@@ -32,6 +26,14 @@
             <el-button size="mini" type="success" @click="importFunc">导入客户</el-button>
             <!-- <el-button size="mini" type="danger">分配</el-button> -->
 			<el-button size="mini" type="primary" @click="exportFunc">导出客户</el-button>
+
+			<el-checkbox-group v-model="selectedCheckbox" class="checkbox">
+				<el-checkbox v-for="(i, index) in columns"
+					:disabled="i.isShow"
+					@change="changeCheckbox(i, $event)"
+					:key="index"
+					:label="i.label"></el-checkbox>
+			</el-checkbox-group>
         </div>
         <om-table :data="dataResp"
             :columns="filterColumns"
@@ -59,17 +61,22 @@
 				<el-form-item label="电话号码" prop="phone" >
 					<el-input v-model="editDataForm.phone" auto-complete="off" placeholder="请输入电话号码"></el-input>
 				</el-form-item>
+				
 				<el-form-item label="邮箱" prop="a3" >
 					<el-input v-model="editDataForm.a3" auto-complete="off" placeholder="请输入邮箱"></el-input>
+				</el-form-item>
+				
+				<el-form-item label="性别" prop="a9" >
+					<el-radio-group v-model="editDataForm.a9">
+						<el-radio label="男">男</el-radio>
+						<el-radio label="女">女</el-radio>
+					</el-radio-group>					
 				</el-form-item>
 				<el-form-item label="QQ" prop="a4" >
 					<el-input v-model="editDataForm.a4" auto-complete="off" placeholder="请输入QQ"></el-input>
 				</el-form-item>
 				<el-form-item label="微信" prop="a5" >
 					<el-input v-model="editDataForm.a5" auto-complete="off" placeholder="请输入微信"></el-input>
-				</el-form-item>
-				<el-form-item label="性别" prop="a9" >
-					<el-input v-model="editDataForm.a9" auto-complete="off" ></el-input>
 				</el-form-item>
 				<el-form-item label="地址" prop="address" >
 					<el-input v-model="editDataForm.address" auto-complete="off" placeholder="请输入地址"></el-input>
@@ -180,7 +187,8 @@ export default {
 			file:'',
 			taskList: [],
 			ownAssign: false,
-			currentTask: {}
+			currentTask: {},
+			selectedCheckbox: ['客户名称', '电话']
         }
 	},
 	created(){
@@ -273,6 +281,7 @@ export default {
 		importFunc(){
 			if(!this.dataForm.taskId){
 				util.message("请选择所属任务！")
+				return;
 			}
 			this.importVisible = true;
 		},
@@ -294,8 +303,8 @@ export default {
 			})
 			console.log("配置------>>", customerConfig);
 			this.columns = [
-                {prop:"name", label:"客户名称", minWidth:100},
-				{prop:"phone", label:"电话", minWidth:100},
+                {prop:"name", label:"客户名称", minWidth:100, isShow: true},
+				{prop:"phone", label:"电话", minWidth:100, isShow: true},
 				...customerConfig,
 				{prop:"createTime", label:"创建时间", minWidth:100},
 				{prop:"createId", label:"创建人", minWidth:100},
@@ -304,10 +313,12 @@ export default {
 				{prop:"result", label:"完成状态", minWidth:100, isSlot: true},
 				{prop:"lastTime", label:"最后一次拨打时间", minWidth:100},
 
-            ]
-            this.filterColumns = this.columns
+            ].map((i, index) => {
+				i.selfIndex = index;
+				return i;
+			})
+            this.filterColumns = this.columns.filter(i => ['客户名称', '电话'].findIndex(k=> k==i.label) > -1 )
       	},
-
         // 批量删除
 		handleDelete(data) {
 
@@ -418,13 +429,13 @@ export default {
 						let valList = form.configValueList
 						let len = valList.length;
 						let id = form.id
-						for(let k in form.jsonValueMap){
-							let val = form.jsonValueMap[k]
+						for(let confId in form.jsonValueMap){
+							let val = form.jsonValueMap[confId]
 							if(len == 0){
-								valList.push({configId:k, jsonValue:val, customerId:id})
+								valList.push({configId:confId, jsonValue:val, customerId:id})
 							}else{
 								valList = valList.map(i=> {
-									if(k==i.configId) i.jsonValue = val;
+									if(confId==i.configId) i.jsonValue = val;
 									return i;
 								})	
 							}
@@ -480,14 +491,32 @@ export default {
 				XLSX.writeFile(wb, "客户数据.xls");
 			})
 		},
-		changeTask(item){
-			this.currentTask = item
+		changeCheckbox(item, bShow){
+			let selfIndex = item.selfIndex
+			let fc = this.filterColumns;
+			let len = fc.length;
+			if(bShow){
+				let index = fc.findIndex(i => i.selfIndex > selfIndex)
+					index = index == -1 ? len : index ;
+				fc.splice(index, 0, item)
+			}else{
+				let index = fc.findIndex(i => i.selfIndex == selfIndex)
+				if(index>-1) fc.splice(index, 1);
+			}
+			
 		}
     }
 }
 </script>
 
 <style lang="scss" scoped>
-
-
+.checkbox{
+	text-align: right;
+	.el-checkbox{
+		margin-right: 20px;
+	}
+	.el-checkbox__label{
+		padding-left: 6px;
+	}
+}
 </style>

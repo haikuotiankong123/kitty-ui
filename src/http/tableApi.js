@@ -3,74 +3,46 @@ import axios from './axios'
 
 let api = {}
 
-function getApiName(apiName, option){
-//function getApiName(apiName, func){
+//function getApiName(apiName, option){
+function getApiName(apiName, func){
     let obj = {}
+    let path = '/'+apiName+'/'
+
     obj.save = data => axios({
-        url: '/'+apiName+'/save',
+        url: path + 'save',
         method: 'post',
         data
     })
     obj.delete = data => axios({
-        url: '/'+apiName+'/delete',
+        url: path + 'delete',
         method: 'post',
         data
     })
     obj.findPage = data => axios({
-        url: '/'+apiName+'/findPage',
+        url: path + 'findPage',
         method: 'post',
         data
     })
     obj.findAll = data => axios({
-        url: '/'+apiName+'/findAll',
+        url: path + 'findAll',
         method: 'get',
         data
     })
     obj.findTree = data => axios({
-        url: '/'+apiName+'/findTree',
+        url: path + 'findTree',
         method: 'get',
         data
     })
     obj.findById = data => axios({
-        url: '/'+apiName+'/findById?id='+ data.id,
+        url: path + 'findById?id='+ data.id,
         method: 'get'
     })
 
-
-    if(apiName == 'usrCustomerRequired' || apiName == 'usrCustomerConfig'){
-        obj.findByCompanyId = data => axios({
-            url: '/'+apiName+'/findByCompanyId?id=1',
-            method: 'get',
-        })
+ 
+    if(typeof func == 'function'){
+        let obj2 = func(path)
+        obj = Object.assign(obj, obj2)
     }
-
-    if(apiName == 'taskCustomer'){
-        obj.importCustomer = data => axios({
-            url: '/'+apiName+'/importCustomer',
-            method: 'post',
-            data
-        })
-        obj.assignCustomers = data => axios({
-            url: '/'+apiName+ '/assignCustomers',
-            method: 'post',
-            data
-        })
-    }
-    if(apiName == 'usrCustomer'){
-        obj.importCustomer = data => axios({
-            url: '/'+apiName+'/importCustomer?file='+ data.file,
-            method: 'post'
-        })
-    }
-    if(apiName == 'task'){
-        obj.getTaskByMemberId = data => axios({
-            url: '/'+apiName+'/getTaskByMemberId/'+ data.memberId,
-            method: 'get'
-        })
-    }
-    if(typeof option == 'object'){
-        obj = Object.assign(obj, option)
-    } 
 
     return obj;
 }
@@ -123,7 +95,12 @@ api.omDirect = getApiName('omDirect')
 /**
  * 客户
  */
-api.usrCustomer = getApiName('usrCustomer')
+api.usrCustomer = getApiName('usrCustomer', path => ({
+    importCustomer: data => axios({
+        url: path + 'importCustomer?file='+ data.file,
+        method: 'post'
+    })
+}))
 
 /**
  * 客户标签管理
@@ -134,7 +111,12 @@ api.usrBookmark = getApiName('usrBookmark')
 /**
  * 客户模板管理
  */
-api.usrCustomerConfig = getApiName('usrCustomerConfig')
+api.usrCustomerConfig = getApiName('usrCustomerConfig', path => ({
+    findByCompanyId: data => axios({
+        url: path + 'findByCompanyId?id=1',         // 暂时写死id的值
+        method: 'get',
+    })
+}))
 
 /**
  * 业务类型设置
@@ -160,12 +142,12 @@ api.omVoicefile = getApiName('omVoicefile')
 /**
  * 客户模板 默认字段
  */
-api.usrCustomerRequired = getApiName('usrCustomerRequired')
-
-
-
-
-
+api.usrCustomerRequired = getApiName('usrCustomerRequired', path => ({
+    findByCompanyId: data => axios({
+        url: path + 'findByCompanyId?id=1',     // 暂时写死id的值 
+        method: 'get',
+    })
+}))
 
 
 /**
@@ -176,70 +158,75 @@ api.taskProject = getApiName('taskProject')
 /**
  * 问卷管理
  */
-api.taskQuestionGroup = getApiName('taskQuestionGroup',{
+api.taskQuestionGroup = getApiName('taskQuestionGroup', path => ({
     saveQuestionGroup: data => axios({
-        url: '/taskQuestionGroup/saveQuestionGroup',
+        url: path + 'saveQuestionGroup',
         method: 'post',
         data
-    }),
-})
+    }), 
+}))
+
+
 
 /**
  * 问题
  */
-api.taskQuestion =  getApiName('taskQuestion', {
+api.taskQuestion =  getApiName('taskQuestion', path => ({
     addQuestion: data => axios({
-        url: '/taskQuestion/addQuestion/'+ data.groupId,
-        method: 'post',
+        url: path + 'addQuestion/' + data.groupId,
+        method: 'post'
     }),
     deleteQuestionById: data => axios({
-        url: '/taskQuestion/deleteQuestionById/' + data.id,
+        url: path + 'deleteQuestionById/' + data.id,
         method: 'post'
     }),
     findQuestionAnswer: data => axios({
-        url: '/taskQuestion/findQuestionAnswer/' + data.groupId,
+        url: path + 'findQuestionAnswer/' + data.groupId,
         method: 'get'
     }),
     findQuestion: data => axios({
-        url: '/taskQuestion/findQuestion/' + data.groupId,
+        url: path + 'findQuestion/' + data.groupId,
         method: 'get'
     })
-})
+}))
+
 
 /**
  * 答案
  */
-api.taskQuestionAnswer = getApiName('taskQuestionAnswer', {
+
+api.taskQuestionAnswer = getApiName('taskQuestionAnswer', path => ({
     addNewAnswer: data => axios({
-        url: '/taskQuestionAnswer/addNewAnswer/' + data.questionId,
+        url: path + 'addNewAnswer/' + data.questionId,
         method: 'post'
     }),
     delete: data => axios({
-        url: '/taskQuestionAnswer/delete/' + data.id,
+        url: path + 'delete/' + data.id,
         method: 'post'
     })
-})
+}))
+
 
 /**
  * 客户答案
  */
-/* add: data => axios({
-    url: '/taskCustomerAnswer/add',
-    method: 'post',
-    data
-}) */
-api.taskCustomerAnswer = getApiName('taskCustomerAnswer', {
+api.taskCustomerAnswer = getApiName('taskCustomerAnswer', path => ({
     add: data => axios({
-        url: '/taskCustomerAnswer/add',
+        url: path + 'add',
         method: 'post',
         data
     })
-})
+}))
 
 /**
  * 任务管理
  */
-api.task = getApiName('task')
+api.task = getApiName('task', path => ({
+    getTaskByMemberId: data => axios({
+        url: path + 'getTaskByMemberId/' + data.memberId,
+        method: 'get'
+    })
+}))
 
 /**
  * 话务小结模板
@@ -250,7 +237,18 @@ api.messageTemplate = getApiName('messageTemplate')
 /**
  * 客户管理
  */
-api.taskCustomer = getApiName('taskCustomer')
+api.taskCustomer = getApiName('taskCustomer', path => ({
+    importCustomer: data => axios({
+        url: path + 'importCustomer',
+        method: 'post',
+        data
+    }),
+    assignCustomers: data => axios({
+        url: path + 'assignCustomers',
+        method: 'post',
+        data
+    })
+}))
 
 /**
  * 质检模板

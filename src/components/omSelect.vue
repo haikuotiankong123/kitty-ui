@@ -1,6 +1,24 @@
 <template>
-    <el-select :placeholder="placeholder" v-model="innerValue" :multiple="multiple" clearable>
-        <el-option v-for="i in data" :key="i.id" :value="i.id" :label="i.name || i.title || i.account"></el-option>
+    <!--
+        v-model="innerValue" 
+        等同
+        :value="innerValue"
+        @input="innerValue = $event"
+    -->
+    <el-select 
+        :placeholder="placeholder" 
+        v-model="innerValue" 
+        :multiple="multiple" 
+        @change="change"
+        @blur="blur"
+        @focus="focus"
+        @clear="clear"
+        @visible-change="visibleChange"
+        clearable>
+        <el-option v-for="i in data" 
+            :key="i.id" 
+            :value="i.id" 
+            :label="i.name || i.title || i.account"></el-option>
     </el-select>
 </template>
 
@@ -9,7 +27,8 @@ export default {
     props:['value', 'data', 'placeholder', 'multiple'],
     data(){
         return {
-            innerValue: undefined
+            innerValue: undefined,
+            copyData: []
         }
     },
     watch:{
@@ -22,6 +41,23 @@ export default {
     },
     mounted(){
         this.innerValue = this.value || undefined;
+    },
+    methods:{
+        change(val){
+            this.$emit('change', val)
+        },
+        blur(val){
+            this.$emit('blur', val)
+        },
+        focus(val){
+            this.$emit('focus', val)
+        },
+        clear(val){
+            this.$emit('clear', val)
+        },
+        visibleChange(val){
+            this.$emit('visible-change', val)
+        }
     }
 }
 </script>

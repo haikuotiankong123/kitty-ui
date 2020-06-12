@@ -13,7 +13,7 @@
                     <el-button type="primary" @click="handleAdd">增加</el-button>
 					<el-button type="primary" @click="importFunc">导入客户</el-button>
 					<el-button type="primary" @click="exportFunc">导出客户</el-button>
-					<el-button type="primary" @click="importVioceFunc">导入语音</el-button>
+					
 					<!-- <audio controls style size="mini" src="http://119.23.106.216:7777/u/file/2020/0430/031846127918.mp3">66</audio> -->
                 </el-form-item>
             </el-form>
@@ -27,7 +27,7 @@
 					:disabled="i.isShow"></el-checkbox>
 			</el-checkbox-group>
 		</div>
-        <om-table :data="dataResp"
+        <OmTable :data="dataResp"
             :columns="filterColumns"
             @findPage="findPageFunc"
             @handleDelete="handleDelete"
@@ -37,7 +37,7 @@
 			</template>	
 			
             <!-- <template v-slot:handle="{row}"></template> -->
-        </om-table>
+        </OmTable>
 
         <!--新增编辑界面-->
         <el-dialog class="column-three" :title="operation?'新增':'编辑'" :visible.sync="dialogVisible" :close-on-click-modal="false">
@@ -130,24 +130,6 @@
 			</span>
 		</el-dialog>
 
-		<el-dialog title="导入语音" :visible.sync="importVoiceVisible" :close-on-click-modal="false">
-			<el-form size="small">
-				<el-form-item label="请上传语音文件">
-					<el-upload 
-						name="file"
-						:action="uploadUrl"
-						accept="audio/*"
-						ref="upload"
-						:limit="1"
-						:on-success="voiceSuccess"
-						:before-upload="voiceBeforeUpload"
-						:auto-upload="true">
-						<el-button slot="trigger" size="small" type="primary">请选择音频</el-button>
-					</el-upload>
-				</el-form-item>
-			</el-form>
-		</el-dialog>
-
     </div>
 </template>
 
@@ -199,7 +181,7 @@ export default {
 			importVisible: false,
 			uploadUrl,
 			file:'',
-			importVoiceVisible: false
+			
         }
     },
     mounted(){
@@ -242,9 +224,8 @@ export default {
 				customerConfig.push({
 					prop: 'config'+index,
 					label: i.label,
-					//isSlot: i.isRequired,
 					isSlot: true,
-					minWidth:100,
+					minWidth:100
 				})
 				return i;
 			})
@@ -261,7 +242,6 @@ export default {
 				i.selfIndex = index
 				return i;
 			})
-			
             this.filterColumns = this.columns.filter(i => {
 				return ['客户名称','电话号码'].findIndex(j => j == i.label) > -1
 			})
@@ -415,10 +395,9 @@ export default {
 				let data = res.data.content;
 				let o = data.map(i =>{
 					let conf = {}
-					i.hasOwnProperty("configValueList") && i.configValueList.forEach(val => {
-						if (val.configCustomer.status !== 0) {
-							conf[val.configCustomer.label] = val.jsonValue
-						}
+					this.configList.forEach(j=>{
+						let confVal = i.configValueList.find(k => j.id == k.configId)
+						conf[j.label] = confVal ? confVal.jsonValue : '';
 					})
 
 					return Object.assign({
@@ -436,15 +415,7 @@ export default {
 				XLSX.writeFile(wb, "客户数据.xls");
 			})
 		},
-		importVioceFunc(){
-			this.importVoiceVisible=true;
-		},
-		voiceSuccess(){
-			util.message("上传语音成功")
-		},
-		voiceBeforeUpload(){
-			util.message("上传之后")	
-		}
+		
     }
 }
 </script>

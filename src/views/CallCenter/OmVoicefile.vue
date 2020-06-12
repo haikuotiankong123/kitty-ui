@@ -11,6 +11,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleAdd">增加</el-button>
+                    <el-button type="primary" @click="importVioceFunc">导入语音</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -38,6 +39,25 @@
                 <el-button size="small" type="primary" @click.native="submitForm" :loading="editLoading">提交</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog title="导入语音" :visible.sync="importVoiceVisible" :close-on-click-modal="false">
+			<el-form size="small">
+				<el-form-item label="请上传语音文件">
+					<el-upload 
+						name="file"
+						:action="uploadUrl"
+						accept="audio/*"
+						ref="upload"
+						:limit="1"
+						:on-success="voiceSuccess"
+						:before-upload="voiceBeforeUpload"
+						:auto-upload="true">
+						<el-button slot="trigger" size="small" type="primary">请选择音频</el-button>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+		</el-dialog>
+
     </div>
 </template>
 
@@ -45,6 +65,7 @@
 import OmTable from "@/components/omTable"
 import util from "@/utils/util"
 import {mapActions, mapState} from 'vuex'
+import {uploadUrl} from "@/http/env"
 export default {
     components: {
         OmTable
@@ -68,7 +89,9 @@ export default {
 			editDataForm: {
                 phone: '',
                 remark: ''
-			},
+            },
+            importVoiceVisible: false,
+            uploadUrl
         }
     },
     mounted(){
@@ -155,6 +178,15 @@ export default {
 					})
 				}
 			})
+        },
+        importVioceFunc(){
+			this.importVoiceVisible=true;
+        },
+        voiceSuccess(){
+			util.message("上传语音成功")
+		},
+		voiceBeforeUpload(){
+			util.message("上传之后")	
 		}
     }
 }

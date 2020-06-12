@@ -119,6 +119,31 @@
                     </el-radio-group>
                 </el-form-item>
                 
+                <template v-for="(i,index) in configList">
+                    <el-form-item
+                        v-if="i.status"
+                        :key="index"
+                        :label="i.label"
+						:prop="'jsonValueMap.'+i.id" 
+						:rules="{ required: i.isRequired, message: '必填', trigger: i.type == 4 ? 'change': 'blur'  }">
+                        <el-input v-if="i.type == 1"   
+                            :disabled="isEditable" 
+                            :placeholder="'请输入' + i.label" 
+                            v-model="customerDetail.jsonValueMap[i.id+'']" 
+                            class="e-input"> </el-input>
+                        <el-select v-if="i.type == 4"
+                            v-model="customerDetail.jsonValueMap[i.id+'']" 
+                            :disabled="isEditable" 
+                            :placeholder="'请选择' + i.label" 
+                            class="e-input"
+                            style="width:200px;">
+                            <el-option v-for="k in JSON.parse(i.jsonData)" 
+                                :label="k"
+                                :value="k"
+                                :key="k"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
                 <!-- <template v-for="(i,index) in customerDetail.configValueList">
                     <el-form-item
                         v-if="i.status"
@@ -263,7 +288,8 @@ export default {
             messageGroup:{
                 msgTemplate: []
             },
-            isNext: false
+            isNext: false,
+            configList: []
         }
     },
     components:{
@@ -285,13 +311,13 @@ export default {
     mounted(){
         
         this.loadData();
+        this.$api.usrCustomerConfig.findByCompanyId().then(resp => {
+            this.configList = resp.data
+        })
+
         this.$api.usrCustomerRequired.findByCompanyId().then(resp => {
             this.isRequiredRule(resp.data)
         });
-        /* this.$api.usrCustomerConfig.findAll().then(resp => {
-            let data = resp.data
-            this.$set(this.customerDetail, 'configValueList', data)
-        }); */
 
     },
     methods :{
@@ -336,7 +362,7 @@ export default {
         },
         changeTask(item){
             this.currentTask = item
-            console.log('当前任务----》', this.currentTask)
+            console.log('当前任务----》', this.currentTask, this.taskName)
             this.taskCustomerFunc()
             this.questionFunc()
             this.messageFunc()
@@ -361,10 +387,27 @@ export default {
                 if (valid) {
                     this.$confirm('确认提交吗？', '提示', {}).then(()=>{
                         let form = Object.assign({}, this.customerDetail)
+
+						let valList = form.configValueList
+						let len = valList.length;
+						let id = form.id
+						for(let confId in form.jsonValueMap){
+							let val = form.jsonValueMap[confId]
+							if(len == 0){
+								valList.push({configId:confId, jsonValue:val, customerId:id})
+							}else{
+								valList = valList.map(i=> {
+									if(confId==i.configId) i.jsonValue = val;
+									return i;
+								})	
+							}
+						}
+						form.jsonValueMap = JSON.stringify(form.jsonValueMap)
+
                         this.$api.taskCustomer.save(form).then((res)=>{
                             if(res.code == 200){
                                 util.success('操作成功')
-                                //this.$refs[formName].resetFields()
+                                // this.$refs[formName].resetFields()
                                 this.isEditable = true
                             }else{
                                 util.error("操作失败")
@@ -374,12 +417,13 @@ export default {
                 } 
             });
         },
-        
-        editCommandCallFunc(row){
-            this.customerDetail = Object.assign({}, row)
-        },
         changeCustomerFunc(row){
             this.customerDetail = Object.assign({}, row)
+            this.$set(this.customerDetail, 'jsonValueMap', {})
+            let configValues = this.customerDetail.configValueList;
+			configValues && configValues.forEach(i=>{
+				this.$set(this.customerDetail.jsonValueMap, i.configId+'', i.jsonValue)
+			})
         },
         countTime() {
             this.callTime = "00:00:00"
@@ -422,7 +466,6 @@ export default {
                 let curCustomer = this.listTaskCustomer[0]
                 if(curCustomer){
                     this.changeCustomerFunc(curCustomer)
-                    
                 }
             });
         },
